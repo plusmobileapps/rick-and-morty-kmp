@@ -1,0 +1,18 @@
+CREATE TABLE Episodes (
+    id INTEGER NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    air_date TEXT NOT NULL,
+    episode TEXT NOT NULL,
+    characters TEXT NOT NULL,
+    url TEXT NOT NULL,
+    created TEXT NOT NULL
+);
+
+selectAll:
+SELECT * FROM Episodes;
+
+getEpisode:
+SELECT * FROM Episodes WHERE ? = id;
+
+insertEpisode:
+INSERT OR REPLACE INTO Episodes(id, name, air_date, episode, characters, url, created) VALUES (?, ?, ?, ?, ?, ?,?);

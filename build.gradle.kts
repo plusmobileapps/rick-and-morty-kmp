@@ -5,8 +5,10 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10")
-        classpath("com.android.tools.build:gradle:7.2.2")
+        classpath(Deps.Jetbrains.kotlinGradlePlugin)
+        classpath(Deps.Android.androidGradlePlugin)
+        classpath(Deps.SqlDelight.gradlePlugin)
+        classpath(kotlin("serialization", version = Deps.Jetbrains.KOTLIN_VERSION))
     }
 }
 

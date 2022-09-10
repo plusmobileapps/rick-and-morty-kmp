@@ -7,4 +7,4 @@ pluginManagement {
 }
 
 rootProject.name = "Rick_and_Morty_SDK"
-include(":shared")
+include(":rickandmorty")
