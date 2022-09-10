@@ -1,24 +1,24 @@
 Pod::Spec.new do |spec|
-    spec.name                     = 'rickandmorty'
+    spec.name                     = 'rick_and_morty_api'
     spec.version                  = '0.1-alpha06'
     spec.homepage                 = 'https://github.com/plusmobileapps/rick-and-morty-kmp'
     spec.source                   = { :http=> ''}
     spec.authors                  = ''
     spec.license                  = ''
-    spec.summary                  = 'Rick and Morty KMP SDK'
-    spec.vendored_frameworks      = 'build/cocoapods/framework/rickandmortysdk.framework'
+    spec.summary                  = 'Rick and Morty KMP API Http Client'
+    spec.vendored_frameworks      = 'build/cocoapods/framework/rick-and-morty-api.framework'
     spec.libraries                = 'c++'
     spec.ios.deployment_target = '14.1'
                 
                 
     spec.pod_target_xcconfig = {
-        'KOTLIN_PROJECT_PATH' => ':rickandmorty',
-        'PRODUCT_MODULE_NAME' => 'rickandmortysdk',
+        'KOTLIN_PROJECT_PATH' => ':rick-and-morty-api',
+        'PRODUCT_MODULE_NAME' => 'rick-and-morty-api',
     }
                 
     spec.script_phases = [
         {
-            :name => 'Build rickandmorty',
+            :name => 'Build rick_and_morty_api',
             :execution_position => :before_compile,
             :shell_path => '/bin/sh',
             :script => <<-SCRIPT

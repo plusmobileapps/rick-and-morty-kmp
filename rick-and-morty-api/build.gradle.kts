@@ -2,48 +2,50 @@ plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
     id("com.android.library")
-    id("com.squareup.sqldelight")
     id("maven-publish")
     kotlin("plugin.serialization")
+    id("convention.publication")
 }
 
 group = "com.plusmobileapps"
 version = Deps.LIBRARY_VERSION
 
 kotlin {
-    android {
-        publishLibraryVariants("release", "debug")
-    }
+    android()
     iosX64()
     iosArm64()
     iosSimulatorArm64()
 
     cocoapods {
-        summary = "Rick and Morty KMP SDK"
+        summary = "Rick and Morty KMP API Http Client"
         homepage = "https://github.com/plusmobileapps/rick-and-morty-kmp"
         ios.deploymentTarget = "14.1"
         framework {
-            baseName = "rickandmortysdk"
+            baseName = "rick-and-morty-api"
         }
     }
-
+    
     sourceSets {
         val commonMain by getting {
             dependencies {
                 implementation(Deps.Jetbrains.coroutines)
                 implementation(Deps.Jetbrains.serialization)
-                implementation(Deps.SqlDelight.coroutines)
+                implementation(Deps.Ktor.core)
+                implementation(Deps.Ktor.kotlinxSerialization)
+                implementation(Deps.Ktor.logging)
+                implementation(Deps.Ktor.contentNegotiation)
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(Deps.Jetbrains.coroutinesTesting)
+                implementation(Deps.Ktor.mockEngine)
             }
         }
         val androidMain by getting {
             dependencies {
-                implementation(Deps.SqlDelight.androidDriver)
+                implementation(Deps.Ktor.androidEngine)
             }
         }
         val androidTest by getting
@@ -56,7 +58,7 @@ kotlin {
             iosArm64Main.dependsOn(this)
             iosSimulatorArm64Main.dependsOn(this)
             dependencies {
-                implementation(Deps.SqlDelight.nativeDriver)
+                implementation(Deps.Ktor.darwinEngine)
             }
         }
         val iosX64Test by getting
@@ -77,12 +79,5 @@ android {
     defaultConfig {
         minSdk = Deps.Android.minSDK
         targetSdk = Deps.Android.targetSDK
-    }
-}
-
-sqldelight {
-    database("MyDatabase") {
-        packageName = "com.plusmobileapps.rickandmorty.db"
-        sourceFolders = listOf("sqldelight")
     }
 }

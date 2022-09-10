@@ -6,5 +6,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "Rick_and_Morty_SDK"
+rootProject.name = "Rick_and_Morty_KMP"
 include(":rickandmorty")
+include(":rick-and-morty-api")
+includeBuild("convention-plugins")
