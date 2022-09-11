@@ -11,7 +11,9 @@ group = "com.plusmobileapps"
 version = Deps.LIBRARY_VERSION
 
 kotlin {
-    android()
+    android {
+        publishLibraryVariants("release", "debug")
+    }
     iosX64()
     iosArm64()
     iosSimulatorArm64()

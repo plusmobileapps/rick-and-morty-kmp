@@ -21,8 +21,7 @@ import kotlinx.serialization.json.Json
 import kotlin.coroutines.CoroutineContext
 
 /**
- * Http Client for the Rick and Morty API
- * @see [https://rickandmortyapi.com/documentation](https://rickandmortyapi.com/documentation)
+ * Http Client for the [Rick & Morty API](https://rickandmortyapi.com/documentation)
  */
 interface RickAndMortyApiClient {
 
