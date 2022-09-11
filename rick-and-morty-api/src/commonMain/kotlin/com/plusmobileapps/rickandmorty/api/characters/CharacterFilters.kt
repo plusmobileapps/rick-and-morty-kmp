@@ -24,13 +24,13 @@ enum class CharacterStatus(val apiName: String) {
 @Serializable
 enum class CharacterGender(val apiName: String) {
 
-    @SerialName("female")
+    @SerialName("Female")
     FEMALE("female"),
 
-    @SerialName("male")
+    @SerialName("Male")
     MALE("male"),
 
-    @SerialName("genderless")
+    @SerialName("Genderless")
     GENDERLESS("genderless"),
 
     @SerialName("unknown")
