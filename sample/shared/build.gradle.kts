@@ -5,6 +5,7 @@ plugins {
     id("com.squareup.sqldelight")
     id("maven-publish")
     kotlin("plugin.serialization")
+    id("kotlin-parcelize")
 }
 
 group = "com.plusmobileapps"
@@ -35,6 +36,13 @@ kotlin {
                 implementation(Deps.Jetbrains.serialization)
                 implementation(Deps.SqlDelight.coroutines)
                 implementation(Deps.RushWolf.multiplatformSettings)
+                api(Deps.ArkIvanov.Decompose.decompose)
+                implementation(Deps.ArkIvanov.MVIKotlin.mvikotlin)
+                implementation(Deps.ArkIvanov.MVIKotlin.mvikotlinMain)
+                implementation(Deps.ArkIvanov.MVIKotlin.rx)
+                implementation(Deps.ArkIvanov.MVIKotlin.mviKotlinExtensionsCoroutines)
+                implementation(Deps.ArkIvanov.MVIKotlin.mvikotlinLogging)
+                implementation(Deps.ArkIvanov.MVIKotlin.mvikotlinTimeTravel)
             }
         }
         val commonTest by getting {

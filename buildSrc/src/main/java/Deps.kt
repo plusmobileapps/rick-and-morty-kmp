@@ -59,4 +59,22 @@ object Deps {
         const val nativeDriver = "com.squareup.sqldelight:native-driver:$VERSION"
         const val coroutines = "com.squareup.sqldelight:coroutines-extensions:$VERSION"
     }
+
+    object ArkIvanov {
+        object MVIKotlin {
+            private const val VERSION = "3.0.2"
+            const val rx = "com.arkivanov.mvikotlin:rx:$VERSION"
+            const val mvikotlin = "com.arkivanov.mvikotlin:mvikotlin:$VERSION"
+            const val mvikotlinMain = "com.arkivanov.mvikotlin:mvikotlin-main:$VERSION"
+            const val mvikotlinLogging = "com.arkivanov.mvikotlin:mvikotlin-logging:$VERSION"
+            const val mvikotlinTimeTravel = "com.arkivanov.mvikotlin:mvikotlin-timetravel:$VERSION"
+            const val mviKotlinExtensionsCoroutines = "com.arkivanov.mvikotlin:mvikotlin-extensions-coroutines:$VERSION"
+        }
+
+        object Decompose {
+            private const val VERSION = "1.0.0-alpha-04"
+            const val decompose = "com.arkivanov.decompose:decompose:$VERSION"
+            const val extensionsCompose = "com.arkivanov.decompose:extensions-compose-jetpack:$VERSION"
+        }
+    }
 }

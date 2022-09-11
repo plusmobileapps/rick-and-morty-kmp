@@ -52,6 +52,7 @@ android {
 
 dependencies {
     implementation(project(":sample:shared"))
+    implementation(Deps.ArkIvanov.Decompose.extensionsCompose)
     implementation("io.coil-kt:coil:2.2.1")
     implementation("io.coil-kt:coil-compose:2.2.1")
     implementation("androidx.core:core-ktx:1.9.0")
@@ -66,4 +67,14 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$VERSION")
     debugImplementation("androidx.compose.ui:ui-tooling:$VERSION")
     debugImplementation("androidx.compose.ui:ui-test-manifest:$VERSION")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs += arrayOf(
+            "-opt-in=com.arkivanov.decompose.ExperimentalDecomposeApi",
+            "-opt-in=androidx.compose.material.ExperimentalMaterialApi",
+            "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api"
+        )
+    }
 }
