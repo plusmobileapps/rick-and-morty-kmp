@@ -32,11 +32,16 @@ object Deps {
     }
 
     object Android {
-        const val compileSDK = 32
+        const val compileSDK = 33
         const val minSDK = 21
-        const val targetSDK = 32
+        const val targetSDK = 33
 
         const val androidGradlePlugin = "com.android.tools.build:gradle:7.2.2"
+    }
+
+    object Compose {
+        const val VERSION = "1.2.1"
+        const val COMPILER_VERSION = "1.3.1"
     }
 
     object Logging {
@@ -53,5 +58,23 @@ object Deps {
         const val androidDriver = "com.squareup.sqldelight:android-driver:$VERSION"
         const val nativeDriver = "com.squareup.sqldelight:native-driver:$VERSION"
         const val coroutines = "com.squareup.sqldelight:coroutines-extensions:$VERSION"
+    }
+
+    object ArkIvanov {
+        object MVIKotlin {
+            private const val VERSION = "3.0.2"
+            const val rx = "com.arkivanov.mvikotlin:rx:$VERSION"
+            const val mvikotlin = "com.arkivanov.mvikotlin:mvikotlin:$VERSION"
+            const val mvikotlinMain = "com.arkivanov.mvikotlin:mvikotlin-main:$VERSION"
+            const val mvikotlinLogging = "com.arkivanov.mvikotlin:mvikotlin-logging:$VERSION"
+            const val mvikotlinTimeTravel = "com.arkivanov.mvikotlin:mvikotlin-timetravel:$VERSION"
+            const val mviKotlinExtensionsCoroutines = "com.arkivanov.mvikotlin:mvikotlin-extensions-coroutines:$VERSION"
+        }
+
+        object Decompose {
+            private const val VERSION = "1.0.0-alpha-04"
+            const val decompose = "com.arkivanov.decompose:decompose:$VERSION"
+            const val extensionsCompose = "com.arkivanov.decompose:extensions-compose-jetpack:$VERSION"
+        }
     }
 }

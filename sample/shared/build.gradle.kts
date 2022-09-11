@@ -2,9 +2,10 @@ plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
     id("com.android.library")
+    id("com.squareup.sqldelight")
     id("maven-publish")
     kotlin("plugin.serialization")
-    id("convention.publication")
+    id("kotlin-parcelize")
 }
 
 group = "com.plusmobileapps"
@@ -19,35 +20,40 @@ kotlin {
     iosSimulatorArm64()
 
     cocoapods {
-        summary = "Rick and Morty KMP API Http Client"
+        summary = "Rick and Morty KMP SDK"
         homepage = "https://github.com/plusmobileapps/rick-and-morty-kmp"
         ios.deploymentTarget = "14.1"
         framework {
-            baseName = "rick-and-morty-api"
+            baseName = "rickandmortysdk"
         }
     }
-    
+
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(project(":rick-and-morty-api"))
                 implementation(Deps.Jetbrains.coroutines)
                 implementation(Deps.Jetbrains.serialization)
-                implementation(Deps.Ktor.core)
-                implementation(Deps.Ktor.kotlinxSerialization)
-                implementation(Deps.Ktor.logging)
-                implementation(Deps.Ktor.contentNegotiation)
+                implementation(Deps.SqlDelight.coroutines)
+                implementation(Deps.RushWolf.multiplatformSettings)
+                api(Deps.ArkIvanov.Decompose.decompose)
+                implementation(Deps.ArkIvanov.MVIKotlin.mvikotlin)
+                implementation(Deps.ArkIvanov.MVIKotlin.mvikotlinMain)
+                implementation(Deps.ArkIvanov.MVIKotlin.rx)
+                implementation(Deps.ArkIvanov.MVIKotlin.mviKotlinExtensionsCoroutines)
+                implementation(Deps.ArkIvanov.MVIKotlin.mvikotlinLogging)
+                implementation(Deps.ArkIvanov.MVIKotlin.mvikotlinTimeTravel)
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(Deps.Jetbrains.coroutinesTesting)
-                implementation(Deps.Ktor.mockEngine)
             }
         }
         val androidMain by getting {
             dependencies {
-                implementation(Deps.Ktor.androidEngine)
+                implementation(Deps.SqlDelight.androidDriver)
             }
         }
         val androidTest by getting
@@ -56,7 +62,7 @@ kotlin {
         val iosSimulatorArm64Main by getting
         val iosMain by creating {
             dependencies {
-                implementation(Deps.Ktor.darwinEngine)
+                implementation(Deps.SqlDelight.nativeDriver)
             }
             dependsOn(commonMain)
             iosX64Main.dependsOn(this)
@@ -81,5 +87,12 @@ android {
     defaultConfig {
         minSdk = Deps.Android.minSDK
         targetSdk = Deps.Android.targetSDK
+    }
+}
+
+sqldelight {
+    database("MyDatabase") {
+        packageName = "com.plusmobileapps.rickandmorty.db"
+        sourceFolders = listOf("sqldelight")
     }
 }

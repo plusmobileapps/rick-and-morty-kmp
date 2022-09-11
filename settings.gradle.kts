@@ -7,6 +7,7 @@ pluginManagement {
 }
 
 rootProject.name = "Rick_and_Morty_KMP"
-include(":rickandmorty")
+include(":sample:shared")
 include(":rick-and-morty-api")
 includeBuild("convention-plugins")
+include(":sample:androidapp")
