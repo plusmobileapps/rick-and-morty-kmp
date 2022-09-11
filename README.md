@@ -31,6 +31,24 @@ The API client itself can be accessed through `RickAndMortyApi.instance` where a
 val characters = RickAndMortyApi.instance.getCharacters(page = 1)
 ```
 
+## Samples 
+
+### Android Sample 
+
+You can run the Android app itself from Android Studio or run the following command from the terminal to build and install on an Android device that is running. 
+
+```bash
+./gradlew :sample:androidApp:installDebug
+```
+
+### iOS Sample 
+
+Open the `sample/iosApp/iosApp.xcworkspace` file or run the following command to open the iOS project. 
+
+```bash
+xed sample/iosApp/
+```
+
 ## Libraries Used 
 
 ### API Client
@@ -38,6 +56,16 @@ val characters = RickAndMortyApi.instance.getCharacters(page = 1)
 * [Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) - async
 * [Ktor](https://ktor.io/) - http client
 * [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) - JSON serialization
+
+### Samples 
+
+* [Decompose](https://github.com/arkivanov/Decompose) - navigation and lifecycle
+* [MVIKotlin](https://github.com/arkivanov/MVIKotlin) - presentation and business logic
+* [SQLDelight](https://github.com/cashapp/sqldelight) - data storage
+* [Multiplatform settings](https://github.com/russhwolf/multiplatform-settings) - save simple key value data
+
+
+
 
 ## Resources 
 
