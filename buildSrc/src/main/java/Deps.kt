@@ -32,11 +32,16 @@ object Deps {
     }
 
     object Android {
-        const val compileSDK = 32
+        const val compileSDK = 33
         const val minSDK = 21
-        const val targetSDK = 32
+        const val targetSDK = 33
 
         const val androidGradlePlugin = "com.android.tools.build:gradle:7.2.2"
+    }
+
+    object Compose {
+        const val VERSION = "1.2.1"
+        const val COMPILER_VERSION = "1.3.1"
     }
 
     object Logging {
