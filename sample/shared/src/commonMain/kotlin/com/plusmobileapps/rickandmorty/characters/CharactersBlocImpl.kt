@@ -9,7 +9,7 @@ import com.plusmobileapps.rickandmorty.di.DI
 import com.plusmobileapps.rickandmorty.util.Dispatchers
 import com.plusmobileapps.rickandmorty.util.asValue
 
-class CharactersBlocImpl(
+internal class CharactersBlocImpl(
     componentContext: ComponentContext,
     storeFactory: StoreFactory,
     dispatchers: Dispatchers,
@@ -29,16 +29,20 @@ class CharactersBlocImpl(
         output = output
     )
 
-    private val store = instanceKeeper.getStore {
+    private val store: CharactersStore = instanceKeeper.getStore {
         CharactersStoreProvider(storeFactory, dispatchers, repository).provide()
     }
 
     override val models: Value<CharactersBloc.Model> = store.asValue().map { state ->
         CharactersBloc.Model(
-            characters = state.characters,
+            listItems = state.items,
             error = state.error,
             isLoading = state.isLoading
         )
+    }
+
+    override fun loadMoreCharacters() {
+        store.accept(CharactersStore.Intent.LoadMoreCharacters)
     }
 
     override fun onCharacterClicked(character: RickAndMortyCharacter) {
