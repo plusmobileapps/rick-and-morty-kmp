@@ -4,7 +4,9 @@ A [Kotlin Multiplatform](https://kotlinlang.org/lp/mobile/) project that creates
 
 ## Setup
 
-The Rick and Morty API client supports both Android & iOS and can be added to the common main dependencies. Please check [releases](https://github.com/plusmobileapps/rick-and-morty-kmp/releases) for the latest version.
+The Rick and Morty API client supports both Android & iOS and can be added to the common main dependencies. Replace `$version` with the latest version: 
+
+[![Maven Central](https://img.shields.io/maven-central/v/com.plusmobileapps/rick-and-morty-api?color=blue)](https://search.maven.org/artifact/com.plusmobileapps/rick-and-morty-api)
 
 ```kotlin
 buildScript {
@@ -36,3 +38,7 @@ val characters = RickAndMortyApi.instance.getCharacters(page = 1)
 * [Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) - async
 * [Ktor](https://ktor.io/) - http client
 * [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) - JSON serialization
+
+## Resources 
+
+* [How to build a kotlin multiplatform library](https://dev.to/kotlin/how-to-build-and-publish-a-kotlin-multiplatform-library-going-public-4a8k)
