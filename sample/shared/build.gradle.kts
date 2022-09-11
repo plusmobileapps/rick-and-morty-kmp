@@ -25,6 +25,12 @@ kotlin {
         ios.deploymentTarget = "14.1"
         framework {
             baseName = "rickandmortysdk"
+            isStatic = false
+            transitiveExport = true
+            linkerOpts.add("-lsqlite3")
+            export(Deps.ArkIvanov.Decompose.decompose)
+            export(Deps.ArkIvanov.MVIKotlin.mvikotlinMain)
+            export(Deps.ArkIvanov.MVIKotlin.mvikotlinTimeTravel)
         }
     }
 
@@ -37,12 +43,12 @@ kotlin {
                 implementation(Deps.SqlDelight.coroutines)
                 implementation(Deps.RushWolf.multiplatformSettings)
                 api(Deps.ArkIvanov.Decompose.decompose)
-                implementation(Deps.ArkIvanov.MVIKotlin.mvikotlin)
-                implementation(Deps.ArkIvanov.MVIKotlin.mvikotlinMain)
+                api(Deps.ArkIvanov.MVIKotlin.mvikotlin)
+                api(Deps.ArkIvanov.MVIKotlin.mvikotlinMain)
                 implementation(Deps.ArkIvanov.MVIKotlin.rx)
                 implementation(Deps.ArkIvanov.MVIKotlin.mviKotlinExtensionsCoroutines)
                 implementation(Deps.ArkIvanov.MVIKotlin.mvikotlinLogging)
-                implementation(Deps.ArkIvanov.MVIKotlin.mvikotlinTimeTravel)
+                api(Deps.ArkIvanov.MVIKotlin.mvikotlinTimeTravel)
             }
         }
         val commonTest by getting {
@@ -94,5 +100,6 @@ sqldelight {
     database("MyDatabase") {
         packageName = "com.plusmobileapps.rickandmorty.db"
         sourceFolders = listOf("sqldelight")
+        linkSqlite = true
     }
 }
