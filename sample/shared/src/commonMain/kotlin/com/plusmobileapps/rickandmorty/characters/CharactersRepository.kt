@@ -105,6 +105,8 @@ internal class CharactersRepositoryImpl(
                     )
                 }
             }
+            nextPage = page + 1
+            totalPages = response.info.pages
             settings[CHARACTERS_PAGE_KEY] = page + 1
             settings[TOTAL_PAGES_KEY] = response.info.pages
         } catch (e: Exception) {
