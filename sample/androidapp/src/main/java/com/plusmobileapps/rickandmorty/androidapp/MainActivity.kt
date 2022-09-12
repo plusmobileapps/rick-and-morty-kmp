@@ -46,6 +46,7 @@ fun RootScreen(bloc: RootBloc) {
     Children(stack = bloc.routerState, animation = stackAnimation(slide())) {
         when (val child = it.instance) {
             is RootBloc.Child.BottomNav -> BottomNavUI(bloc = child.bloc)
+            is RootBloc.Child.CharacterSearch -> TODO()
         }
     }
 }

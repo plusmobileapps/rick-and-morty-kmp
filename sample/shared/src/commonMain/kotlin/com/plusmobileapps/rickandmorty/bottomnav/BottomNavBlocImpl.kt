@@ -13,6 +13,8 @@ import com.arkivanov.essenty.parcelable.Parcelable
 import com.arkivanov.essenty.parcelable.Parcelize
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.core.store.StoreFactory
+import com.plusmobileapps.rickandmorty.AppComponentContext
+import com.plusmobileapps.rickandmorty.appChildStack
 import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBloc.*
 import com.plusmobileapps.rickandmorty.characters.list.CharactersBloc
 import com.plusmobileapps.rickandmorty.characters.list.CharactersBlocImpl
@@ -22,22 +24,18 @@ import com.plusmobileapps.rickandmorty.util.Consumer
 import com.plusmobileapps.rickandmorty.util.asValue
 
 class BottomNavBlocImpl(
-    componentContext: ComponentContext,
-    storeFactory: StoreFactory,
-    dispatchers: Dispatchers,
+    componentContext: AppComponentContext,
     private val charactersBloc: (ComponentContext, Consumer<CharactersBloc.Output>) -> CharactersBloc,
 //    private val episodesBloc: (ComponentContext, Consumer<EpisodesBloc.Output>) -> EpisodesBloc,
     private val bottomNavOutput: Consumer<Output>
-) : BottomNavBloc, ComponentContext by componentContext {
+) : BottomNavBloc, AppComponentContext by componentContext {
 
     constructor(
-        componentContext: ComponentContext,
+        componentContext: AppComponentContext,
         di: DI,
         output: Consumer<Output>
     ) : this(
         componentContext = componentContext,
-        storeFactory = di.storeFactory,
-        dispatchers = di.dispatchers,
         charactersBloc = { context, characterOutput ->
             CharactersBlocImpl(
                 componentContext = context,
@@ -61,9 +59,9 @@ class BottomNavBlocImpl(
 
     private val navigation = StackNavigation<Configuration>()
 
-    private val router = childStack<Configuration, BottomNavBloc.Child>(
+    private val router = appChildStack<Configuration, BottomNavBloc.Child>(
         source = navigation,
-        initialConfiguration = Configuration.Characters,
+        initialStack = { listOf(Configuration.Characters) } ,
         handleBackButton = true,
         childFactory = ::createChild,
         key = "BottomNavRouter"

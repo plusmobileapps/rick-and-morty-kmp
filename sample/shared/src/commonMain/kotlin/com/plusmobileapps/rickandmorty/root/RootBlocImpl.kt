@@ -8,6 +8,9 @@ import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.parcelable.Parcelable
 import com.arkivanov.essenty.parcelable.Parcelize
+import com.plusmobileapps.rickandmorty.AppComponentContext
+import com.plusmobileapps.rickandmorty.DefaultAppComponentContext
+import com.plusmobileapps.rickandmorty.appChildStack
 import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBloc
 import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBlocImpl
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
@@ -18,21 +21,26 @@ import com.plusmobileapps.rickandmorty.di.ServiceLocator
 import com.plusmobileapps.rickandmorty.util.Consumer
 
 fun buildRootBloc(context: ComponentContext, driverFactory: DriverFactory): RootBloc {
+    val di: DI = ServiceLocator(driverFactory)
     return RootBlocImpl(
-        componentContext = context,
-        di = ServiceLocator(driverFactory)
+        componentContext = DefaultAppComponentContext(
+            componentContext = context,
+            dispatchers = di.dispatchers,
+            storeFactory = di.storeFactory
+        ),
+        di = di
     )
 }
 
 internal class RootBlocImpl(
-    componentContext: ComponentContext,
-    private val bottomNav: (ComponentContext, Consumer<BottomNavBloc.Output>) -> BottomNavBloc,
-    private val characterSearch: (ComponentContext, Consumer<CharacterSearchBloc.Output>) -> CharacterSearchBloc,
+    componentContext: AppComponentContext,
+    private val bottomNav: (AppComponentContext, Consumer<BottomNavBloc.Output>) -> BottomNavBloc,
+    private val characterSearch: (AppComponentContext, Consumer<CharacterSearchBloc.Output>) -> CharacterSearchBloc,
 //    private val character: (ComponentContext, Int, Consumer<CharacterDetailBloc.Output>) -> CharacterDetailBloc,
 //    private val episode: (ComponentContext, Int, Consumer<EpisodeDetailBloc.Output>) -> EpisodeDetailBloc,
-) : RootBloc, ComponentContext by componentContext {
+) : RootBloc, AppComponentContext by componentContext {
 
-    constructor(componentContext: ComponentContext, di: DI) : this(
+    constructor(componentContext: AppComponentContext, di: DI) : this(
         componentContext = componentContext,
         bottomNav = { context, output ->
             BottomNavBlocImpl(
@@ -44,7 +52,8 @@ internal class RootBlocImpl(
         characterSearch = { context, output ->
             CharacterSearchBlocImpl(
                 componentContext = context,
-
+                di = di,
+                output = output
             )
         },
 //        character = { context, id, output ->
@@ -67,9 +76,9 @@ internal class RootBlocImpl(
 
     private val navigation = StackNavigation<Configuration>()
 
-    private val router = childStack(
+    private val router = appChildStack(
         source = navigation,
-        initialConfiguration = Configuration.BottomNav,
+        initialStack = { listOf(Configuration.BottomNav) },
         handleBackButton = true,
         childFactory = ::createChild,
         key = "RootRouter"
@@ -79,7 +88,7 @@ internal class RootBlocImpl(
 
     private fun createChild(
         configuration: Configuration,
-        context: ComponentContext
+        context: AppComponentContext
     ): RootBloc.Child {
         return when (configuration) {
             Configuration.BottomNav -> RootBloc.Child.BottomNav(

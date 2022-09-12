@@ -103,3 +103,11 @@ sqldelight {
         linkSqlite = true
     }
 }
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs += arrayOf(
+            "-opt-in=com.kotlinx.coroutines.ExperimentalCoroutinesApi"
+        )
+    }
+}

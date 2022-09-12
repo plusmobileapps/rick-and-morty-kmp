@@ -1,31 +1,25 @@
 package com.plusmobileapps.rickandmorty.characters.search
 
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.operator.map
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
-import com.arkivanov.mvikotlin.core.store.StoreFactory
+import com.plusmobileapps.rickandmorty.AppComponentContext
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc.Output
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchStore.Intent
 import com.plusmobileapps.rickandmorty.di.DI
 import com.plusmobileapps.rickandmorty.util.Consumer
-import com.plusmobileapps.rickandmorty.util.Dispatchers
 import com.plusmobileapps.rickandmorty.util.asValue
 
 internal class CharacterSearchBlocImpl(
-    componentContext: ComponentContext,
-    storeFactory: StoreFactory,
-    dispatchers: Dispatchers,
+    componentContext: AppComponentContext,
     private val output: Consumer<Output>
-) : CharacterSearchBloc, ComponentContext by componentContext {
+) : CharacterSearchBloc, AppComponentContext by componentContext {
 
-    constructor(componentContext: ComponentContext, di: DI, output: Consumer<Output>) : this(
+    constructor(componentContext: AppComponentContext, di: DI, output: Consumer<Output>) : this(
         componentContext = componentContext,
-        storeFactory = di.storeFactory,
         output = output,
-        dispatchers = di.dispatchers
     )
 
     private val store = instanceKeeper.getStore {
