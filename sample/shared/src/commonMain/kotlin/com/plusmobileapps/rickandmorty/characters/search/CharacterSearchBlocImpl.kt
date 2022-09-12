@@ -38,6 +38,10 @@ internal class CharacterSearchBlocImpl(
         )
     }
 
+    override fun onBackClicked() {
+        output.invoke(Output.GoBack)
+    }
+
     override fun onSearchClicked() {
         store.accept(Intent.InitiateSearch)
     }

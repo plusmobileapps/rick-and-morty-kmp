@@ -4,8 +4,9 @@ import com.arkivanov.decompose.value.Value
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
 import com.plusmobileapps.rickandmorty.characters.CharactersListItem
+import com.plusmobileapps.rickandmorty.util.BackClickBloc
 
-interface CharacterSearchBloc {
+interface CharacterSearchBloc : BackClickBloc {
 
     val models: Value<Model>
 
