@@ -13,14 +13,18 @@ import com.plusmobileapps.rickandmorty.util.Dispatchers
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 class TestAppComponentContext(
+    scheduler: TestCoroutineScheduler,
     lifecycle: Lifecycle = LifecycleRegistry().also { it.resume() },
     componentContext: ComponentContext = DefaultComponentContext(lifecycle),
 ): AppComponentContext, ComponentContext by componentContext {
-    val testDispatcher = StandardTestDispatcher()
+    val testDispatcher = StandardTestDispatcher(scheduler)
+    val mainDispatcher = UnconfinedTestDispatcher(scheduler)
     override val dispatchers: Dispatchers = object : Dispatchers {
-        override val main: CoroutineDispatcher = testDispatcher
+        override val main: CoroutineDispatcher = mainDispatcher
         override val unconfined: CoroutineDispatcher = testDispatcher
         override val default: CoroutineDispatcher = testDispatcher
     }

@@ -25,7 +25,7 @@ import com.plusmobileapps.rickandmorty.util.asValue
 
 class BottomNavBlocImpl(
     componentContext: AppComponentContext,
-    private val charactersBloc: (ComponentContext, Consumer<CharactersBloc.Output>) -> CharactersBloc,
+    private val charactersBloc: (AppComponentContext, Consumer<CharactersBloc.Output>) -> CharactersBloc,
 //    private val episodesBloc: (ComponentContext, Consumer<EpisodesBloc.Output>) -> EpisodesBloc,
     private val bottomNavOutput: Consumer<Output>
 ) : BottomNavBloc, AppComponentContext by componentContext {
@@ -105,7 +105,7 @@ class BottomNavBlocImpl(
 
     private fun createChild(
         configuration: Configuration,
-        context: ComponentContext
+        context: AppComponentContext
     ): BottomNavBloc.Child = when (configuration) {
         Configuration.Characters -> {
             BottomNavBloc.Child.Characters(

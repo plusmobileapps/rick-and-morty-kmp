@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class, ExperimentalCoroutinesApi::class)
+
 package com.plusmobileapps.rickandmorty.root
 
 import com.plusmobileapps.rickandmorty.TestAppComponentContext
@@ -5,6 +7,12 @@ import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBloc
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
 import com.plusmobileapps.rickandmorty.root.RootBloc.Child
 import com.plusmobileapps.rickandmorty.util.Consumer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.kodein.mock.Mock
 import org.kodein.mock.tests.TestsWithMocks
 import kotlin.test.Test
@@ -22,9 +30,11 @@ class RootBlocTest : TestsWithMocks() {
     lateinit var characterSearchBloc: CharacterSearchBloc
     private lateinit var characterSearchOutput: Consumer<CharacterSearchBloc.Output>
 
-    val rootBloc: RootBloc by withMocks {
-        RootBlocImpl(
-            componentContext = TestAppComponentContext(),
+    fun createBloc(scheduler: TestCoroutineScheduler): RootBloc {
+        val context = TestAppComponentContext(scheduler)
+        Dispatchers.setMain(context.mainDispatcher)
+        return RootBlocImpl(
+            componentContext = context,
             bottomNav = { _, output ->
                 bottomNavOutput = output
                 bottomNavBloc
@@ -37,14 +47,14 @@ class RootBlocTest : TestsWithMocks() {
     }
 
     @Test
-    fun rootInitialState() {
-        val bloc = rootBloc
+    fun rootInitialState() = runTest {
+        val bloc = createBloc(testScheduler)
         assertTrue(bloc.activeChild is Child.BottomNav)
     }
 
     @Test
-    fun bottomNavOutput_showCharacterSearch_shouldShowCharacterSearch() {
-        val bloc = rootBloc
+    fun bottomNavOutput_showCharacterSearch_shouldShowCharacterSearch() = runTest {
+        val bloc = createBloc(testScheduler)
 
         bottomNavOutput(BottomNavBloc.Output.OpenCharacterSearch)
         assertTrue(bloc.activeChild is Child.CharacterSearch)
