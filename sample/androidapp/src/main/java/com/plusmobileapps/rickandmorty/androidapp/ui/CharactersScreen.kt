@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
-import com.plusmobileapps.rickandmorty.characters.CharactersBloc
+import com.plusmobileapps.rickandmorty.characters.list.CharactersBloc
 import com.plusmobileapps.rickandmorty.characters.CharactersListItem
 import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
 import kotlinx.coroutines.launch

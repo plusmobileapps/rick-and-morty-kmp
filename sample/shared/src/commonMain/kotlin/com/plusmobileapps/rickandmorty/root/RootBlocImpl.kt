@@ -10,6 +10,8 @@ import com.arkivanov.essenty.parcelable.Parcelable
 import com.arkivanov.essenty.parcelable.Parcelize
 import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBloc
 import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBlocImpl
+import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
+import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBlocImpl
 import com.plusmobileapps.rickandmorty.db.DriverFactory
 import com.plusmobileapps.rickandmorty.di.DI
 import com.plusmobileapps.rickandmorty.di.ServiceLocator
@@ -25,6 +27,7 @@ fun buildRootBloc(context: ComponentContext, driverFactory: DriverFactory): Root
 internal class RootBlocImpl(
     componentContext: ComponentContext,
     private val bottomNav: (ComponentContext, Consumer<BottomNavBloc.Output>) -> BottomNavBloc,
+    private val characterSearch: (ComponentContext, Consumer<CharacterSearchBloc.Output>) -> CharacterSearchBloc,
 //    private val character: (ComponentContext, Int, Consumer<CharacterDetailBloc.Output>) -> CharacterDetailBloc,
 //    private val episode: (ComponentContext, Int, Consumer<EpisodeDetailBloc.Output>) -> EpisodeDetailBloc,
 ) : RootBloc, ComponentContext by componentContext {
@@ -36,6 +39,12 @@ internal class RootBlocImpl(
                 componentContext = context,
                 di = di,
                 output = output
+            )
+        },
+        characterSearch = { context, output ->
+            CharacterSearchBlocImpl(
+                componentContext = context,
+
             )
         },
 //        character = { context, id, output ->
@@ -76,6 +85,7 @@ internal class RootBlocImpl(
             Configuration.BottomNav -> RootBloc.Child.BottomNav(
                 bottomNav(context, this::onBottomNavOutput)
             )
+
             is Configuration.Character -> {
                 TODO()
 //                RootBloc.Child.Character(
@@ -88,6 +98,7 @@ internal class RootBlocImpl(
 //                    episode(context, configuration.id, this::onEpisodeDetailOutput)
 //                )
             }
+            Configuration.CharacterSearch -> TODO()
         }
     }
 
@@ -116,6 +127,9 @@ internal class RootBlocImpl(
     private sealed class Configuration : Parcelable {
         @Parcelize
         object BottomNav : Configuration()
+
+        @Parcelize
+        object CharacterSearch : Configuration()
 
         @Parcelize
         data class Character(val id: Int) : Configuration()

@@ -1,8 +1,9 @@
-package com.plusmobileapps.rickandmorty.characters
+package com.plusmobileapps.rickandmorty.characters.list
 
 import com.arkivanov.mvikotlin.core.store.Store
-import com.plusmobileapps.rickandmorty.characters.CharactersStore.Intent
-import com.plusmobileapps.rickandmorty.characters.CharactersStore.State
+import com.plusmobileapps.rickandmorty.characters.CharactersListItem
+import com.plusmobileapps.rickandmorty.characters.list.CharactersStore.Intent
+import com.plusmobileapps.rickandmorty.characters.list.CharactersStore.State
 
 internal interface CharactersStore : Store<Intent, State, Nothing> {
 

@@ -1,10 +1,12 @@
-package com.plusmobileapps.rickandmorty.characters
+package com.plusmobileapps.rickandmorty.characters.list
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.operator.map
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.core.store.StoreFactory
+import com.plusmobileapps.rickandmorty.characters.CharactersRepository
+import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
 import com.plusmobileapps.rickandmorty.di.DI
 import com.plusmobileapps.rickandmorty.util.Dispatchers
 import com.plusmobileapps.rickandmorty.util.asValue

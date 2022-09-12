@@ -14,8 +14,8 @@ import com.arkivanov.essenty.parcelable.Parcelize
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBloc.*
-import com.plusmobileapps.rickandmorty.characters.CharactersBloc
-import com.plusmobileapps.rickandmorty.characters.CharactersBlocImpl
+import com.plusmobileapps.rickandmorty.characters.list.CharactersBloc
+import com.plusmobileapps.rickandmorty.characters.list.CharactersBlocImpl
 import com.plusmobileapps.rickandmorty.di.DI
 import com.plusmobileapps.rickandmorty.util.Dispatchers
 import com.plusmobileapps.rickandmorty.util.Consumer
