@@ -1,0 +1,28 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
+package com.plusmobileapps.rickandmorty
+
+import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.DefaultComponentContext
+import com.arkivanov.essenty.lifecycle.Lifecycle
+import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import com.arkivanov.essenty.lifecycle.resume
+import com.arkivanov.mvikotlin.core.store.StoreFactory
+import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
+import com.plusmobileapps.rickandmorty.util.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+
+class TestAppComponentContext(
+    lifecycle: Lifecycle = LifecycleRegistry().also { it.resume() },
+    componentContext: ComponentContext = DefaultComponentContext(lifecycle),
+): AppComponentContext, ComponentContext by componentContext {
+    val testDispatcher = StandardTestDispatcher()
+    override val dispatchers: Dispatchers = object : Dispatchers {
+        override val main: CoroutineDispatcher = testDispatcher
+        override val unconfined: CoroutineDispatcher = testDispatcher
+        override val default: CoroutineDispatcher = testDispatcher
+    }
+    override val storeFactory: StoreFactory = DefaultStoreFactory()
+}

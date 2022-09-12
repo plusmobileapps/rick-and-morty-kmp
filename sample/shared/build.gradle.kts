@@ -6,6 +6,7 @@ plugins {
     id("maven-publish")
     kotlin("plugin.serialization")
     id("kotlin-parcelize")
+    id("org.kodein.mock.mockmp") version "1.8.1"
 }
 
 group = "com.plusmobileapps"
@@ -110,4 +111,9 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
             "-opt-in=com.kotlinx.coroutines.ExperimentalCoroutinesApi"
         )
     }
+}
+
+mockmp {
+    // OPTIONAL!
+    usesHelper = true //(2)
 }

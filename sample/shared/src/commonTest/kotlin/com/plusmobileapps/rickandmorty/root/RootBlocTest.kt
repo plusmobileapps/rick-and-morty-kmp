@@ -1,46 +1,57 @@
-@file:OptIn(ExperimentalCoroutinesApi::class)
-
 package com.plusmobileapps.rickandmorty.root
 
-import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.decompose.DefaultComponentContext
-import com.arkivanov.essenty.lifecycle.Lifecycle
-import com.arkivanov.essenty.lifecycle.LifecycleRegistry
-import com.arkivanov.essenty.lifecycle.resume
-import com.arkivanov.mvikotlin.core.store.StoreFactory
-import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
-import com.plusmobileapps.rickandmorty.AppComponentContext
-import com.plusmobileapps.rickandmorty.DefaultAppComponentContext
-import com.plusmobileapps.rickandmorty.util.Dispatchers
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestDispatcher
+import com.plusmobileapps.rickandmorty.TestAppComponentContext
+import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBloc
+import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
+import com.plusmobileapps.rickandmorty.root.RootBloc.Child
+import com.plusmobileapps.rickandmorty.util.Consumer
+import org.kodein.mock.Mock
+import org.kodein.mock.tests.TestsWithMocks
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
-class TestAppComponentContext(
-    lifecycle: Lifecycle = LifecycleRegistry().also { it.onResume() },
-    componentContext: ComponentContext = DefaultComponentContext(lifecycle),
-): AppComponentContext, ComponentContext by componentContext {
-    val testDispatcher = StandardTestDispatcher()
-    override val dispatchers: Dispatchers = object : Dispatchers {
-        override val main: CoroutineDispatcher = testDispatcher
-        override val unconfined: CoroutineDispatcher = testDispatcher
-        override val default: CoroutineDispatcher = testDispatcher
+class RootBlocTest : TestsWithMocks() {
+
+    override fun setUpMocks() = injectMocks(mocker)
+
+    @Mock
+    lateinit var bottomNavBloc: BottomNavBloc
+    private lateinit var bottomNavOutput: Consumer<BottomNavBloc.Output>
+    @Mock
+    lateinit var characterSearchBloc: CharacterSearchBloc
+    private lateinit var characterSearchOutput: Consumer<CharacterSearchBloc.Output>
+
+    val rootBloc: RootBloc by withMocks {
+        RootBlocImpl(
+            componentContext = TestAppComponentContext(),
+            bottomNav = { _, output ->
+                bottomNavOutput = output
+                bottomNavBloc
+            },
+            characterSearch = { _, output ->
+                characterSearchOutput = output
+                characterSearchBloc
+            }
+        )
     }
-    override val storeFactory: StoreFactory = DefaultStoreFactory()
-}
-
-class RootBlocTest {
-
 
     @Test
     fun rootInitialState() {
-        val testComponentContext = TestAppComponentContext()
-        val bloc = RootBlocImpl(
-            componentContext = testComponentContext,
-            bottomNav = { _, _ -> TODO() },
-            characterSearch = { _, _ -> TODO() }
-        )
+        val bloc = rootBloc
+        assertTrue(bloc.activeChild is Child.BottomNav)
     }
+
+    @Test
+    fun bottomNavOutput_showCharacterSearch_shouldShowCharacterSearch() {
+        val bloc = rootBloc
+
+        bottomNavOutput(BottomNavBloc.Output.OpenCharacterSearch)
+        assertTrue(bloc.activeChild is Child.CharacterSearch)
+
+        characterSearchOutput(CharacterSearchBloc.Output.GoBack)
+        assertTrue(bloc.activeChild is Child.BottomNav)
+    }
+
+    private val RootBloc.activeChild: Child get() = routerState.value.active.instance
 }
