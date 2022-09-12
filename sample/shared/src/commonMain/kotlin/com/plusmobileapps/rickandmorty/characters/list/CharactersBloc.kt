@@ -10,6 +10,8 @@ interface CharactersBloc {
 
     fun onCharacterClicked(character: RickAndMortyCharacter)
 
+    fun onSearchClicked()
+
     fun loadMoreCharacters()
 
     data class Model(
@@ -20,6 +22,7 @@ interface CharactersBloc {
 
     sealed class Output {
         data class OpenCharacter(val character: RickAndMortyCharacter) : Output()
+        object OpenCharacterSearch : Output()
     }
 
 }

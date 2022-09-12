@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -19,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
-import com.plusmobileapps.rickandmorty.characters.list.CharactersBloc
 import com.plusmobileapps.rickandmorty.characters.CharactersListItem
 import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
+import com.plusmobileapps.rickandmorty.characters.list.CharactersBloc
 import kotlinx.coroutines.launch
 
 @Composable
@@ -37,6 +38,13 @@ fun CharactersUI(bloc: CharactersBloc) {
     }
 
     Scaffold(
+        topBar = {
+            LargeTopAppBar(title = { Text(text = "Characters") }, actions = {
+                IconButton(onClick = bloc::onSearchClicked) {
+                    Icon(Icons.Default.Search, contentDescription = "Search Characters")
+                }
+            })
+        },
         floatingActionButton = {
             AnimatedVisibility(visible = !scrollContext.isBottom) {
                 FloatingActionButton(onClick = {
@@ -103,7 +111,11 @@ fun CharacterListItem(character: RickAndMortyCharacter, onClick: () -> Unit) {
             contentDescription = null
         )
         Spacer(modifier = Modifier.width(16.dp))
-        Text(modifier = Modifier.weight(1f), text = character.name, style = MaterialTheme.typography.titleMedium)
+        Text(
+            modifier = Modifier.weight(1f),
+            text = character.name,
+            style = MaterialTheme.typography.titleMedium
+        )
         Icon(
             Icons.Default.ArrowForward,
             modifier = Modifier.padding(16.dp),

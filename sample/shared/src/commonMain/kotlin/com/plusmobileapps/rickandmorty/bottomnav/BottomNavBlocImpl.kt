@@ -126,6 +126,7 @@ class BottomNavBlocImpl(
             is CharactersBloc.Output.OpenCharacter -> bottomNavOutput(
                 Output.ShowCharacter(output.character.id)
             )
+            CharactersBloc.Output.OpenCharacterSearch -> bottomNavOutput(Output.OpenCharacterSearch)
         }
     }
 //

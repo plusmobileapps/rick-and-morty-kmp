@@ -37,6 +37,10 @@ internal class CharactersBlocImpl(
         )
     }
 
+    override fun onSearchClicked() {
+        output(CharactersBloc.Output.OpenCharacterSearch)
+    }
+
     override fun loadMoreCharacters() {
         store.accept(CharactersStore.Intent.LoadMoreCharacters)
     }
