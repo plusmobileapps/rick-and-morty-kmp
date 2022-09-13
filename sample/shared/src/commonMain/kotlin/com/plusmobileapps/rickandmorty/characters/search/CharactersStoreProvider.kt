@@ -5,16 +5,20 @@ import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
+import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
 import com.plusmobileapps.rickandmorty.characters.CharactersListItem
+import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchStore.Intent
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchStore.State
 import com.plusmobileapps.rickandmorty.util.Dispatchers
+import kotlinx.coroutines.launch
 
 internal class CharacterSearchStoreProvider(
     private val storeFactory: StoreFactory,
     private val dispatchers: Dispatchers,
+    private val api: RickAndMortyApiClient,
 ) {
 
     sealed class Message {
@@ -38,6 +42,39 @@ internal class CharacterSearchStoreProvider(
     private inner class Executor :
         CoroutineExecutor<Intent, Unit, State, Message, Nothing>(dispatchers.main) {
 
+        override fun executeIntent(intent: Intent, getState: () -> State) {
+            when (intent) {
+                Intent.InitiateSearch -> search(getState())
+                is Intent.UpdateGender -> dispatch(Message.GenderUpdated(intent.gender))
+                is Intent.UpdateQuery -> dispatch(Message.UpdateQuery(intent.query))
+                is Intent.UpdateSpecies -> dispatch(Message.SpeciesUpdated(intent.species))
+                is Intent.UpdateStatus -> dispatch(Message.StatusUpdated(intent.status))
+            }
+        }
+
+        private fun search(state: State) {
+            dispatch(Message.LoadingQuery)
+            scope.launch {
+                try {
+                    val response = api.getCharacters(
+                        page = 0,
+                        name = state.query,
+                        status = state.status,
+                        species = state.species,
+                        type = null, // TODO
+                        gender = state.gender
+                    )
+                    val characters = response.results.map {
+                        CharactersListItem.Character(
+                            RickAndMortyCharacter.fromDTO(it)
+                        )
+                    }
+                    dispatch(Message.ResultsUpdated(characters))
+                } catch (e: Exception) {
+                    println(e)
+                }
+            }
+        }
     }
 
     private object ReducerImpl : Reducer<State, Message> {

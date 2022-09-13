@@ -4,6 +4,7 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.operator.map
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.plusmobileapps.rickandmorty.AppComponentContext
+import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc.Output
@@ -14,16 +15,18 @@ import com.plusmobileapps.rickandmorty.util.asValue
 
 internal class CharacterSearchBlocImpl(
     componentContext: AppComponentContext,
+    private val rickAndMortyApi: RickAndMortyApiClient,
     private val output: Consumer<Output>
 ) : CharacterSearchBloc, AppComponentContext by componentContext {
 
     constructor(componentContext: AppComponentContext, di: DI, output: Consumer<Output>) : this(
         componentContext = componentContext,
+        rickAndMortyApi = di.rickAndMortyApi,
         output = output,
     )
 
     private val store = instanceKeeper.getStore {
-        CharacterSearchStoreProvider(storeFactory, dispatchers).provide()
+        CharacterSearchStoreProvider(storeFactory, dispatchers, rickAndMortyApi).provide()
     }
 
     override val models: Value<CharacterSearchBloc.Model> = store.asValue().map {
