@@ -12,9 +12,7 @@ import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import com.plusmobileapps.rickandmorty.util.Dispatchers
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestCoroutineScheduler
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.*
 
 class TestAppComponentContext(
     scheduler: TestCoroutineScheduler,
@@ -29,4 +27,14 @@ class TestAppComponentContext(
         override val default: CoroutineDispatcher = testDispatcher
     }
     override val storeFactory: StoreFactory = DefaultStoreFactory()
+}
+
+fun runBlocTest(testBody: suspend TestScope.(AppComponentContext) -> Unit) = runTest {
+    val appComponentContext = TestAppComponentContext(testScheduler)
+    try {
+        kotlinx.coroutines.Dispatchers.setMain(appComponentContext.mainDispatcher)
+        testBody(appComponentContext)
+    } finally {
+        kotlinx.coroutines.Dispatchers.resetMain()
+    }
 }

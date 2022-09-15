@@ -2,13 +2,15 @@
 
 package com.plusmobileapps.rickandmorty.characters
 
+import com.plusmobileapps.rickandmorty.AppComponentContext
 import com.plusmobileapps.rickandmorty.TestAppComponentContext
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBlocImpl
+import com.plusmobileapps.rickandmorty.runBlocTest
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScheduler
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.*
 import org.kodein.mock.Mock
 import org.kodein.mock.tests.TestsWithMocks
 import kotlin.test.BeforeTest
@@ -24,9 +26,9 @@ class CharacterSearchBlocTest : TestsWithMocks() {
     @Mock
     lateinit var api: RickAndMortyApiClient
 
-    private fun createBloc(scheduler: TestCoroutineScheduler): CharacterSearchBloc =
+    private fun AppComponentContext.createBloc(): CharacterSearchBloc =
         CharacterSearchBlocImpl(
-            componentContext = TestAppComponentContext(scheduler),
+            componentContext = this,
             rickAndMortyApi = api,
             output = { output(it) }
         )
@@ -37,9 +39,10 @@ class CharacterSearchBlocTest : TestsWithMocks() {
     }
 
     @Test
-    fun backClickShouldEmitOutput() = runTest {
-        val bloc = createBloc(testScheduler)
+    fun backClickShouldEmitOutput() = runBlocTest {
+        val bloc = it.createBloc()
         bloc.onBackClicked()
         verify { output(CharacterSearchBloc.Output.GoBack) }
     }
 }
+

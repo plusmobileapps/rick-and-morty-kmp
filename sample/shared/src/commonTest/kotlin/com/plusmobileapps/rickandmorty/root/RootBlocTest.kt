@@ -2,10 +2,12 @@
 
 package com.plusmobileapps.rickandmorty.root
 
+import com.plusmobileapps.rickandmorty.AppComponentContext
 import com.plusmobileapps.rickandmorty.TestAppComponentContext
 import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBloc
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
 import com.plusmobileapps.rickandmorty.root.RootBloc.Child
+import com.plusmobileapps.rickandmorty.runBlocTest
 import com.plusmobileapps.rickandmorty.util.Consumer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,11 +32,9 @@ class RootBlocTest : TestsWithMocks() {
     lateinit var characterSearchBloc: CharacterSearchBloc
     private lateinit var characterSearchOutput: Consumer<CharacterSearchBloc.Output>
 
-    fun createBloc(scheduler: TestCoroutineScheduler): RootBloc {
-        val context = TestAppComponentContext(scheduler)
-        Dispatchers.setMain(context.mainDispatcher)
-        return RootBlocImpl(
-            componentContext = context,
+    private fun AppComponentContext.createBloc(): RootBloc=
+         RootBlocImpl(
+            componentContext = this,
             bottomNav = { _, output ->
                 bottomNavOutput = output
                 bottomNavBloc
@@ -44,17 +44,16 @@ class RootBlocTest : TestsWithMocks() {
                 characterSearchBloc
             }
         )
-    }
 
     @Test
-    fun rootInitialState() = runTest {
-        val bloc = createBloc(testScheduler)
+    fun rootInitialState() = runBlocTest {
+        val bloc = it.createBloc()
         assertTrue(bloc.activeChild is Child.BottomNav)
     }
 
     @Test
-    fun bottomNavOutput_showCharacterSearch_shouldShowCharacterSearch() = runTest {
-        val bloc = createBloc(testScheduler)
+    fun bottomNavOutput_showCharacterSearch_shouldShowCharacterSearch() = runBlocTest {
+        val bloc = it.createBloc()
 
         bottomNavOutput(BottomNavBloc.Output.OpenCharacterSearch)
         assertTrue(bloc.activeChild is Child.CharacterSearch)

@@ -2,9 +2,11 @@
 
 package com.plusmobileapps.rickandmorty.characters
 
+import com.plusmobileapps.rickandmorty.AppComponentContext
 import com.plusmobileapps.rickandmorty.TestAppComponentContext
 import com.plusmobileapps.rickandmorty.characters.list.CharactersBloc
 import com.plusmobileapps.rickandmorty.characters.list.CharactersBlocImpl
+import com.plusmobileapps.rickandmorty.runBlocTest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,23 +29,20 @@ class CharactersBlocTest : TestsWithMocks() {
     @Mock
     lateinit var repository: CharactersRepository
 
-    private fun createBloc(scheduler: TestCoroutineScheduler): CharactersBloc {
-        val context = TestAppComponentContext(scheduler)
-        Dispatchers.setMain(context.mainDispatcher)
-        return CharactersBlocImpl(
-            componentContext = context,
+    private fun AppComponentContext.createBloc(): CharactersBloc =
+        CharactersBlocImpl(
+            componentContext = this,
             repository = repository,
             output = { output(it) }
         )
-    }
 
     @Test
-    fun charactersUpdatingShouldUpdateModel() = runTest {
+    fun charactersUpdatingShouldUpdateModel() = runBlocTest {
         val character = RickAndMortyCharacter(id = 4)
         val charactersFlow = MutableSharedFlow<List<RickAndMortyCharacter>>()
         everySuspending { repository.getCharacters() } returns charactersFlow
 
-        val bloc = createBloc(testScheduler)
+        val bloc = it.createBloc()
         charactersFlow.emit(listOf(character))
 
         assertEquals(listOf(CharactersListItem.Character(character)), bloc.models.value.listItems)
