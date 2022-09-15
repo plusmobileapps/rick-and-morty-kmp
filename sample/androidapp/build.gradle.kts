@@ -57,6 +57,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.2.1")
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.compose.ui:ui:$VERSION")
+    implementation("androidx.compose.material:material:$VERSION")
     implementation("androidx.compose.material3:material3:1.0.0-beta01")
     implementation("androidx.compose.ui:ui-tooling-preview:$VERSION")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")

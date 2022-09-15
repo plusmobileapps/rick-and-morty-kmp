@@ -6,6 +6,7 @@ plugins {
     id("maven-publish")
     kotlin("plugin.serialization")
     id("kotlin-parcelize")
+    id("org.kodein.mock.mockmp") version "1.8.1"
 }
 
 group = "com.plusmobileapps"
@@ -37,7 +38,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project(":rick-and-morty-api"))
+                api(project(":rick-and-morty-api"))
                 implementation(Deps.Jetbrains.coroutines)
                 implementation(Deps.Jetbrains.serialization)
                 implementation(Deps.SqlDelight.coroutines)
@@ -102,4 +103,17 @@ sqldelight {
         sourceFolders = listOf("sqldelight")
         linkSqlite = true
     }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs += arrayOf(
+            "-opt-in=com.kotlinx.coroutines.ExperimentalCoroutinesApi"
+        )
+    }
+}
+
+mockmp {
+    // OPTIONAL!
+    usesHelper = true //(2)
 }

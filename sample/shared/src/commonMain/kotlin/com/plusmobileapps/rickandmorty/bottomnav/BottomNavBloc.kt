@@ -2,7 +2,7 @@ package com.plusmobileapps.rickandmorty.bottomnav
 
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
-import com.plusmobileapps.rickandmorty.characters.CharactersBloc
+import com.plusmobileapps.rickandmorty.characters.list.CharactersBloc
 
 interface BottomNavBloc {
 
@@ -28,6 +28,7 @@ interface BottomNavBloc {
     }
 
     sealed class Output {
+        object OpenCharacterSearch : Output()
         data class ShowCharacter(val id: Int) : Output()
         data class ShowEpisode(val id: Int) : Output()
     }
