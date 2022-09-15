@@ -37,7 +37,8 @@ internal class CharacterSearchBlocImpl(
             status = it.status,
             species = it.species,
             gender = it.gender,
-            error = it.error
+            error = it.error,
+            showFilters = it.showFilters
         )
     }
 
@@ -47,6 +48,10 @@ internal class CharacterSearchBlocImpl(
 
     override fun onSearchClicked() {
         store.accept(Intent.InitiateSearch)
+    }
+
+    override fun onClearSearch() {
+        store.accept(Intent.ClearSearch)
     }
 
     override fun onQueryChanged(query: String) {
@@ -80,4 +85,9 @@ internal class CharacterSearchBlocImpl(
     override fun onClearGenderClicked() {
         store.accept(Intent.UpdateGender(null))
     }
+
+    override fun onFiltersClicked() {
+        store.accept(Intent.ToggleFilters)
+    }
+
 }

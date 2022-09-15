@@ -27,7 +27,9 @@ internal class CharacterSearchStoreProvider(
         data class StatusUpdated(val status: CharacterStatus?) : Message()
         data class SpeciesUpdated(val species: String) : Message()
         data class GenderUpdated(val gender: CharacterGender?) : Message()
+        data class FilterVisibilityUpdated(val show: Boolean) : Message()
         object LoadingQuery : Message()
+        object ClearSearch : Message()
     }
 
     fun provide(): CharacterSearchStore =
@@ -49,6 +51,8 @@ internal class CharacterSearchStoreProvider(
                 is Intent.UpdateQuery -> dispatch(Message.UpdateQuery(intent.query))
                 is Intent.UpdateSpecies -> dispatch(Message.SpeciesUpdated(intent.species))
                 is Intent.UpdateStatus -> dispatch(Message.StatusUpdated(intent.status))
+                is Intent.ToggleFilters -> dispatch(Message.FilterVisibilityUpdated(!getState().showFilters))
+                Intent.ClearSearch -> dispatch(Message.ClearSearch)
             }
         }
 
@@ -85,6 +89,8 @@ internal class CharacterSearchStoreProvider(
             is Message.StatusUpdated -> copy(status = msg.status)
             is Message.UpdateQuery -> copy(query = msg.query)
             Message.LoadingQuery -> copy(isLoading = true)
+            is Message.FilterVisibilityUpdated -> copy(showFilters = msg.show)
+            Message.ClearSearch -> State()
         }
     }
 }

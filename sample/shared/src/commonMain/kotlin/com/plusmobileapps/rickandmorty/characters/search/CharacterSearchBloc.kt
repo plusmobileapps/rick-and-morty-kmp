@@ -12,6 +12,8 @@ interface CharacterSearchBloc : BackClickBloc {
 
     fun onSearchClicked()
 
+    fun onClearSearch()
+
     fun onQueryChanged(query: String)
 
     fun onClearQueryClicked()
@@ -28,6 +30,8 @@ interface CharacterSearchBloc : BackClickBloc {
 
     fun onClearGenderClicked()
 
+    fun onFiltersClicked()
+
     data class Model(
         val isLoading: Boolean,
         val query: String,
@@ -36,6 +40,7 @@ interface CharacterSearchBloc : BackClickBloc {
         val species: String,
         val gender: CharacterGender?,
         val error: String?,
+        val showFilters: Boolean,
     )
 
     sealed class Output {

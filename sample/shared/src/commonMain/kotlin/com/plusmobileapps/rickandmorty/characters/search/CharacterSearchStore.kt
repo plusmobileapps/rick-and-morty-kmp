@@ -17,13 +17,16 @@ internal interface CharacterSearchStore : Store<Intent, State, Nothing> {
         val species: String = "",
         val gender: CharacterGender? = null,
         val error: String? = null,
+        val showFilters: Boolean = false,
     )
 
     sealed class Intent {
         object InitiateSearch : Intent()
+        object ClearSearch : Intent()
         data class UpdateQuery(val query: String) : Intent()
         data class UpdateStatus(val status: CharacterStatus?) : Intent()
         data class UpdateSpecies(val species: String) : Intent()
         data class UpdateGender(val gender: CharacterGender?) : Intent()
+        object ToggleFilters : Intent()
     }
 }

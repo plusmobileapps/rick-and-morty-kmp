@@ -38,7 +38,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project(":rick-and-morty-api"))
+                api(project(":rick-and-morty-api"))
                 implementation(Deps.Jetbrains.coroutines)
                 implementation(Deps.Jetbrains.serialization)
                 implementation(Deps.SqlDelight.coroutines)
