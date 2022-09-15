@@ -3,9 +3,9 @@
 package com.plusmobileapps.rickandmorty.characters
 
 import com.plusmobileapps.rickandmorty.TestAppComponentContext
+import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBlocImpl
-import com.plusmobileapps.rickandmorty.charactersearch.injectMocks
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
@@ -21,9 +21,13 @@ class CharacterSearchBlocTest : TestsWithMocks() {
     @Mock
     lateinit var output: (CharacterSearchBloc.Output) -> Unit
 
+    @Mock
+    lateinit var api: RickAndMortyApiClient
+
     private fun createBloc(scheduler: TestCoroutineScheduler): CharacterSearchBloc =
         CharacterSearchBlocImpl(
             componentContext = TestAppComponentContext(scheduler),
+            rickAndMortyApi = api,
             output = { output(it) }
         )
 
