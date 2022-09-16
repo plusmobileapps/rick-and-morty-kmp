@@ -36,9 +36,7 @@ jobs:
         if: always()
         uses: mikepenz/action-junit-report@v2
         with:
-          report_paths: |
-          '**/sample/shared/build/test-results/iosX64Test/TEST-*.xml'
-          '**/sample/shared/build/test-results/testDebugUnitTest/TEST-*.xml'
+          report_paths: '**/sample/shared/build/test-results/testDebugUnitTest/TEST-*.xml'
           require_tests: 'true'
 
       - name: Upload build and unit test reports
