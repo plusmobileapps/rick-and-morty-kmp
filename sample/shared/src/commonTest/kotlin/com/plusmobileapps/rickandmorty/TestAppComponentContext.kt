@@ -29,7 +29,7 @@ class TestAppComponentContext(
     override val storeFactory: StoreFactory = DefaultStoreFactory()
 }
 
-fun runBlocTest(testBody: suspend TestScope.(AppComponentContext) -> Unit) = runTest {
+fun runBlocTest(testBody: suspend TestScope.(TestAppComponentContext) -> Unit) = runTest {
     val appComponentContext = TestAppComponentContext(testScheduler)
     try {
         kotlinx.coroutines.Dispatchers.setMain(appComponentContext.mainDispatcher)
