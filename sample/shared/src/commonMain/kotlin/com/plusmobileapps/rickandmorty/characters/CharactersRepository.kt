@@ -34,31 +34,21 @@ internal class CharactersRepositoryImpl(
         const val TOTAL_PAGES_KEY = "CHARACTER_TOTAL_PAGES_KEY"
     }
 
-    private var nextPage = 1
-    private var totalPages = Int.MAX_VALUE
+    private var nextPage = settings.getInt(CHARACTERS_PAGE_KEY, 1)
+    private var totalPages = settings.getInt(TOTAL_PAGES_KEY, Int.MAX_VALUE)
 
     private val job = Job()
     private val scope = CoroutineScope(ioContext + job)
 
     init {
-        scope.launch {
-            val totalPages = settings.getInt(TOTAL_PAGES_KEY, Int.MAX_VALUE)
-            val lastPageFetched = settings.getInt(CHARACTERS_PAGE_KEY, 1)
-            this@CharactersRepositoryImpl.totalPages = totalPages
-            this@CharactersRepositoryImpl.nextPage = lastPageFetched
-            if (lastPageFetched == 1) {
-                loadNextPage()
-            }
-        }
+        if (nextPage == 1) loadNextPage()
     }
 
     override val hasMoreCharactersToLoad: Boolean
         get() = nextPage < totalPages
 
     override fun loadNextPage() {
-        scope.launch {
-            fetchCharacters(page = nextPage)
-        }
+        scope.launch { fetchCharacters(page = nextPage) }
     }
 
     override suspend fun getCharacters(): Flow<List<RickAndMortyCharacter>> =

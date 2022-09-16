@@ -3,6 +3,7 @@ package com.plusmobileapps.rickandmorty.bottomnav
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
 import com.plusmobileapps.rickandmorty.characters.list.CharactersBloc
+import com.plusmobileapps.rickandmorty.episodes.EpisodesBloc
 
 interface BottomNavBloc {
 
@@ -23,7 +24,7 @@ interface BottomNavBloc {
     }
     sealed class Child {
         data class Characters(val bloc: CharactersBloc) : Child()
-//        data class Episodes(val bloc: EpisodesBloc) : Child()
+        data class Episodes(val bloc: EpisodesBloc) : Child()
         object About : Child()
     }
 

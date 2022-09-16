@@ -30,8 +30,8 @@ fun BottomNavUI(bloc: BottomNavBloc) {
         ) {
             when (val child = it.instance) {
                 is BottomNavBloc.Child.Characters -> CharactersUI(bloc = child.bloc)
-//                is BottomNavBloc.Child.Episodes -> EpisodesUI(bloc = child.bloc, paddingValues)
-                is BottomNavBloc.Child.About -> Text("about screen")
+                is BottomNavBloc.Child.Episodes -> EpisodesUI(bloc = child.bloc)
+                is BottomNavBloc.Child.About -> AboutUI()
             }
         }
     }

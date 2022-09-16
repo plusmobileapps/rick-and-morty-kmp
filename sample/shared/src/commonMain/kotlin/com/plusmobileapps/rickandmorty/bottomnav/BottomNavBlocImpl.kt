@@ -19,6 +19,8 @@ import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBloc.*
 import com.plusmobileapps.rickandmorty.characters.list.CharactersBloc
 import com.plusmobileapps.rickandmorty.characters.list.CharactersBlocImpl
 import com.plusmobileapps.rickandmorty.di.DI
+import com.plusmobileapps.rickandmorty.episodes.EpisodesBloc
+import com.plusmobileapps.rickandmorty.episodes.EpisodesBlocImpl
 import com.plusmobileapps.rickandmorty.util.Dispatchers
 import com.plusmobileapps.rickandmorty.util.Consumer
 import com.plusmobileapps.rickandmorty.util.asValue
@@ -26,7 +28,7 @@ import com.plusmobileapps.rickandmorty.util.asValue
 class BottomNavBlocImpl(
     componentContext: AppComponentContext,
     private val charactersBloc: (AppComponentContext, Consumer<CharactersBloc.Output>) -> CharactersBloc,
-//    private val episodesBloc: (ComponentContext, Consumer<EpisodesBloc.Output>) -> EpisodesBloc,
+    private val episodesBloc: (AppComponentContext, Consumer<EpisodesBloc.Output>) -> EpisodesBloc,
     private val bottomNavOutput: Consumer<Output>
 ) : BottomNavBloc, AppComponentContext by componentContext {
 
@@ -43,13 +45,13 @@ class BottomNavBlocImpl(
                 output = characterOutput
             )
         },
-//        episodesBloc = { context, episodesOutput ->
-//            EpisodesBlocImpl(
-//                componentContext = context,
-//                di = di,
-//                output = episodesOutput
-//            )
-//        },
+        episodesBloc = { context, episodesOutput ->
+            EpisodesBlocImpl(
+                appComponentContext = context,
+                repository = di.episodesRepository,
+                output = episodesOutput
+            )
+        },
         bottomNavOutput = output
     )
 
@@ -77,7 +79,7 @@ class BottomNavBlocImpl(
         val intent = BottomNavigationStore.Intent.SelectNavItem(
             when (it.active.instance) {
                 is Child.Characters -> NavItem.Type.CHARACTERS
-//                is Child.Episodes -> NavItem.Type.EPISODES
+                is Child.Episodes -> NavItem.Type.EPISODES
                 is Child.About -> NavItem.Type.ABOUT
             }
         )
@@ -113,10 +115,9 @@ class BottomNavBlocImpl(
             )
         }
         Configuration.Episodes -> {
-            TODO()
-//            Child.Episodes(
-//                episodesBloc(context, this::onEpisodesBlocOutput)
-//            )
+            Child.Episodes(
+                episodesBloc(context, this::onEpisodesBlocOutput)
+            )
         }
         Configuration.About -> Child.About
     }
@@ -129,14 +130,14 @@ class BottomNavBlocImpl(
             CharactersBloc.Output.OpenCharacterSearch -> bottomNavOutput(Output.OpenCharacterSearch)
         }
     }
-//
-//    private fun onEpisodesBlocOutput(output: EpisodesBloc.Output) {
-//        when (output) {
-//            is EpisodesBloc.Output.OpenEpisode -> bottomNavOutput(
-//                Output.ShowEpisode(output.episode.id)
-//            )
-//        }
-//    }
+
+    private fun onEpisodesBlocOutput(output: EpisodesBloc.Output) {
+        when (output) {
+            is EpisodesBloc.Output.OpenEpisode -> bottomNavOutput(
+                Output.ShowEpisode(output.episode.id)
+            )
+        }
+    }
 
     sealed class Configuration : Parcelable {
         @Parcelize
