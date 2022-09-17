@@ -1,4 +1,4 @@
-name: Build & test shared code
+name: Build
 on:
   pull_request:
     branches:
@@ -30,19 +30,19 @@ jobs:
           key: gradle-${{ hashFiles('checksum.txt') }}
 
       - name: Build project and run unit tests
-        run: ./gradlew build allTests --stacktrace
+        run: ./gradlew build --stacktrace
 
-      - name: Publish Unit Test Report
-        if: always()
-        uses: mikepenz/action-junit-report@v2
-        with:
-          report_paths: '**/sample/shared/build/test-results/testDebugUnitTest/TEST-*.xml'
-          require_tests: 'true'
-
-      - name: Upload build and unit test reports
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: build-and-unit-test-reports
-          path: |
-            sample/shared/build/reports/tests
+#      - name: Publish Unit Test Report
+#        if: always()
+#        uses: mikepenz/action-junit-report@v2
+#        with:
+#          report_paths: '**/sample/shared/build/test-results/testDebugUnitTest/TEST-*.xml'
+#          require_tests: 'true'
+#
+#      - name: Upload build and unit test reports
+#        if: always()
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: build-and-unit-test-reports
+#          path: |
+#            sample/shared/build/reports/tests
