@@ -1,10 +1,11 @@
-package com.plusmobileapps.rickandmorty.episodes
+package com.plusmobileapps.rickandmorty.episodes.list
 
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.operator.map
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.plusmobileapps.rickandmorty.AppComponentContext
 import com.plusmobileapps.rickandmorty.api.episodes.Episode
+import com.plusmobileapps.rickandmorty.episodes.EpisodesRepository
 import com.plusmobileapps.rickandmorty.util.Consumer
 import com.plusmobileapps.rickandmorty.util.asValue
 
@@ -32,5 +33,9 @@ internal class EpisodesBlocImpl(
 
     override fun loadMore() {
         store.accept(EpisodesStore.Intent.LoadMoreCharacters)
+    }
+
+    override fun onSearchClicked() {
+        output(EpisodesBloc.Output.OpenEpisodeSearch)
     }
 }

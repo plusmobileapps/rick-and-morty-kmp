@@ -1,7 +1,8 @@
-package com.plusmobileapps.rickandmorty.episodes
+package com.plusmobileapps.rickandmorty.episodes.list
 
 import com.arkivanov.decompose.value.Value
 import com.plusmobileapps.rickandmorty.api.episodes.Episode
+import com.plusmobileapps.rickandmorty.episodes.EpisodeListItem
 
 interface EpisodesBloc {
     val models: Value<Model>
@@ -9,6 +10,8 @@ interface EpisodesBloc {
     fun onEpisodeClicked(episode: Episode)
 
     fun loadMore()
+
+    fun onSearchClicked()
 
     data class Model(
         val isLoading: Boolean,
@@ -18,5 +21,6 @@ interface EpisodesBloc {
 
     sealed class Output {
         data class OpenEpisode(val episode: Episode) : Output()
+        object OpenEpisodeSearch : Output()
     }
 }

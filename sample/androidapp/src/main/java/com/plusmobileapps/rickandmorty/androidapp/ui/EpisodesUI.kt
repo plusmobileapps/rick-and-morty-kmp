@@ -10,20 +10,19 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
 import com.plusmobileapps.rickandmorty.api.episodes.Episode
 import com.plusmobileapps.rickandmorty.characters.CharactersListItem
-import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
 import com.plusmobileapps.rickandmorty.episodes.EpisodeListItem
-import com.plusmobileapps.rickandmorty.episodes.EpisodesBloc
+import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBloc
 import kotlinx.coroutines.launch
 
 @Composable
@@ -37,7 +36,11 @@ fun EpisodesUI(bloc: EpisodesBloc) {
 
     Scaffold(
         topBar = {
-            SmallTopAppBar(title = { Text(text = "Episodes") })
+            SmallTopAppBar(title = { Text(text = "Episodes") }, actions = {
+                IconButton(onClick = bloc::onSearchClicked) {
+                    Icon(Icons.Default.Search, contentDescription = "Search Episodes")
+                }
+            })
         },
         floatingActionButton = {
             AnimatedVisibility(visible = !scrollContext.isBottom) {
@@ -75,7 +78,7 @@ fun EpisodesList(
             }
         }) {
             when (it) {
-                is EpisodeListItem.EpisodeItem -> CharacterListItemCard(episode = it.value) {
+                is EpisodeListItem.EpisodeItem -> EpisodeListItemCard(episode = it.value) {
                     onEpisodeClicked(it.value)
                 }
                 is EpisodeListItem.NextPageLoading -> Text(
@@ -89,7 +92,7 @@ fun EpisodesList(
 }
 
 @Composable
-fun CharacterListItemCard(episode: Episode, onClick: () -> Unit) {
+fun EpisodeListItemCard(episode: Episode, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

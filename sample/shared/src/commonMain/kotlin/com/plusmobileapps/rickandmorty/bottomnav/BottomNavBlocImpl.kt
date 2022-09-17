@@ -1,10 +1,8 @@
 package com.plusmobileapps.rickandmorty.bottomnav
 
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.bringToFront
-import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.operator.map
 import com.arkivanov.essenty.lifecycle.doOnPause
@@ -12,16 +10,14 @@ import com.arkivanov.essenty.lifecycle.doOnResume
 import com.arkivanov.essenty.parcelable.Parcelable
 import com.arkivanov.essenty.parcelable.Parcelize
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
-import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.plusmobileapps.rickandmorty.AppComponentContext
 import com.plusmobileapps.rickandmorty.appChildStack
 import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBloc.*
 import com.plusmobileapps.rickandmorty.characters.list.CharactersBloc
 import com.plusmobileapps.rickandmorty.characters.list.CharactersBlocImpl
 import com.plusmobileapps.rickandmorty.di.DI
-import com.plusmobileapps.rickandmorty.episodes.EpisodesBloc
-import com.plusmobileapps.rickandmorty.episodes.EpisodesBlocImpl
-import com.plusmobileapps.rickandmorty.util.Dispatchers
+import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBloc
+import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBlocImpl
 import com.plusmobileapps.rickandmorty.util.Consumer
 import com.plusmobileapps.rickandmorty.util.asValue
 
@@ -63,7 +59,7 @@ class BottomNavBlocImpl(
 
     private val router = appChildStack<Configuration, BottomNavBloc.Child>(
         source = navigation,
-        initialStack = { listOf(Configuration.Characters) } ,
+        initialStack = { listOf(Configuration.Characters) },
         handleBackButton = true,
         childFactory = ::createChild,
         key = "BottomNavRouter"
@@ -133,9 +129,8 @@ class BottomNavBlocImpl(
 
     private fun onEpisodesBlocOutput(output: EpisodesBloc.Output) {
         when (output) {
-            is EpisodesBloc.Output.OpenEpisode -> bottomNavOutput(
-                Output.ShowEpisode(output.episode.id)
-            )
+            is EpisodesBloc.Output.OpenEpisode -> bottomNavOutput(Output.ShowEpisode(output.episode.id))
+            EpisodesBloc.Output.OpenEpisodeSearch -> bottomNavOutput(Output.OpenEpisodeSearch)
         }
     }
 

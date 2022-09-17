@@ -2,6 +2,8 @@ package com.plusmobileapps.rickandmorty.episodes
 
 import com.plusmobileapps.rickandmorty.AppComponentContext
 import com.plusmobileapps.rickandmorty.api.episodes.Episode
+import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBloc
+import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBlocImpl
 import com.plusmobileapps.rickandmorty.runBlocTest
 import kotlinx.coroutines.flow.MutableSharedFlow
 import org.kodein.mock.Mock

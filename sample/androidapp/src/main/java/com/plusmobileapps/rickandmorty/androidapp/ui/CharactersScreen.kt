@@ -83,7 +83,7 @@ fun CharactersList(
             }
         }) {
             when (it) {
-                is CharactersListItem.Character -> CharacterListItemCard(character = it.value) {
+                is CharactersListItem.Character -> EpisodeListItemCard(character = it.value) {
                     onCharacterClicked(it.value)
                 }
                 is CharactersListItem.PageLoading -> Text(
@@ -97,7 +97,7 @@ fun CharactersList(
 }
 
 @Composable
-fun CharacterListItemCard(character: RickAndMortyCharacter, onClick: () -> Unit) {
+fun EpisodeListItemCard(character: RickAndMortyCharacter, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
