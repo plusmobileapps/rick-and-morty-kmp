@@ -123,6 +123,8 @@ internal class RootBlocImpl(
             Configuration.EpisodeSearch -> RootBloc.Child.EpisodeSearch(
                 episodeSearch(context) { navigation.pop() }
             )
+            is Configuration.Location -> TODO()
+            Configuration.LocationSearch -> TODO()
         }
     }
 
@@ -135,12 +137,11 @@ internal class RootBlocImpl(
     private fun onBottomNavOutput(output: BottomNavBloc.Output) {
         when (output) {
             is BottomNavBloc.Output.ShowCharacter -> navigation.push(Configuration.Character(output.id))
-            is BottomNavBloc.Output.ShowEpisode -> {
-                TODO()
-//                router.push(Configuration.Episode(output.id))
-            }
+            is BottomNavBloc.Output.ShowEpisode -> navigation.push(Configuration.Episode(output.id))
             BottomNavBloc.Output.OpenCharacterSearch -> navigation.push(Configuration.CharacterSearch)
             BottomNavBloc.Output.OpenEpisodeSearch -> navigation.push(Configuration.EpisodeSearch)
+            BottomNavBloc.Output.OpenLocationSearch -> navigation.push(Configuration.LocationSearch)
+            is BottomNavBloc.Output.ShowLocation -> navigation.push(Configuration.Location(output.id))
         }
     }
 
@@ -165,5 +166,11 @@ internal class RootBlocImpl(
 
         @Parcelize
         object EpisodeSearch : Configuration()
+
+        @Parcelize
+        data class Location(val id: Int) : Configuration()
+
+        @Parcelize
+        object LocationSearch : Configuration()
     }
 }

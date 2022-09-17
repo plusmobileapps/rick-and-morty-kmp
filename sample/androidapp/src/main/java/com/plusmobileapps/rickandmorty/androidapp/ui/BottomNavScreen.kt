@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -32,6 +33,7 @@ fun BottomNavUI(bloc: BottomNavBloc) {
                 is BottomNavBloc.Child.Characters -> CharactersUI(bloc = child.bloc)
                 is BottomNavBloc.Child.Episodes -> EpisodesUI(bloc = child.bloc)
                 is BottomNavBloc.Child.About -> AboutUI()
+                is BottomNavBloc.Child.Locations -> LocationsUI(bloc = child.bloc)
             }
         }
     }
@@ -55,6 +57,7 @@ fun BottomNavigationBar(
                             BottomNavBloc.NavItem.Type.CHARACTERS -> Icons.Default.Person
                             BottomNavBloc.NavItem.Type.EPISODES -> Icons.Default.List
                             BottomNavBloc.NavItem.Type.ABOUT -> Icons.Default.Info
+                            BottomNavBloc.NavItem.Type.LOCATIONS -> Icons.Default.LocationOn
                         },
                         contentDescription = null
                     )

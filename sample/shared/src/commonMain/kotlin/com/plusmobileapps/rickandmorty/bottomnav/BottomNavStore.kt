@@ -15,6 +15,7 @@ internal interface BottomNavigationStore :
         val navItems: List<NavItem> = listOf(
             NavItem(true, CHARACTERS),
             NavItem(false, EPISODES),
+            NavItem(false, LOCATIONS),
             NavItem(false, ABOUT)
         )
     )

@@ -136,7 +136,7 @@ fun CharacterSearchResults(
     LazyColumn(modifier = modifier) {
         items(characters) {
             when (it) {
-                is CharactersListItem.Character -> EpisodeListItemCard(
+                is CharactersListItem.Character -> CharacterListItemCard(
                     character = it.value,
                     onClick = { onCharacterClicked(it.value) })
                 is CharactersListItem.PageLoading -> TODO()

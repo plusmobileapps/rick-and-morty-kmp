@@ -20,28 +20,26 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
-import com.plusmobileapps.rickandmorty.characters.CharactersListItem
+import com.plusmobileapps.rickandmorty.api.locations.Location
 import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
-import com.plusmobileapps.rickandmorty.characters.list.CharactersBloc
+import com.plusmobileapps.rickandmorty.locations.LocationListItem
+import com.plusmobileapps.rickandmorty.locations.list.LocationBloc
 import kotlinx.coroutines.launch
 
 @Composable
-fun CharactersUI(bloc: CharactersBloc) {
+fun LocationsUI(bloc: LocationBloc) {
     val model = bloc.models.subscribeAsState()
     val lazyListState = rememberLazyListState()
-
     val scope = rememberCoroutineScope()
-    val scrollContext = rememberScrollContext(lazyListState)
+    val scrollContext = rememberScrollContext(listState = lazyListState)
 
-    if (scrollContext.isBottom) {
-        bloc.loadMoreCharacters()
-    }
+    if (scrollContext.isBottom) bloc.loadMore()
 
     Scaffold(
         topBar = {
-            LargeTopAppBar(title = { Text(text = "Characters") }, actions = {
+            SmallTopAppBar(title = { Text(text = "Locations") }, actions = {
                 IconButton(onClick = bloc::onSearchClicked) {
-                    Icon(Icons.Default.Search, contentDescription = "Search Characters")
+                    Icon(Icons.Default.Search, contentDescription = "Search Locations")
                 }
             })
         },
@@ -49,7 +47,7 @@ fun CharactersUI(bloc: CharactersBloc) {
             AnimatedVisibility(visible = !scrollContext.isBottom) {
                 FloatingActionButton(onClick = {
                     scope.launch {
-                        lazyListState.animateScrollToItem(model.value.listItems.lastIndex)
+                        lazyListState.animateScrollToItem(model.value.locations.lastIndex)
                     }
                 }) {
                     Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
@@ -57,47 +55,36 @@ fun CharactersUI(bloc: CharactersBloc) {
             }
         }
     ) {
-        CharactersList(
-            paddingValues = it,
+        LocationsList(
+            modifier = Modifier.padding(it),
             lazyListState = lazyListState,
-            characters = model.value.listItems,
-            onCharacterClicked = bloc::onCharacterClicked
+            locations = model.value.locations,
+            onLocationClicked = bloc::onLocationClicked
         )
     }
-
-
 }
 
 @Composable
-fun CharactersList(
-    paddingValues: PaddingValues,
+fun LocationsList(
+    modifier: Modifier,
     lazyListState: LazyListState,
-    characters: List<CharactersListItem>,
-    onCharacterClicked: (RickAndMortyCharacter) -> Unit,
+    locations: List<LocationListItem>,
+    onLocationClicked: (Location) -> Unit,
 ) {
-    LazyColumn(modifier = Modifier.padding(paddingValues), state = lazyListState) {
-        items(characters, key = {
-            when (it) {
-                is CharactersListItem.Character -> it.value.id
-                is CharactersListItem.PageLoading -> CharactersListItem.PageLoading.KEY
-            }
-        }) {
-            when (it) {
-                is CharactersListItem.Character -> CharacterListItemCard(character = it.value) {
-                    onCharacterClicked(it.value)
+    LazyColumn(modifier = modifier, state = lazyListState) {
+        items(locations) { location ->
+            when (location) {
+                is LocationListItem.LocationItem -> LocationListItemCard(location = location.value) {
+                    onLocationClicked(location.value)
                 }
-                is CharactersListItem.PageLoading -> Text(
-                    "Loading another page",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                LocationListItem.NextPageLoading -> CircularProgressIndicator()
             }
-
         }
     }
 }
 
 @Composable
-fun CharacterListItemCard(character: RickAndMortyCharacter, onClick: () -> Unit) {
+fun LocationListItemCard(location: Location, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -107,13 +94,13 @@ fun CharacterListItemCard(character: RickAndMortyCharacter, onClick: () -> Unit)
     ) {
         AsyncImage(
             modifier = Modifier.size(120.dp),
-            model = character.imageUrl,
+            model = location.url,
             contentDescription = null
         )
         Spacer(modifier = Modifier.width(16.dp))
         Text(
             modifier = Modifier.weight(1f),
-            text = character.name,
+            text = location.name,
             style = MaterialTheme.typography.titleMedium
         )
         Icon(
