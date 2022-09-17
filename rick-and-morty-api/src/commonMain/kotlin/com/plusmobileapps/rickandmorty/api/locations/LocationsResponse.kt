@@ -18,11 +18,11 @@ data class LocationInfo(
 
 @Serializable
 data class Location(
-    val id: Int,
-    val name: String,
-    val type: String,
-    val dimension: String,
-    val residents: List<String>,
-    val url: String,
-    val created: String,
+    val id: Int = 0,
+    val name: String = "",
+    val type: String = "",
+    val dimension: String = "",
+    val residents: List<String> = emptyList(),
+    val url: String = "",
+    val created: String = "",
 )

@@ -1,6 +1,9 @@
 package com.plusmobileapps.rickandmorty.bottomnav
 
 import com.plusmobileapps.rickandmorty.AppComponentContext
+import com.plusmobileapps.rickandmorty.api.episodes.Episode
+import com.plusmobileapps.rickandmorty.api.locations.Location
+import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
 import com.plusmobileapps.rickandmorty.characters.list.CharactersBloc
 import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBloc
 import com.plusmobileapps.rickandmorty.locations.list.LocationBloc
@@ -78,6 +81,41 @@ class BottomNavBlocTest : TestsWithMocks() {
         bloc.onNavItemClicked(BottomNavBloc.NavItem(false, BottomNavBloc.NavItem.Type.ABOUT))
         assertTrue { bloc.activeChild is BottomNavBloc.Child.About }
         bloc.assertNavItemSelected(BottomNavBloc.NavItem.Type.ABOUT)
+    }
+
+    @Test
+    fun charactersBlocOutputIsEmittedToBottomNavOutput() = runBlocTest {
+        val bloc = it.createBloc()
+
+        charactersOutput(CharactersBloc.Output.OpenCharacterSearch)
+        verify { bottomNavOutput(BottomNavBloc.Output.OpenCharacterSearch) }
+
+        charactersOutput(CharactersBloc.Output.OpenCharacter(RickAndMortyCharacter(10)))
+        verify { bottomNavOutput(BottomNavBloc.Output.ShowCharacter(10)) }
+    }
+
+    @Test
+    fun episodesBlocOutputIsEmittedToBottomNavOutput() = runBlocTest {
+        val bloc = it.createBloc()
+        bloc.onNavItemClicked(BottomNavBloc.NavItem(false, BottomNavBloc.NavItem.Type.EPISODES))
+
+        episodesOutput(EpisodesBloc.Output.OpenEpisodeSearch)
+        verify { bottomNavOutput(BottomNavBloc.Output.OpenEpisodeSearch) }
+
+        episodesOutput(EpisodesBloc.Output.OpenEpisode(Episode(13)))
+        verify { bottomNavOutput(BottomNavBloc.Output.ShowEpisode(13)) }
+    }
+
+    @Test
+    fun locationsBlocOutputIsEmittedToBottomNavOutput() = runBlocTest {
+        val bloc = it.createBloc()
+        bloc.onNavItemClicked(BottomNavBloc.NavItem(false, BottomNavBloc.NavItem.Type.LOCATIONS))
+
+        locationsOutput(LocationBloc.Output.OpenLocationSearch)
+        verify { bottomNavOutput(BottomNavBloc.Output.OpenLocationSearch)}
+
+        locationsOutput(LocationBloc.Output.OpenLocation(Location(34)))
+        verify { bottomNavOutput(BottomNavBloc.Output.ShowLocation(34)) }
     }
 
     private val BottomNavBloc.activeChild: BottomNavBloc.Child get() = routerState.value.active.instance
