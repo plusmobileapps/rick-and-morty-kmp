@@ -1,7 +1,10 @@
 package com.plusmobileapps.rickandmorty.root
 
 import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.decompose.router.stack.*
+import com.arkivanov.decompose.router.stack.ChildStack
+import com.arkivanov.decompose.router.stack.StackNavigation
+import com.arkivanov.decompose.router.stack.pop
+import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.parcelable.Parcelable
 import com.arkivanov.essenty.parcelable.Parcelize
@@ -15,6 +18,8 @@ import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBlocImpl
 import com.plusmobileapps.rickandmorty.db.DriverFactory
 import com.plusmobileapps.rickandmorty.di.DI
 import com.plusmobileapps.rickandmorty.di.ServiceLocator
+import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBloc
+import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBlocImpl
 import com.plusmobileapps.rickandmorty.util.Consumer
 
 fun buildRootBloc(context: ComponentContext, driverFactory: DriverFactory): RootBloc {
@@ -33,6 +38,7 @@ internal class RootBlocImpl(
     componentContext: AppComponentContext,
     private val bottomNav: (AppComponentContext, Consumer<BottomNavBloc.Output>) -> BottomNavBloc,
     private val characterSearch: (AppComponentContext, Consumer<CharacterSearchBloc.Output>) -> CharacterSearchBloc,
+    private val episodeSearch: (AppComponentContext, Consumer<EpisodeSearchBloc.Output>) -> EpisodeSearchBloc,
 //    private val character: (ComponentContext, Int, Consumer<CharacterDetailBloc.Output>) -> CharacterDetailBloc,
 //    private val episode: (ComponentContext, Int, Consumer<EpisodeDetailBloc.Output>) -> EpisodeDetailBloc,
 ) : RootBloc, AppComponentContext by componentContext {
@@ -53,6 +59,13 @@ internal class RootBlocImpl(
                 output = output
             )
         },
+        episodeSearch = { context, output ->
+            EpisodeSearchBlocImpl(
+                context = context,
+                api = di.rickAndMortyApi,
+                output = output
+            )
+        }
 //        character = { context, id, output ->
 //            CharacterDetailBlocImpl(
 //                context = context,
@@ -107,6 +120,11 @@ internal class RootBlocImpl(
             Configuration.CharacterSearch -> RootBloc.Child.CharacterSearch(
                 characterSearch(context) { navigation.pop() }
             )
+            Configuration.EpisodeSearch -> RootBloc.Child.EpisodeSearch(
+                episodeSearch(context) { navigation.pop() }
+            )
+            is Configuration.Location -> TODO()
+            Configuration.LocationSearch -> TODO()
         }
     }
 
@@ -119,11 +137,11 @@ internal class RootBlocImpl(
     private fun onBottomNavOutput(output: BottomNavBloc.Output) {
         when (output) {
             is BottomNavBloc.Output.ShowCharacter -> navigation.push(Configuration.Character(output.id))
-            is BottomNavBloc.Output.ShowEpisode -> {
-                TODO()
-//                router.push(Configuration.Episode(output.id))
-            }
+            is BottomNavBloc.Output.ShowEpisode -> navigation.push(Configuration.Episode(output.id))
             BottomNavBloc.Output.OpenCharacterSearch -> navigation.push(Configuration.CharacterSearch)
+            BottomNavBloc.Output.OpenEpisodeSearch -> navigation.push(Configuration.EpisodeSearch)
+            BottomNavBloc.Output.OpenLocationSearch -> navigation.push(Configuration.LocationSearch)
+            is BottomNavBloc.Output.ShowLocation -> navigation.push(Configuration.Location(output.id))
         }
     }
 
@@ -145,5 +163,14 @@ internal class RootBlocImpl(
 
         @Parcelize
         data class Episode(val id: Int) : Configuration()
+
+        @Parcelize
+        object EpisodeSearch : Configuration()
+
+        @Parcelize
+        data class Location(val id: Int) : Configuration()
+
+        @Parcelize
+        object LocationSearch : Configuration()
     }
 }

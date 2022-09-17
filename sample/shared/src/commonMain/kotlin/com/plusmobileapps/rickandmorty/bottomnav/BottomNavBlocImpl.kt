@@ -1,10 +1,8 @@
 package com.plusmobileapps.rickandmorty.bottomnav
 
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.bringToFront
-import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.operator.map
 import com.arkivanov.essenty.lifecycle.doOnPause
@@ -12,21 +10,24 @@ import com.arkivanov.essenty.lifecycle.doOnResume
 import com.arkivanov.essenty.parcelable.Parcelable
 import com.arkivanov.essenty.parcelable.Parcelize
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
-import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.plusmobileapps.rickandmorty.AppComponentContext
 import com.plusmobileapps.rickandmorty.appChildStack
 import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBloc.*
 import com.plusmobileapps.rickandmorty.characters.list.CharactersBloc
 import com.plusmobileapps.rickandmorty.characters.list.CharactersBlocImpl
 import com.plusmobileapps.rickandmorty.di.DI
-import com.plusmobileapps.rickandmorty.util.Dispatchers
+import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBloc
+import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBlocImpl
+import com.plusmobileapps.rickandmorty.locations.list.LocationBloc
+import com.plusmobileapps.rickandmorty.locations.list.LocationBlocImpl
 import com.plusmobileapps.rickandmorty.util.Consumer
 import com.plusmobileapps.rickandmorty.util.asValue
 
 class BottomNavBlocImpl(
     componentContext: AppComponentContext,
     private val charactersBloc: (AppComponentContext, Consumer<CharactersBloc.Output>) -> CharactersBloc,
-//    private val episodesBloc: (ComponentContext, Consumer<EpisodesBloc.Output>) -> EpisodesBloc,
+    private val episodesBloc: (AppComponentContext, Consumer<EpisodesBloc.Output>) -> EpisodesBloc,
+    private val locationsBloc: (AppComponentContext, Consumer<LocationBloc.Output>) -> LocationBloc,
     private val bottomNavOutput: Consumer<Output>
 ) : BottomNavBloc, AppComponentContext by componentContext {
 
@@ -43,13 +44,20 @@ class BottomNavBlocImpl(
                 output = characterOutput
             )
         },
-//        episodesBloc = { context, episodesOutput ->
-//            EpisodesBlocImpl(
-//                componentContext = context,
-//                di = di,
-//                output = episodesOutput
-//            )
-//        },
+        episodesBloc = { context, episodesOutput ->
+            EpisodesBlocImpl(
+                appComponentContext = context,
+                repository = di.episodesRepository,
+                output = episodesOutput
+            )
+        },
+        locationsBloc = { context, locationOutput ->
+            LocationBlocImpl(
+                context = context,
+                repository = di.locationRepository,
+                output = locationOutput
+            )
+        },
         bottomNavOutput = output
     )
 
@@ -61,7 +69,7 @@ class BottomNavBlocImpl(
 
     private val router = appChildStack<Configuration, BottomNavBloc.Child>(
         source = navigation,
-        initialStack = { listOf(Configuration.Characters) } ,
+        initialStack = { listOf(Configuration.Characters) },
         handleBackButton = true,
         childFactory = ::createChild,
         key = "BottomNavRouter"
@@ -77,8 +85,9 @@ class BottomNavBlocImpl(
         val intent = BottomNavigationStore.Intent.SelectNavItem(
             when (it.active.instance) {
                 is Child.Characters -> NavItem.Type.CHARACTERS
-//                is Child.Episodes -> NavItem.Type.EPISODES
+                is Child.Episodes -> NavItem.Type.EPISODES
                 is Child.About -> NavItem.Type.ABOUT
+                is Child.Locations -> NavItem.Type.LOCATIONS
             }
         )
         store.accept(intent)
@@ -99,6 +108,7 @@ class BottomNavBlocImpl(
                 NavItem.Type.CHARACTERS -> Configuration.Characters
                 NavItem.Type.EPISODES -> Configuration.Episodes
                 NavItem.Type.ABOUT -> Configuration.About
+                NavItem.Type.LOCATIONS -> Configuration.Locations
             }
         )
     }
@@ -108,17 +118,19 @@ class BottomNavBlocImpl(
         context: AppComponentContext
     ): BottomNavBloc.Child = when (configuration) {
         Configuration.Characters -> {
-            BottomNavBloc.Child.Characters(
+            Child.Characters(
                 charactersBloc(context, this::onCharactersBlocOutput)
             )
         }
         Configuration.Episodes -> {
-            TODO()
-//            Child.Episodes(
-//                episodesBloc(context, this::onEpisodesBlocOutput)
-//            )
+            Child.Episodes(
+                episodesBloc(context, this::onEpisodesBlocOutput)
+            )
         }
         Configuration.About -> Child.About
+        Configuration.Locations -> Child.Locations(
+            locationsBloc(context, this::onLocationBlocOutput)
+        )
     }
 
     private fun onCharactersBlocOutput(output: CharactersBloc.Output) {
@@ -129,14 +141,20 @@ class BottomNavBlocImpl(
             CharactersBloc.Output.OpenCharacterSearch -> bottomNavOutput(Output.OpenCharacterSearch)
         }
     }
-//
-//    private fun onEpisodesBlocOutput(output: EpisodesBloc.Output) {
-//        when (output) {
-//            is EpisodesBloc.Output.OpenEpisode -> bottomNavOutput(
-//                Output.ShowEpisode(output.episode.id)
-//            )
-//        }
-//    }
+
+    private fun onEpisodesBlocOutput(output: EpisodesBloc.Output) {
+        when (output) {
+            is EpisodesBloc.Output.OpenEpisode -> bottomNavOutput(Output.ShowEpisode(output.episode.id))
+            EpisodesBloc.Output.OpenEpisodeSearch -> bottomNavOutput(Output.OpenEpisodeSearch)
+        }
+    }
+
+    private fun onLocationBlocOutput(output: LocationBloc.Output) {
+        when (output) {
+            is LocationBloc.Output.OpenLocation -> bottomNavOutput(Output.ShowLocation(output.location.id))
+            LocationBloc.Output.OpenLocationSearch -> bottomNavOutput(Output.OpenLocationSearch)
+        }
+    }
 
     sealed class Configuration : Parcelable {
         @Parcelize
@@ -144,6 +162,9 @@ class BottomNavBlocImpl(
 
         @Parcelize
         object Episodes : Configuration()
+
+        @Parcelize
+        object Locations : Configuration()
 
         @Parcelize
         object About : Configuration()

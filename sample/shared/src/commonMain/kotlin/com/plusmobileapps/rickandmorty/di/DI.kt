@@ -9,6 +9,10 @@ import com.plusmobileapps.rickandmorty.characters.CharactersRepositoryImpl
 import com.plusmobileapps.rickandmorty.db.DriverFactory
 import com.plusmobileapps.rickandmorty.db.MyDatabase
 import com.plusmobileapps.rickandmorty.db.createDatabase
+import com.plusmobileapps.rickandmorty.episodes.EpisodesRepository
+import com.plusmobileapps.rickandmorty.episodes.EpisodesRepositoryImpl
+import com.plusmobileapps.rickandmorty.locations.LocationRepository
+import com.plusmobileapps.rickandmorty.locations.LocationRepositoryImpl
 import com.plusmobileapps.rickandmorty.util.Dispatchers
 import com.plusmobileapps.rickandmorty.util.DispatchersImpl
 import com.russhwolf.settings.Settings
@@ -20,6 +24,8 @@ interface DI {
     val database: MyDatabase
     val settings: Settings
     val charactersRepository: CharactersRepository
+    val episodesRepository: EpisodesRepository
+    val locationRepository: LocationRepository
 }
 
 class ServiceLocator(driverFactory: DriverFactory) : DI {
@@ -34,6 +40,22 @@ class ServiceLocator(driverFactory: DriverFactory) : DI {
             db = database.characterQueries,
             settings = settings,
             api = rickAndMortyApi
+        )
+    }
+    override val episodesRepository: EpisodesRepository by lazy {
+        EpisodesRepositoryImpl(
+            api = rickAndMortyApi,
+            dispatchers = dispatchers,
+            db = database.episodeQueries,
+            settings = settings
+        )
+    }
+    override val locationRepository: LocationRepository by lazy {
+        LocationRepositoryImpl(
+            api = rickAndMortyApi,
+            dispatchers = dispatchers,
+            db = database.locationQueries,
+            settings = settings
         )
     }
 }
