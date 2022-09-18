@@ -13,6 +13,8 @@ import com.plusmobileapps.rickandmorty.DefaultAppComponentContext
 import com.plusmobileapps.rickandmorty.appChildStack
 import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBloc
 import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBlocImpl
+import com.plusmobileapps.rickandmorty.characters.detail.CharacterDetailBloc
+import com.plusmobileapps.rickandmorty.characters.detail.CharacterDetailBlocImpl
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBlocImpl
 import com.plusmobileapps.rickandmorty.db.DriverFactory
@@ -39,7 +41,7 @@ internal class RootBlocImpl(
     private val bottomNav: (AppComponentContext, Consumer<BottomNavBloc.Output>) -> BottomNavBloc,
     private val characterSearch: (AppComponentContext, Consumer<CharacterSearchBloc.Output>) -> CharacterSearchBloc,
     private val episodeSearch: (AppComponentContext, Consumer<EpisodeSearchBloc.Output>) -> EpisodeSearchBloc,
-//    private val character: (ComponentContext, Int, Consumer<CharacterDetailBloc.Output>) -> CharacterDetailBloc,
+    private val character: (AppComponentContext, Int, Consumer<CharacterDetailBloc.Output>) -> CharacterDetailBloc,
 //    private val episode: (ComponentContext, Int, Consumer<EpisodeDetailBloc.Output>) -> EpisodeDetailBloc,
 ) : RootBloc, AppComponentContext by componentContext {
 
@@ -65,15 +67,15 @@ internal class RootBlocImpl(
                 api = di.rickAndMortyApi,
                 output = output
             )
-        }
-//        character = { context, id, output ->
-//            CharacterDetailBlocImpl(
-//                context = context,
-//                di = di,
-//                id = id,
-//                output = output
-//            )
-//        },
+        },
+        character = { context, id, output ->
+            CharacterDetailBlocImpl(
+                context = context,
+                repository = di.charactersRepository,
+                characterId = id,
+                output = output
+            )
+        },
 //        episode = { context, id, output ->
 //            EpisodeDetailBlocImpl(
 //                context = context,
@@ -106,10 +108,9 @@ internal class RootBlocImpl(
             )
 
             is Configuration.Character -> {
-                TODO()
-//                RootBloc.Child.Character(
-//                    character(context, configuration.id, this::onCharacterOutput)
-//                )
+                RootBloc.Child.Character(
+                    character(context, configuration.id, this::onCharacterOutput)
+                )
             }
             is Configuration.Episode -> {
                 TODO()
@@ -128,11 +129,11 @@ internal class RootBlocImpl(
         }
     }
 
-//    private fun onCharacterOutput(output: CharacterDetailBloc.Output) {
-//        when (output) {
-//            CharacterDetailBloc.Output.Finished -> router.pop()
-//        }
-//    }
+    private fun onCharacterOutput(output: CharacterDetailBloc.Output) {
+        when (output) {
+            CharacterDetailBloc.Output.Done -> navigation.pop()
+        }
+    }
 
     private fun onBottomNavOutput(output: BottomNavBloc.Output) {
         when (output) {
