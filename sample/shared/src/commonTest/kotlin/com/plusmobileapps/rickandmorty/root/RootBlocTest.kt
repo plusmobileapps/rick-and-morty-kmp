@@ -4,6 +4,7 @@ package com.plusmobileapps.rickandmorty.root
 
 import com.plusmobileapps.rickandmorty.AppComponentContext
 import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBloc
+import com.plusmobileapps.rickandmorty.characters.detail.CharacterDetailBloc
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBloc
 import com.plusmobileapps.rickandmorty.root.RootBloc.Child
@@ -31,6 +32,11 @@ class RootBlocTest : TestsWithMocks() {
     lateinit var episodeSearchBloc: EpisodeSearchBloc
     private lateinit var episodeSearchOutput: Consumer<EpisodeSearchBloc.Output>
 
+    @Mock
+    lateinit var characterDetailBloc: CharacterDetailBloc
+    private lateinit var characterDetailOutput: Consumer<CharacterDetailBloc.Output>
+    private var actualId: Int? = null
+
     private fun AppComponentContext.createBloc(): RootBloc =
         RootBlocImpl(
             componentContext = this,
@@ -45,6 +51,11 @@ class RootBlocTest : TestsWithMocks() {
             episodeSearch = { _, output ->
                 episodeSearchOutput = output
                 episodeSearchBloc
+            },
+            character = { _, id, output ->
+                characterDetailOutput = output
+                actualId = id
+                characterDetailBloc
             }
         )
 
@@ -74,6 +85,17 @@ class RootBlocTest : TestsWithMocks() {
 
         episodeSearchOutput(EpisodeSearchBloc.Output.GoBack)
         assertTrue(bloc.activeChild is Child.BottomNav)
+    }
+
+    @Test
+    fun bottomNavOutput_showCharacterDetail_shouldShowCharacterDetail() = runBlocTest {
+        val bloc = it.createBloc()
+
+        bottomNavOutput(BottomNavBloc.Output.ShowCharacter(4))
+        assertTrue { bloc.activeChild is Child.Character && actualId == 4 }
+
+        characterDetailOutput(CharacterDetailBloc.Output.Done)
+        assertTrue { bloc.activeChild is Child.BottomNav }
     }
 
     private val RootBloc.activeChild: Child get() = routerState.value.active.instance
