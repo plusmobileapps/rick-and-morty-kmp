@@ -123,9 +123,7 @@ class BottomNavBlocImpl(
             )
         }
         Configuration.Episodes -> {
-            Child.Episodes(
-                episodesBloc(context, this::onEpisodesBlocOutput)
-            )
+            Child.Episodes(episodesBloc(context, this::onEpisodesBlocOutput))
         }
         Configuration.About -> Child.About
         Configuration.Locations -> Child.Locations(
