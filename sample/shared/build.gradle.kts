@@ -6,7 +6,7 @@ plugins {
     id("maven-publish")
     kotlin("plugin.serialization")
     id("kotlin-parcelize")
-    id("org.kodein.mock.mockmp") version "1.8.1"
+    id("org.kodein.mock.mockmp") version "1.9.0"
 }
 
 group = "com.plusmobileapps"
