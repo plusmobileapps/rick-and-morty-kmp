@@ -13,10 +13,7 @@ import com.arkivanov.decompose.defaultComponentContext
 import com.arkivanov.decompose.extensions.compose.jetpack.stack.Children
 import com.arkivanov.decompose.extensions.compose.jetpack.stack.animation.slide
 import com.arkivanov.decompose.extensions.compose.jetpack.stack.animation.stackAnimation
-import com.plusmobileapps.rickandmorty.androidapp.ui.BottomNavUI
-import com.plusmobileapps.rickandmorty.androidapp.ui.CharacterDetailScreen
-import com.plusmobileapps.rickandmorty.androidapp.ui.CharacterSearchScreen
-import com.plusmobileapps.rickandmorty.androidapp.ui.EpisodeSearchScreen
+import com.plusmobileapps.rickandmorty.androidapp.ui.*
 import com.plusmobileapps.rickandmorty.androidapp.ui.theme.Rick_and_Morty_KMPTheme
 import com.plusmobileapps.rickandmorty.db.DriverFactory
 import com.plusmobileapps.rickandmorty.root.RootBloc
@@ -51,7 +48,8 @@ fun RootScreen(bloc: RootBloc) {
             is RootBloc.Child.BottomNav -> BottomNavUI(bloc = child.bloc)
             is RootBloc.Child.CharacterSearch -> CharacterSearchScreen(bloc = child.bloc)
             is RootBloc.Child.EpisodeSearch -> EpisodeSearchScreen(bloc = child.bloc)
-            is RootBloc.Child.Character -> CharacterDetailScreen(bloc = child.bloc)
+            is RootBloc.Child.CharacterDetail -> CharacterDetailScreen(bloc = child.bloc)
+            is RootBloc.Child.EpisodeDetail -> EpisodeDetailScreen(bloc = child.bloc)
         }
     }
 }
