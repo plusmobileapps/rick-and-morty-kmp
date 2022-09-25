@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalCoroutinesApi::class, ExperimentalCoroutinesApi::class)
-
 package com.plusmobileapps.rickandmorty.root
 
 import com.plusmobileapps.rickandmorty.AppComponentContext
@@ -10,7 +8,6 @@ import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBloc
 import com.plusmobileapps.rickandmorty.root.RootBloc.Child
 import com.plusmobileapps.rickandmorty.runBlocTest
 import com.plusmobileapps.rickandmorty.util.Consumer
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.kodein.mock.Mock
 import org.kodein.mock.tests.TestsWithMocks
 import kotlin.test.Test

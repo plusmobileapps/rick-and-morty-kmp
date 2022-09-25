@@ -105,15 +105,15 @@ sqldelight {
     }
 }
 
+// https://stackoverflow.com/a/71549046/7900721
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
-        freeCompilerArgs += arrayOf(
-            "-opt-in=com.kotlinx.coroutines.ExperimentalCoroutinesApi"
-        )
+        kotlin.sourceSets.all {
+            languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+        }
     }
 }
 
 mockmp {
-    // OPTIONAL!
-    usesHelper = true //(2)
+    usesHelper = true
 }
