@@ -12,8 +12,9 @@ interface EpisodeDetailBloc : BackClickBloc {
     fun onCharacterClicked(id: Int)
 
     data class Model(
-        val isLoading: Boolean,
+        val isLoadingEpisode: Boolean,
         val episode: Episode,
+        val isLoadingCharacters: Boolean,
         val characters: List<RickAndMortyCharacter>,
     )
 

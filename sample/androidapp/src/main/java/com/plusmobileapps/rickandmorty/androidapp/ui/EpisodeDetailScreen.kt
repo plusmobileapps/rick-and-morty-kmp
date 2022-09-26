@@ -1,7 +1,12 @@
 package com.plusmobileapps.rickandmorty.androidapp.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -41,13 +46,19 @@ private fun EpisodeDetailContent(
     state: EpisodeDetailBloc.Model,
     onCharacterClicked: (Int) -> Unit
 ) {
-    Column(modifier = modifier) {
+    Column(modifier = modifier.verticalScroll(rememberScrollState())) {
         Text(text = state.episode.name)
         Text(text = state.episode.air_date)
         Text(text = state.episode.created)
         Text(text = state.episode.episode)
 
-        Text(text = "Characters")
-
+        AnimatedVisibility(visible = state.isLoadingCharacters) {
+            CircularProgressIndicator()
+        }
+        state.characters.forEach {
+            CharacterListItemCard(character = it) {
+                onCharacterClicked(it.id)
+            }
+        }
     }
 }

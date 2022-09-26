@@ -73,7 +73,7 @@ internal class RootBlocImpl(
         characterDetail = { context, id, output ->
             CharacterDetailBlocImpl(
                 context = context,
-                repository = di.charactersRepository,
+                charactersRepository = di.charactersRepository,
                 characterId = id,
                 output = output
             )
@@ -82,7 +82,7 @@ internal class RootBlocImpl(
             EpisodeDetailBlocImpl(
                 context = context,
                 id = id,
-                repository = di.episodesRepository,
+                di = di,
                 output = output
             )
         }

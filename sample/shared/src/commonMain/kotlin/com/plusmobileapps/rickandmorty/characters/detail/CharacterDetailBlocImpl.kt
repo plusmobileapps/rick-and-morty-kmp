@@ -11,13 +11,13 @@ import com.plusmobileapps.rickandmorty.util.asValue
 internal class CharacterDetailBlocImpl(
     characterId: Int,
     context: AppComponentContext,
-    repository: CharactersRepository,
+    charactersRepository: CharactersRepository,
     private val output: Consumer<CharacterDetailBloc.Output>,
 ) : CharacterDetailBloc,
     AppComponentContext by context {
 
     private val store: CharacterDetailStore = instanceKeeper.getStore {
-        CharacterDetailStoreProvider(characterId, repository, dispatchers, storeFactory).provide()
+        CharacterDetailStoreProvider(characterId, charactersRepository, dispatchers, storeFactory).provide()
     }
 
     override val models: Value<CharacterDetailBloc.Model> = store.asValue().map {

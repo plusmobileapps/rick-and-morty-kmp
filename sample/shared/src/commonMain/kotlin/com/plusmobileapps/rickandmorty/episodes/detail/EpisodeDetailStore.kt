@@ -11,6 +11,7 @@ internal interface EpisodeDetailStore: Store<Nothing, State, Nothing> {
         val isLoading: Boolean = true,
         val episode: Episode = Episode(),
         val characters: List<RickAndMortyCharacter> = emptyList(),
+        val isCharacterLoading: Boolean = true,
     )
 
 }
