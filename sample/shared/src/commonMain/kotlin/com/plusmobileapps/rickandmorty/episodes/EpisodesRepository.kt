@@ -56,7 +56,7 @@ internal class EpisodesRepositoryImpl(
     }
 
     override val hasMoreEpisodesToLoad: Boolean
-        get() = nextPage < totalPages
+        get() = nextPage <= totalPages
 
     override fun loadNextPage() {
         scope.launch {
