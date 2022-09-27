@@ -42,6 +42,8 @@ object Deps {
     object Compose {
         const val VERSION = "1.2.1"
         const val COMPILER_VERSION = "1.3.1"
+        const val ACCOMPANIST_VERSION = "0.25.1"
+        const val MATERIAL_VERSION = "1.0.0-beta03"
     }
 
     object Logging {
