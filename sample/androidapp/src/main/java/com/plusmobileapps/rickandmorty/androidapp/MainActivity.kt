@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
 fun RootScreen(bloc: RootBloc, windowSize: WindowSizeClass) {
     Children(stack = bloc.routerState, animation = stackAnimation(slide())) {
         when (val child = it.instance) {
-            is RootBloc.Child.BottomNav -> BottomNavUI(bloc = child.bloc)
+            is RootBloc.Child.BottomNav -> BottomNavUI(bloc = child.bloc, windowSize)
             is RootBloc.Child.CharacterSearch -> CharacterSearchScreen(bloc = child.bloc)
             is RootBloc.Child.EpisodeSearch -> EpisodeSearchScreen(bloc = child.bloc)
             is RootBloc.Child.CharacterDetail -> CharacterDetailScreen(bloc = child.bloc)
