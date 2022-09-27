@@ -6,7 +6,7 @@ plugins {
     id("maven-publish")
     kotlin("plugin.serialization")
     id("kotlin-parcelize")
-    id("org.kodein.mock.mockmp") version "1.8.1"
+    id("org.kodein.mock.mockmp") version "1.9.0"
 }
 
 group = "com.plusmobileapps"
@@ -105,15 +105,15 @@ sqldelight {
     }
 }
 
+// https://stackoverflow.com/a/71549046/7900721
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
-        freeCompilerArgs += arrayOf(
-            "-opt-in=com.kotlinx.coroutines.ExperimentalCoroutinesApi"
-        )
+        kotlin.sourceSets.all {
+            languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+        }
     }
 }
 
 mockmp {
-    // OPTIONAL!
-    usesHelper = true //(2)
+    usesHelper = true
 }

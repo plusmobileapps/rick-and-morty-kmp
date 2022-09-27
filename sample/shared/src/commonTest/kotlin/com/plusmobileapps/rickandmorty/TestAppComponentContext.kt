@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalCoroutinesApi::class)
-
 package com.plusmobileapps.rickandmorty
 
 import com.arkivanov.decompose.ComponentContext
@@ -11,7 +9,6 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import com.plusmobileapps.rickandmorty.util.Dispatchers
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
 
 class TestAppComponentContext(

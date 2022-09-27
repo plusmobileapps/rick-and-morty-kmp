@@ -20,6 +20,7 @@ interface CharactersRepository {
     fun loadNextPage()
     suspend fun getCharacters(): Flow<List<RickAndMortyCharacter>>
     suspend fun getCharacter(id: Int): RickAndMortyCharacter
+    suspend fun getCharacters(ids: List<Int>): List<RickAndMortyCharacter>
 }
 
 internal class CharactersRepositoryImpl(
@@ -79,22 +80,18 @@ internal class CharactersRepositoryImpl(
             )
         }
 
+    override suspend fun getCharacters(ids: List<Int>): List<RickAndMortyCharacter> =
+        withContext(ioContext) {
+            api.getCharacters(ids).map { RickAndMortyCharacter.fromDTO(it) }
+                .also { insertCharactersIntoDb(it) }
+        }
+
     private suspend fun fetchCharacters(page: Int) {
         if (!hasMoreCharactersToLoad) return
         try {
             val response: CharactersResponse = api.getCharacters(page)
             val characters = response.results.map { RickAndMortyCharacter.fromDTO(it) }
-            db.transaction {
-                characters.forEach { character ->
-                    db.insertCharacter(
-                        id = character.id.toLong(),
-                        name = character.name,
-                        imageUrl = character.imageUrl,
-                        status = character.status,
-                        species = character.species
-                    )
-                }
-            }
+            insertCharactersIntoDb(characters)
             nextPage = page + 1
             totalPages = response.info.pages
             settings[CHARACTERS_PAGE_KEY] = page + 1
@@ -102,6 +99,19 @@ internal class CharactersRepositoryImpl(
         } catch (e: Exception) {
             // Todo log
         }
+    }
 
+    private fun insertCharactersIntoDb(characters: List<RickAndMortyCharacter>) {
+        db.transaction {
+            characters.forEach { character ->
+                db.insertCharacter(
+                    id = character.id.toLong(),
+                    name = character.name,
+                    imageUrl = character.imageUrl,
+                    status = character.status,
+                    species = character.species
+                )
+            }
+        }
     }
 }

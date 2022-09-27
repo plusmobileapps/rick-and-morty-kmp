@@ -1,16 +1,10 @@
-@file:OptIn(ExperimentalCoroutinesApi::class)
-
 package com.plusmobileapps.rickandmorty.characters
 
 import com.plusmobileapps.rickandmorty.AppComponentContext
-import com.plusmobileapps.rickandmorty.TestAppComponentContext
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBlocImpl
 import com.plusmobileapps.rickandmorty.runBlocTest
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.*
 import org.kodein.mock.Mock
 import org.kodein.mock.tests.TestsWithMocks
 import kotlin.test.BeforeTest

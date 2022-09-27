@@ -20,6 +20,8 @@ import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBlocImpl
 import com.plusmobileapps.rickandmorty.db.DriverFactory
 import com.plusmobileapps.rickandmorty.di.DI
 import com.plusmobileapps.rickandmorty.di.ServiceLocator
+import com.plusmobileapps.rickandmorty.episodes.detail.EpisodeDetailBloc
+import com.plusmobileapps.rickandmorty.episodes.detail.EpisodeDetailBlocImpl
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBloc
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBlocImpl
 import com.plusmobileapps.rickandmorty.util.Consumer
@@ -41,8 +43,8 @@ internal class RootBlocImpl(
     private val bottomNav: (AppComponentContext, Consumer<BottomNavBloc.Output>) -> BottomNavBloc,
     private val characterSearch: (AppComponentContext, Consumer<CharacterSearchBloc.Output>) -> CharacterSearchBloc,
     private val episodeSearch: (AppComponentContext, Consumer<EpisodeSearchBloc.Output>) -> EpisodeSearchBloc,
-    private val character: (AppComponentContext, Int, Consumer<CharacterDetailBloc.Output>) -> CharacterDetailBloc,
-//    private val episode: (ComponentContext, Int, Consumer<EpisodeDetailBloc.Output>) -> EpisodeDetailBloc,
+    private val characterDetail: (AppComponentContext, Int, Consumer<CharacterDetailBloc.Output>) -> CharacterDetailBloc,
+    private val episodeDetail: (AppComponentContext, Int, Consumer<EpisodeDetailBloc.Output>) -> EpisodeDetailBloc,
 ) : RootBloc, AppComponentContext by componentContext {
 
     constructor(componentContext: AppComponentContext, di: DI) : this(
@@ -68,22 +70,22 @@ internal class RootBlocImpl(
                 output = output
             )
         },
-        character = { context, id, output ->
+        characterDetail = { context, id, output ->
             CharacterDetailBlocImpl(
                 context = context,
-                repository = di.charactersRepository,
+                charactersRepository = di.charactersRepository,
                 characterId = id,
                 output = output
             )
         },
-//        episode = { context, id, output ->
-//            EpisodeDetailBlocImpl(
-//                context = context,
-//                di = di,
-//                id = id,
-//                output = output
-//            )
-//        }
+        episodeDetail = { context, id, output ->
+            EpisodeDetailBlocImpl(
+                context = context,
+                id = id,
+                di = di,
+                output = output
+            )
+        }
     )
 
     private val navigation = StackNavigation<Configuration>()
@@ -108,15 +110,14 @@ internal class RootBlocImpl(
             )
 
             is Configuration.Character -> {
-                RootBloc.Child.Character(
-                    character(context, configuration.id, this::onCharacterOutput)
+                RootBloc.Child.CharacterDetail(
+                    characterDetail(context, configuration.id, this::onCharacterOutput)
                 )
             }
             is Configuration.Episode -> {
-                TODO()
-//                RootBloc.Child.Episode(
-//                    episode(context, configuration.id, this::onEpisodeDetailOutput)
-//                )
+                RootBloc.Child.EpisodeDetail(
+                    episodeDetail(context, configuration.id, this::onEpisodeDetailOutput)
+                )
             }
             Configuration.CharacterSearch -> RootBloc.Child.CharacterSearch(
                 characterSearch(context) { navigation.pop() }
@@ -146,11 +147,14 @@ internal class RootBlocImpl(
         }
     }
 
-//    private fun onEpisodeDetailOutput(output: EpisodeDetailBloc.Output) {
-//        when (output) {
-//            EpisodeDetailBloc.Output.Finished -> router.pop()
-//        }
-//    }
+    private fun onEpisodeDetailOutput(output: EpisodeDetailBloc.Output) {
+        when (output) {
+            EpisodeDetailBloc.Output.Done -> navigation.pop()
+            is EpisodeDetailBloc.Output.OpenCharacter -> navigation.push(
+                Configuration.Character(output.id)
+            )
+        }
+    }
 
     private sealed class Configuration : Parcelable {
         @Parcelize

@@ -1,16 +1,14 @@
-@file:OptIn(ExperimentalCoroutinesApi::class, ExperimentalCoroutinesApi::class)
-
 package com.plusmobileapps.rickandmorty.root
 
 import com.plusmobileapps.rickandmorty.AppComponentContext
 import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBloc
 import com.plusmobileapps.rickandmorty.characters.detail.CharacterDetailBloc
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
+import com.plusmobileapps.rickandmorty.episodes.detail.EpisodeDetailBloc
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBloc
 import com.plusmobileapps.rickandmorty.root.RootBloc.Child
 import com.plusmobileapps.rickandmorty.runBlocTest
 import com.plusmobileapps.rickandmorty.util.Consumer
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.kodein.mock.Mock
 import org.kodein.mock.tests.TestsWithMocks
 import kotlin.test.Test
@@ -35,7 +33,12 @@ class RootBlocTest : TestsWithMocks() {
     @Mock
     lateinit var characterDetailBloc: CharacterDetailBloc
     private lateinit var characterDetailOutput: Consumer<CharacterDetailBloc.Output>
-    private var actualId: Int? = null
+    private var actualCharacterId: Int? = null
+
+    @Mock
+    lateinit var episodeDetailBloc: EpisodeDetailBloc
+    private lateinit var episodeDetailOutput: Consumer<EpisodeDetailBloc.Output>
+    private var actualEpisodeId: Int? = null
 
     private fun AppComponentContext.createBloc(): RootBloc =
         RootBlocImpl(
@@ -52,10 +55,15 @@ class RootBlocTest : TestsWithMocks() {
                 episodeSearchOutput = output
                 episodeSearchBloc
             },
-            character = { _, id, output ->
+            characterDetail = { _, id, output ->
                 characterDetailOutput = output
-                actualId = id
+                actualCharacterId = id
                 characterDetailBloc
+            },
+            episodeDetail = { _, id, output ->
+                episodeDetailOutput = output
+                actualEpisodeId = id
+                episodeDetailBloc
             }
         )
 
@@ -92,9 +100,20 @@ class RootBlocTest : TestsWithMocks() {
         val bloc = it.createBloc()
 
         bottomNavOutput(BottomNavBloc.Output.ShowCharacter(4))
-        assertTrue { bloc.activeChild is Child.Character && actualId == 4 }
+        assertTrue { bloc.activeChild is Child.CharacterDetail && actualCharacterId == 4 }
 
         characterDetailOutput(CharacterDetailBloc.Output.Done)
+        assertTrue { bloc.activeChild is Child.BottomNav }
+    }
+
+    @Test
+    fun bottomNavOutput_showEpisodeDetail_shouldShowEpisodeDetail() = runBlocTest {
+        val bloc = it.createBloc()
+
+        bottomNavOutput(BottomNavBloc.Output.ShowEpisode(5))
+        assertTrue { bloc.activeChild is Child.EpisodeDetail && actualEpisodeId == 5 }
+
+        episodeDetailOutput(EpisodeDetailBloc.Output.Done)
         assertTrue { bloc.activeChild is Child.BottomNav }
     }
 
