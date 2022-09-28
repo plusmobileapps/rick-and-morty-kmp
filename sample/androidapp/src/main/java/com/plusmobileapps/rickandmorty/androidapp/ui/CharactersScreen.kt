@@ -39,7 +39,7 @@ fun CharactersUI(bloc: CharactersBloc) {
 
     Scaffold(
         topBar = {
-            LargeTopAppBar(title = { Text(text = "Characters") }, actions = {
+            TopAppBar(title = { Text(text = "Characters") }, actions = {
                 IconButton(onClick = bloc::onSearchClicked) {
                     Icon(Icons.Default.Search, contentDescription = "Search Characters")
                 }
