@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -19,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
+import com.plusmobileapps.rickandmorty.androidapp.components.CharacterCard
+import com.plusmobileapps.rickandmorty.androidapp.components.characterCardWidth
 import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
 import com.plusmobileapps.rickandmorty.characters.CharactersListItem
 import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
@@ -28,7 +31,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CharactersUI(bloc: CharactersBloc) {
     val model = bloc.models.subscribeAsState()
-    val lazyListState = rememberLazyListState()
+    val lazyListState = rememberLazyGridState()
 
     val scope = rememberCoroutineScope()
     val scrollContext = rememberScrollContext(lazyListState)
@@ -71,11 +74,15 @@ fun CharactersUI(bloc: CharactersBloc) {
 @Composable
 fun CharactersList(
     paddingValues: PaddingValues,
-    lazyListState: LazyListState,
+    lazyListState: LazyGridState,
     characters: List<CharactersListItem>,
     onCharacterClicked: (RickAndMortyCharacter) -> Unit,
 ) {
-    LazyColumn(modifier = Modifier.padding(paddingValues), state = lazyListState) {
+    LazyVerticalGrid(
+        modifier = Modifier.padding(paddingValues),
+        state = lazyListState,
+        columns = GridCells.Adaptive(characterCardWidth)
+    ) {
         items(characters, key = {
             when (it) {
                 is CharactersListItem.Character -> it.value.id
@@ -83,7 +90,7 @@ fun CharactersList(
             }
         }) {
             when (it) {
-                is CharactersListItem.Character -> CharacterListItemCard(character = it.value) {
+                is CharactersListItem.Character -> CharacterCard(character = it.value) {
                     onCharacterClicked(it.value)
                 }
                 is CharactersListItem.PageLoading -> Text(
