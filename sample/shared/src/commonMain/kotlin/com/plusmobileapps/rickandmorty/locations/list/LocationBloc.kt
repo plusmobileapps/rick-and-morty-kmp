@@ -12,8 +12,6 @@ interface LocationBloc {
 
     fun loadMore()
 
-    fun onSearchClicked()
-
     data class Model(
         val isLoading: Boolean,
         val locations: List<LocationListItem>,
@@ -22,7 +20,6 @@ interface LocationBloc {
 
     sealed interface Output {
         data class OpenLocation(val location: Location) : Output
-        object OpenLocationSearch : Output
     }
 
 }

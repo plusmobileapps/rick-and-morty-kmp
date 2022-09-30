@@ -24,6 +24,8 @@ import com.plusmobileapps.rickandmorty.episodes.detail.EpisodeDetailBloc
 import com.plusmobileapps.rickandmorty.episodes.detail.EpisodeDetailBlocImpl
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBloc
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBlocImpl
+import com.plusmobileapps.rickandmorty.locations.detail.LocationDetailBloc
+import com.plusmobileapps.rickandmorty.locations.detail.LocationDetailBlocImpl
 import com.plusmobileapps.rickandmorty.util.Consumer
 
 fun buildRootBloc(context: ComponentContext, driverFactory: DriverFactory): RootBloc {
@@ -45,6 +47,7 @@ internal class RootBlocImpl(
     private val episodeSearch: (AppComponentContext, Consumer<EpisodeSearchBloc.Output>) -> EpisodeSearchBloc,
     private val characterDetail: (AppComponentContext, Int, Consumer<CharacterDetailBloc.Output>) -> CharacterDetailBloc,
     private val episodeDetail: (AppComponentContext, Int, Consumer<EpisodeDetailBloc.Output>) -> EpisodeDetailBloc,
+    private val locationDetail: (AppComponentContext, Int, Consumer<LocationDetailBloc.Output>) -> LocationDetailBloc,
 ) : RootBloc, AppComponentContext by componentContext {
 
     constructor(componentContext: AppComponentContext, di: DI) : this(
@@ -85,6 +88,14 @@ internal class RootBlocImpl(
                 di = di,
                 output = output
             )
+        },
+        locationDetail = { context, id, output ->
+            LocationDetailBlocImpl(
+                context = context,
+                locationId = id,
+                output = output,
+                di = di
+            )
         }
     )
 
@@ -109,12 +120,12 @@ internal class RootBlocImpl(
                 bottomNav(context, this::onBottomNavOutput)
             )
 
-            is Configuration.Character -> {
+            is Configuration.CharacterDetail -> {
                 RootBloc.Child.CharacterDetail(
                     characterDetail(context, configuration.id, this::onCharacterOutput)
                 )
             }
-            is Configuration.Episode -> {
+            is Configuration.EpisodeDetail -> {
                 RootBloc.Child.EpisodeDetail(
                     episodeDetail(context, configuration.id, this::onEpisodeDetailOutput)
                 )
@@ -125,8 +136,9 @@ internal class RootBlocImpl(
             Configuration.EpisodeSearch -> RootBloc.Child.EpisodeSearch(
                 episodeSearch(context) { navigation.pop() }
             )
-            is Configuration.Location -> TODO()
-            Configuration.LocationSearch -> TODO()
+            is Configuration.LocationDetail -> RootBloc.Child.LocationDetail(
+                locationDetail(context, configuration.id, ::onLocationDetailOutput)
+            )
         }
     }
 
@@ -138,12 +150,23 @@ internal class RootBlocImpl(
 
     private fun onBottomNavOutput(output: BottomNavBloc.Output) {
         when (output) {
-            is BottomNavBloc.Output.ShowCharacter -> navigation.push(Configuration.Character(output.id))
-            is BottomNavBloc.Output.ShowEpisode -> navigation.push(Configuration.Episode(output.id))
+            is BottomNavBloc.Output.ShowCharacterDetail -> navigation.push(
+                Configuration.CharacterDetail(
+                    output.id
+                )
+            )
+            is BottomNavBloc.Output.ShowEpisodeDetail -> navigation.push(
+                Configuration.EpisodeDetail(
+                    output.id
+                )
+            )
             BottomNavBloc.Output.OpenCharacterSearch -> navigation.push(Configuration.CharacterSearch)
             BottomNavBloc.Output.OpenEpisodeSearch -> navigation.push(Configuration.EpisodeSearch)
-            BottomNavBloc.Output.OpenLocationSearch -> navigation.push(Configuration.LocationSearch)
-            is BottomNavBloc.Output.ShowLocation -> navigation.push(Configuration.Location(output.id))
+            is BottomNavBloc.Output.ShowLocationDetail -> navigation.push(
+                Configuration.LocationDetail(
+                    output.id
+                )
+            )
         }
     }
 
@@ -151,7 +174,16 @@ internal class RootBlocImpl(
         when (output) {
             EpisodeDetailBloc.Output.Done -> navigation.pop()
             is EpisodeDetailBloc.Output.OpenCharacter -> navigation.push(
-                Configuration.Character(output.id)
+                Configuration.CharacterDetail(output.id)
+            )
+        }
+    }
+
+    private fun onLocationDetailOutput(output: LocationDetailBloc.Output) {
+        when (output) {
+            LocationDetailBloc.Output.Done -> navigation.pop()
+            is LocationDetailBloc.Output.OpenCharacter -> navigation.push(
+                Configuration.CharacterDetail(output.id)
             )
         }
     }
@@ -164,18 +196,16 @@ internal class RootBlocImpl(
         object CharacterSearch : Configuration()
 
         @Parcelize
-        data class Character(val id: Int) : Configuration()
+        data class CharacterDetail(val id: Int) : Configuration()
 
         @Parcelize
-        data class Episode(val id: Int) : Configuration()
+        data class EpisodeDetail(val id: Int) : Configuration()
 
         @Parcelize
         object EpisodeSearch : Configuration()
 
         @Parcelize
-        data class Location(val id: Int) : Configuration()
+        data class LocationDetail(val id: Int) : Configuration()
 
-        @Parcelize
-        object LocationSearch : Configuration()
     }
 }

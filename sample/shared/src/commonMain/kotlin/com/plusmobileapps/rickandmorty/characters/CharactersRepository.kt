@@ -82,8 +82,11 @@ internal class CharactersRepositoryImpl(
 
     override suspend fun getCharacters(ids: List<Int>): List<RickAndMortyCharacter> =
         withContext(ioContext) {
-            api.getCharacters(ids).map { RickAndMortyCharacter.fromDTO(it) }
-                .also { insertCharactersIntoDb(it) }
+            if (ids.size == 1) {
+                listOf(RickAndMortyCharacter.fromDTO(api.getCharacter(ids.first())))
+            } else {
+                api.getCharacters(ids).map { RickAndMortyCharacter.fromDTO(it) }
+            }.also { insertCharactersIntoDb(it) }
         }
 
     private suspend fun fetchCharacters(page: Int) {

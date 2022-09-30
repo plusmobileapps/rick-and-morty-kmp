@@ -91,7 +91,7 @@ class BottomNavBlocTest : TestsWithMocks() {
         verify { bottomNavOutput(BottomNavBloc.Output.OpenCharacterSearch) }
 
         charactersOutput(CharactersBloc.Output.OpenCharacter(RickAndMortyCharacter(10)))
-        verify { bottomNavOutput(BottomNavBloc.Output.ShowCharacter(10)) }
+        verify { bottomNavOutput(BottomNavBloc.Output.ShowCharacterDetail(10)) }
     }
 
     @Test
@@ -103,7 +103,7 @@ class BottomNavBlocTest : TestsWithMocks() {
         verify { bottomNavOutput(BottomNavBloc.Output.OpenEpisodeSearch) }
 
         episodesOutput(EpisodesBloc.Output.OpenEpisode(Episode(13)))
-        verify { bottomNavOutput(BottomNavBloc.Output.ShowEpisode(13)) }
+        verify { bottomNavOutput(BottomNavBloc.Output.ShowEpisodeDetail(13)) }
     }
 
     @Test
@@ -115,7 +115,7 @@ class BottomNavBlocTest : TestsWithMocks() {
         verify { bottomNavOutput(BottomNavBloc.Output.OpenLocationSearch)}
 
         locationsOutput(LocationBloc.Output.OpenLocation(Location(34)))
-        verify { bottomNavOutput(BottomNavBloc.Output.ShowLocation(34)) }
+        verify { bottomNavOutput(BottomNavBloc.Output.ShowLocationDetail(34)) }
     }
 
     private val BottomNavBloc.activeChild: BottomNavBloc.Child get() = routerState.value.active.instance

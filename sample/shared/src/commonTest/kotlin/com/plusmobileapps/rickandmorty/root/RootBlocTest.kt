@@ -99,7 +99,7 @@ class RootBlocTest : TestsWithMocks() {
     fun bottomNavOutput_showCharacterDetail_shouldShowCharacterDetail() = runBlocTest {
         val bloc = it.createBloc()
 
-        bottomNavOutput(BottomNavBloc.Output.ShowCharacter(4))
+        bottomNavOutput(BottomNavBloc.Output.ShowCharacterDetail(4))
         assertTrue { bloc.activeChild is Child.CharacterDetail && actualCharacterId == 4 }
 
         characterDetailOutput(CharacterDetailBloc.Output.Done)
@@ -110,7 +110,7 @@ class RootBlocTest : TestsWithMocks() {
     fun bottomNavOutput_showEpisodeDetail_shouldShowEpisodeDetail() = runBlocTest {
         val bloc = it.createBloc()
 
-        bottomNavOutput(BottomNavBloc.Output.ShowEpisode(5))
+        bottomNavOutput(BottomNavBloc.Output.ShowEpisodeDetail(5))
         assertTrue { bloc.activeChild is Child.EpisodeDetail && actualEpisodeId == 5 }
 
         episodeDetailOutput(EpisodeDetailBloc.Output.Done)

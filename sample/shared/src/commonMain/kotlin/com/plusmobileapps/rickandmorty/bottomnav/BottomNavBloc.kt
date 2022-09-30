@@ -33,10 +33,9 @@ interface BottomNavBloc {
 
     sealed class Output {
         object OpenCharacterSearch : Output()
-        data class ShowCharacter(val id: Int) : Output()
-        data class ShowEpisode(val id: Int) : Output()
+        data class ShowCharacterDetail(val id: Int) : Output()
+        data class ShowEpisodeDetail(val id: Int) : Output()
         object OpenEpisodeSearch : Output()
-        data class ShowLocation(val id: Int): Output()
-        object OpenLocationSearch : Output()
+        data class ShowLocationDetail(val id: Int): Output()
     }
 }

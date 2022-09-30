@@ -35,7 +35,4 @@ internal class LocationBlocImpl(
         store.accept(LocationStore.Intent.LoadMoreCharacters)
     }
 
-    override fun onSearchClicked() {
-        output(Output.OpenLocationSearch)
-    }
 }

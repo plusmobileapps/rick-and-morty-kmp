@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
 import com.plusmobileapps.rickandmorty.api.locations.Location
@@ -27,7 +26,7 @@ import com.plusmobileapps.rickandmorty.locations.list.LocationBloc
 import kotlinx.coroutines.launch
 
 @Composable
-fun LocationsUI(bloc: LocationBloc) {
+fun LocationsScreen(bloc: LocationBloc) {
     val model = bloc.models.subscribeAsState()
     val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -37,11 +36,7 @@ fun LocationsUI(bloc: LocationBloc) {
 
     Scaffold(
         topBar = {
-            SmallTopAppBar(title = { Text(text = "Locations") }, actions = {
-                IconButton(onClick = bloc::onSearchClicked) {
-                    Icon(Icons.Default.Search, contentDescription = "Search Locations")
-                }
-            })
+            TopAppBar(title = { Text(text = "Locations") })
         },
         floatingActionButton = {
             AnimatedVisibility(visible = !scrollContext.isBottom) {
