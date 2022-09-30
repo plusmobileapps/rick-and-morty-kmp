@@ -1,6 +1,6 @@
 object Deps {
 
-    const val LIBRARY_VERSION = "0.1-alpha08"
+    const val LIBRARY_VERSION = "0.2"
 
     object Jetbrains {
         const val KOTLIN_VERSION = "1.7.10"

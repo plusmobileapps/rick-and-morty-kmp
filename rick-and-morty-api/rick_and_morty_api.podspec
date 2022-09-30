@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'rick_and_morty_api'
-    spec.version                  = '0.1-alpha08'
+    spec.version                  = '0.2'
     spec.homepage                 = 'https://github.com/plusmobileapps/rick-and-morty-kmp'
     spec.source                   = { :http=> ''}
     spec.authors                  = ''
