@@ -36,7 +36,7 @@ fun EpisodesUI(bloc: EpisodesBloc) {
 
     Scaffold(
         topBar = {
-            SmallTopAppBar(title = { Text(text = "Episodes") }, actions = {
+            TopAppBar(title = { Text(text = "Episodes") }, actions = {
                 IconButton(onClick = bloc::onSearchClicked) {
                     Icon(Icons.Default.Search, contentDescription = "Search Episodes")
                 }
@@ -93,23 +93,26 @@ fun EpisodesList(
 
 @Composable
 fun EpisodeListItemCard(episode: Episode, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            modifier = Modifier.weight(1f),
-            text = episode.name,
-            style = MaterialTheme.typography.titleMedium
-        )
-        Text(text = episode.episode, style = MaterialTheme.typography.titleMedium)
-        Icon(
-            Icons.Default.ArrowForward,
-            modifier = Modifier.padding(16.dp),
-            contentDescription = null
-        )
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onClick() },
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                modifier = Modifier.weight(1f),
+                text = episode.name,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(text = episode.episode, style = MaterialTheme.typography.titleMedium)
+            Icon(
+                Icons.Default.ArrowForward,
+                modifier = Modifier.padding(16.dp),
+                contentDescription = null
+            )
+        }
+        Divider()
     }
 }
