@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
@@ -84,28 +85,31 @@ fun LocationsList(
 
 @Composable
 fun LocationListItemCard(location: Location, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        AsyncImage(
-            modifier = Modifier.size(120.dp),
-            model = location.url,
-            contentDescription = null
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(
-            modifier = Modifier.weight(1f),
-            text = location.name,
-            style = MaterialTheme.typography.titleMedium
-        )
-        Icon(
-            Icons.Default.ArrowForward,
-            modifier = Modifier.padding(16.dp),
-            contentDescription = null
-        )
+    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onClick() },
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                modifier = Modifier.weight(1f),
+                text = location.name,
+                style = MaterialTheme.typography.titleLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = "${location.residents.size} residents",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Icon(
+                Icons.Default.ArrowForward,
+                modifier = Modifier.padding(16.dp),
+                contentDescription = null
+            )
+        }
+        Divider()
     }
 }
