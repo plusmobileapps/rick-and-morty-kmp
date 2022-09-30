@@ -43,7 +43,6 @@ fun CharacterDetailContent(modifier: Modifier, state: CharacterDetailBloc.Model)
     Column(
         modifier = modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
     ) {
         AsyncImage(
             modifier = Modifier.fillMaxWidth(),

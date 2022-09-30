@@ -92,7 +92,7 @@ internal class LocationRepositoryImpl(
             }
             nextPage = page + 1
             totalPages = response.info.pages
-        } catch (e: Exception){
+        } catch (e: Exception) {
 
         }
     }
@@ -103,7 +103,8 @@ private fun Locations.toLocation(): Location = Location(
     name = name,
     type = type,
     dimension = dimension,
-    residents = residents.split(","),
+    residents = residents.split(",")
+        .mapNotNull { character -> character.takeIf { it.isNotBlank() } },
     url = url,
     created = created
 )

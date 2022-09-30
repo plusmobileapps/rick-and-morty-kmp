@@ -63,15 +63,15 @@ private fun EpisodeDetailContent(
         modifier = modifier
             .verticalScroll(rememberScrollState())
     ) {
-        Text(text = "Name: ${state.episode.name}", style = MaterialTheme.typography.displaySmall)
+        Text(text = state.episode.name, style = MaterialTheme.typography.displaySmall)
         Text(
             text = "Aired on ${state.episode.air_date}",
             style = MaterialTheme.typography.titleLarge
         )
+        Divider()
         AnimatedVisibility(visible = state.isLoadingCharacters) {
             CircularProgressIndicator()
         }
-        Divider()
         Text("Characters:", style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(8.dp))
         FlowRow(modifier = Modifier.fillMaxWidth(), mainAxisSize = SizeMode.Wrap) {

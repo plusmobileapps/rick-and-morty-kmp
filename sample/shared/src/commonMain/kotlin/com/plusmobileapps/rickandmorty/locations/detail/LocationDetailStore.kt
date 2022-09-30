@@ -11,6 +11,7 @@ internal interface LocationDetailStore : Store<Intent, State, Nothing> {
     data class State(
         val isLoading: Boolean = true,
         val location: Location = Location(),
+        val residentsCount: Int = 0,
         val isCharactersLoading: Boolean = true,
         val characters: List<RickAndMortyCharacter> = emptyList(),
     )
