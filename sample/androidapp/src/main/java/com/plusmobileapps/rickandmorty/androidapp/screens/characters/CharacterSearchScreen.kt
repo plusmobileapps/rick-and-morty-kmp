@@ -1,4 +1,4 @@
-package com.plusmobileapps.rickandmorty.androidapp.screens
+package com.plusmobileapps.rickandmorty.androidapp.screens.characters
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*

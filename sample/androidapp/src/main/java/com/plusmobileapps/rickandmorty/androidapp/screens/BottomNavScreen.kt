@@ -20,6 +20,9 @@ import com.arkivanov.decompose.extensions.compose.jetpack.stack.animation.stackA
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.arkivanov.decompose.value.Value
 import com.plusmobileapps.rickandmorty.androidapp.components.SideShadow
+import com.plusmobileapps.rickandmorty.androidapp.screens.characters.CharactersUI
+import com.plusmobileapps.rickandmorty.androidapp.screens.episodes.EpisodesUI
+import com.plusmobileapps.rickandmorty.androidapp.screens.locations.LocationsUI
 import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBloc
 
 @Composable

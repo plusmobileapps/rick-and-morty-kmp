@@ -15,6 +15,10 @@ import com.arkivanov.decompose.extensions.compose.jetpack.stack.Children
 import com.arkivanov.decompose.extensions.compose.jetpack.stack.animation.slide
 import com.arkivanov.decompose.extensions.compose.jetpack.stack.animation.stackAnimation
 import com.plusmobileapps.rickandmorty.androidapp.screens.*
+import com.plusmobileapps.rickandmorty.androidapp.screens.characters.CharacterDetailScreen
+import com.plusmobileapps.rickandmorty.androidapp.screens.characters.CharacterSearchScreen
+import com.plusmobileapps.rickandmorty.androidapp.screens.episodes.EpisodeDetailScreen
+import com.plusmobileapps.rickandmorty.androidapp.screens.episodes.EpisodeSearchScreen
 import com.plusmobileapps.rickandmorty.androidapp.theme.Rick_and_Morty_KMPTheme
 import com.plusmobileapps.rickandmorty.db.DriverFactory
 import com.plusmobileapps.rickandmorty.root.RootBloc
