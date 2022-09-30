@@ -1,4 +1,4 @@
-package com.plusmobileapps.rickandmorty.androidapp.ui.theme
+package com.plusmobileapps.rickandmorty.androidapp.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

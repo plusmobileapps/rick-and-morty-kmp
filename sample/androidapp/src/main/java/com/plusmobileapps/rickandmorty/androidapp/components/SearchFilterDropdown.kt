@@ -1,4 +1,4 @@
-package com.plusmobileapps.rickandmorty.androidapp.ui.components
+package com.plusmobileapps.rickandmorty.androidapp.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border

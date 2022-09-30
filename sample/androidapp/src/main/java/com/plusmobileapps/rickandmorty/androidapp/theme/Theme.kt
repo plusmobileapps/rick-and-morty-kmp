@@ -1,4 +1,4 @@
-package com.plusmobileapps.rickandmorty.androidapp.ui.theme
+package com.plusmobileapps.rickandmorty.androidapp.theme
 
 import android.app.Activity
 import android.os.Build

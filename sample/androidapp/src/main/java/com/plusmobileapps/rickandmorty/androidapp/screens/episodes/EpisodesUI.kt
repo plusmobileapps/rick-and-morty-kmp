@@ -1,4 +1,4 @@
-package com.plusmobileapps.rickandmorty.androidapp.ui
+package com.plusmobileapps.rickandmorty.androidapp.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
@@ -17,31 +17,28 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
+import com.plusmobileapps.rickandmorty.api.episodes.Episode
 import com.plusmobileapps.rickandmorty.characters.CharactersListItem
-import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
-import com.plusmobileapps.rickandmorty.characters.list.CharactersBloc
+import com.plusmobileapps.rickandmorty.episodes.EpisodeListItem
+import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBloc
 import kotlinx.coroutines.launch
 
 @Composable
-fun CharactersUI(bloc: CharactersBloc) {
+fun EpisodesUI(bloc: EpisodesBloc) {
     val model = bloc.models.subscribeAsState()
     val lazyListState = rememberLazyListState()
-
     val scope = rememberCoroutineScope()
-    val scrollContext = rememberScrollContext(lazyListState)
+    val scrollContext = rememberScrollContext(listState = lazyListState)
 
-    if (scrollContext.isBottom) {
-        bloc.loadMoreCharacters()
-    }
+    if (scrollContext.isBottom) bloc.loadMore()
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = "Characters") }, actions = {
+            SmallTopAppBar(title = { Text(text = "Episodes") }, actions = {
                 IconButton(onClick = bloc::onSearchClicked) {
-                    Icon(Icons.Default.Search, contentDescription = "Search Characters")
+                    Icon(Icons.Default.Search, contentDescription = "Search Episodes")
                 }
             })
         },
@@ -49,7 +46,7 @@ fun CharactersUI(bloc: CharactersBloc) {
             AnimatedVisibility(visible = !scrollContext.isBottom) {
                 FloatingActionButton(onClick = {
                     scope.launch {
-                        lazyListState.animateScrollToItem(model.value.listItems.lastIndex)
+                        lazyListState.animateScrollToItem(model.value.episodes.lastIndex)
                     }
                 }) {
                     Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
@@ -57,36 +54,34 @@ fun CharactersUI(bloc: CharactersBloc) {
             }
         }
     ) {
-        CharactersList(
-            paddingValues = it,
+        EpisodesList(
+            modifier = Modifier.padding(it),
             lazyListState = lazyListState,
-            characters = model.value.listItems,
-            onCharacterClicked = bloc::onCharacterClicked
+            episodes = model.value.episodes,
+            onEpisodeClicked = bloc::onEpisodeClicked
         )
     }
-
-
 }
 
 @Composable
-fun CharactersList(
-    paddingValues: PaddingValues,
+fun EpisodesList(
+    modifier: Modifier,
     lazyListState: LazyListState,
-    characters: List<CharactersListItem>,
-    onCharacterClicked: (RickAndMortyCharacter) -> Unit,
+    episodes: List<EpisodeListItem>,
+    onEpisodeClicked: (Episode) -> Unit,
 ) {
-    LazyColumn(modifier = Modifier.padding(paddingValues), state = lazyListState) {
-        items(characters, key = {
+    LazyColumn(modifier = modifier, state = lazyListState) {
+        items(episodes, key = {
             when (it) {
-                is CharactersListItem.Character -> it.value.id
-                is CharactersListItem.PageLoading -> CharactersListItem.PageLoading.KEY
+                is EpisodeListItem.EpisodeItem -> it.value.id
+                is EpisodeListItem.NextPageLoading -> CharactersListItem.PageLoading.KEY
             }
         }) {
             when (it) {
-                is CharactersListItem.Character -> CharacterListItemCard(character = it.value) {
-                    onCharacterClicked(it.value)
+                is EpisodeListItem.EpisodeItem -> EpisodeListItemCard(episode = it.value) {
+                    onEpisodeClicked(it.value)
                 }
-                is CharactersListItem.PageLoading -> Text(
+                is EpisodeListItem.NextPageLoading -> Text(
                     "Loading another page",
                     style = MaterialTheme.typography.titleMedium
                 )
@@ -97,7 +92,7 @@ fun CharactersList(
 }
 
 @Composable
-fun CharacterListItemCard(character: RickAndMortyCharacter, onClick: () -> Unit) {
+fun EpisodeListItemCard(episode: Episode, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -105,17 +100,12 @@ fun CharacterListItemCard(character: RickAndMortyCharacter, onClick: () -> Unit)
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        AsyncImage(
-            modifier = Modifier.size(120.dp),
-            model = character.imageUrl,
-            contentDescription = null
-        )
-        Spacer(modifier = Modifier.width(16.dp))
         Text(
             modifier = Modifier.weight(1f),
-            text = character.name,
+            text = episode.name,
             style = MaterialTheme.typography.titleMedium
         )
+        Text(text = episode.episode, style = MaterialTheme.typography.titleMedium)
         Icon(
             Icons.Default.ArrowForward,
             modifier = Modifier.padding(16.dp),

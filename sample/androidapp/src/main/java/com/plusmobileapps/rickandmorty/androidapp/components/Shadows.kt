@@ -1,4 +1,4 @@
-package com.plusmobileapps.rickandmorty.androidapp.ui.components
+package com.plusmobileapps.rickandmorty.androidapp.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

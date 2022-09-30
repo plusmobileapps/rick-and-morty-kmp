@@ -1,4 +1,4 @@
-package com.plusmobileapps.rickandmorty.androidapp.ui
+package com.plusmobileapps.rickandmorty.androidapp.screens
 
 import android.content.Context
 import android.content.Intent
@@ -19,7 +19,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.plusmobileapps.rickandmorty.androidapp.ui.theme.Rick_and_Morty_KMPTheme
+import com.plusmobileapps.rickandmorty.androidapp.theme.Rick_and_Morty_KMPTheme
 
 
 @Composable

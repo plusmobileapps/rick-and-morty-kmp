@@ -1,4 +1,4 @@
-package com.plusmobileapps.rickandmorty.androidapp.ui
+package com.plusmobileapps.rickandmorty.androidapp.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
@@ -21,7 +21,6 @@ import coil.compose.AsyncImage
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
 import com.plusmobileapps.rickandmorty.api.locations.Location
-import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
 import com.plusmobileapps.rickandmorty.locations.LocationListItem
 import com.plusmobileapps.rickandmorty.locations.list.LocationBloc
 import kotlinx.coroutines.launch

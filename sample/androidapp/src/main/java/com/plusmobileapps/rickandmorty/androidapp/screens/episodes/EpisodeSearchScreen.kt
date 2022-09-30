@@ -1,4 +1,4 @@
-package com.plusmobileapps.rickandmorty.androidapp.ui
+package com.plusmobileapps.rickandmorty.androidapp.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.plusmobileapps.rickandmorty.androidapp.R
-import com.plusmobileapps.rickandmorty.androidapp.ui.theme.Rick_and_Morty_KMPTheme
+import com.plusmobileapps.rickandmorty.androidapp.theme.Rick_and_Morty_KMPTheme
 import com.plusmobileapps.rickandmorty.api.episodes.Episode
 import com.plusmobileapps.rickandmorty.episodes.EpisodeListItem
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBloc

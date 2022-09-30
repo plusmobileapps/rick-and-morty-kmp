@@ -10,13 +10,12 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import com.arkivanov.decompose.defaultComponentContext
 import com.arkivanov.decompose.extensions.compose.jetpack.stack.Children
 import com.arkivanov.decompose.extensions.compose.jetpack.stack.animation.slide
 import com.arkivanov.decompose.extensions.compose.jetpack.stack.animation.stackAnimation
-import com.plusmobileapps.rickandmorty.androidapp.ui.*
-import com.plusmobileapps.rickandmorty.androidapp.ui.theme.Rick_and_Morty_KMPTheme
+import com.plusmobileapps.rickandmorty.androidapp.screens.*
+import com.plusmobileapps.rickandmorty.androidapp.theme.Rick_and_Morty_KMPTheme
 import com.plusmobileapps.rickandmorty.db.DriverFactory
 import com.plusmobileapps.rickandmorty.root.RootBloc
 import com.plusmobileapps.rickandmorty.root.buildRootBloc

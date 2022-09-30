@@ -1,4 +1,4 @@
-package com.plusmobileapps.rickandmorty.androidapp.ui
+package com.plusmobileapps.rickandmorty.androidapp.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
@@ -24,8 +24,8 @@ import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.plusmobileapps.rickandmorty.androidapp.R
-import com.plusmobileapps.rickandmorty.androidapp.ui.components.SearchFilterDropdown
-import com.plusmobileapps.rickandmorty.androidapp.ui.theme.Rick_and_Morty_KMPTheme
+import com.plusmobileapps.rickandmorty.androidapp.components.SearchFilterDropdown
+import com.plusmobileapps.rickandmorty.androidapp.theme.Rick_and_Morty_KMPTheme
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus.ALIVE
@@ -232,7 +232,7 @@ fun CharacterSearchPreview() {
                     TODO("Not yet implemented")
                 }
 
-                override fun onStatusChanged(status: com.plusmobileapps.rickandmorty.api.characters.CharacterStatus) {
+                override fun onStatusChanged(status: CharacterStatus) {
                     TODO("Not yet implemented")
                 }
 
@@ -248,7 +248,7 @@ fun CharacterSearchPreview() {
                     TODO("Not yet implemented")
                 }
 
-                override fun onGenderChanged(gender: com.plusmobileapps.rickandmorty.api.characters.CharacterGender) {
+                override fun onGenderChanged(gender: CharacterGender) {
                     TODO("Not yet implemented")
                 }
 

@@ -1,4 +1,4 @@
-package com.plusmobileapps.rickandmorty.androidapp.ui
+package com.plusmobileapps.rickandmorty.androidapp.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
@@ -121,7 +121,7 @@ fun CharacterGridItem(
                     .padding(4.dp)
                     .fillMaxWidth(),
                 text = character.name,
-                style = MaterialTheme.typography.displaySmall,
+                style = MaterialTheme.typography.titleLarge,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1
             )
