@@ -1,21 +1,23 @@
 package com.plusmobileapps.rickandmorty.androidapp.screens.characters
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.TopAppBar
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.plusmobileapps.rickandmorty.characters.detail.CharacterDetailBloc
+import java.util.Locale
 
 @Composable
 fun CharacterDetailScreen(bloc: CharacterDetailBloc) {
@@ -23,7 +25,7 @@ fun CharacterDetailScreen(bloc: CharacterDetailBloc) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Character detail") },
+                title = { Text(model.value.character.name) },
                 navigationIcon = {
                     IconButton(onClick = bloc::onBackClicked) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Go back")
@@ -38,25 +40,27 @@ fun CharacterDetailScreen(bloc: CharacterDetailBloc) {
 
 @Composable
 fun CharacterDetailContent(modifier: Modifier, state: CharacterDetailBloc.Model) {
-    Column(modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+    ) {
         AsyncImage(
-            modifier = Modifier.size(250.dp),
+            modifier = Modifier.fillMaxWidth(),
             model = state.character.imageUrl,
-            contentDescription = null
+            contentDescription = null,
         )
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
-            state.character.name,
-            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(horizontal = 16.dp),
+            text = "Species: ${state.character.species}",
+            style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center
         )
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
-            state.character.species,
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center
-        )
-        Text(
-            state.character.status,
-            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(horizontal = 16.dp),
+            text = "Status: ${state.character.status}",
+            style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center
         )
     }

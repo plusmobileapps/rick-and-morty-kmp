@@ -134,7 +134,7 @@ class BottomNavBlocImpl(
     private fun onCharactersBlocOutput(output: CharactersBloc.Output) {
         when (output) {
             is CharactersBloc.Output.OpenCharacter -> bottomNavOutput(
-                Output.ShowCharacter(output.character.id)
+                Output.ShowCharacterDetail(output.character.id)
             )
             CharactersBloc.Output.OpenCharacterSearch -> bottomNavOutput(Output.OpenCharacterSearch)
         }
@@ -142,15 +142,14 @@ class BottomNavBlocImpl(
 
     private fun onEpisodesBlocOutput(output: EpisodesBloc.Output) {
         when (output) {
-            is EpisodesBloc.Output.OpenEpisode -> bottomNavOutput(Output.ShowEpisode(output.episode.id))
+            is EpisodesBloc.Output.OpenEpisode -> bottomNavOutput(Output.ShowEpisodeDetail(output.episode.id))
             EpisodesBloc.Output.OpenEpisodeSearch -> bottomNavOutput(Output.OpenEpisodeSearch)
         }
     }
 
     private fun onLocationBlocOutput(output: LocationBloc.Output) {
         when (output) {
-            is LocationBloc.Output.OpenLocation -> bottomNavOutput(Output.ShowLocation(output.location.id))
-            LocationBloc.Output.OpenLocationSearch -> bottomNavOutput(Output.OpenLocationSearch)
+            is LocationBloc.Output.OpenLocation -> bottomNavOutput(Output.ShowLocationDetail(output.location.id))
         }
     }
 

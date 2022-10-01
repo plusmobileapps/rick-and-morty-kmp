@@ -22,7 +22,7 @@ import com.arkivanov.decompose.value.Value
 import com.plusmobileapps.rickandmorty.androidapp.components.SideShadow
 import com.plusmobileapps.rickandmorty.androidapp.screens.characters.CharactersUI
 import com.plusmobileapps.rickandmorty.androidapp.screens.episodes.EpisodesUI
-import com.plusmobileapps.rickandmorty.androidapp.screens.locations.LocationsUI
+import com.plusmobileapps.rickandmorty.androidapp.screens.locations.LocationsScreen
 import com.plusmobileapps.rickandmorty.bottomnav.BottomNavBloc
 
 @Composable
@@ -73,7 +73,7 @@ fun NavigationScreenContent(
             is BottomNavBloc.Child.Characters -> CharactersUI(bloc = child.bloc)
             is BottomNavBloc.Child.Episodes -> EpisodesUI(bloc = child.bloc)
             is BottomNavBloc.Child.About -> AboutUI()
-            is BottomNavBloc.Child.Locations -> LocationsUI(bloc = child.bloc)
+            is BottomNavBloc.Child.Locations -> LocationsScreen(bloc = child.bloc)
         }
     }
 }
@@ -94,7 +94,7 @@ private fun BottomNavigationUI(bloc: BottomNavBloc) {
                 is BottomNavBloc.Child.Characters -> CharactersUI(bloc = child.bloc)
                 is BottomNavBloc.Child.Episodes -> EpisodesUI(bloc = child.bloc)
                 is BottomNavBloc.Child.About -> AboutUI()
-                is BottomNavBloc.Child.Locations -> LocationsUI(bloc = child.bloc)
+                is BottomNavBloc.Child.Locations -> LocationsScreen(bloc = child.bloc)
             }
         }
     }

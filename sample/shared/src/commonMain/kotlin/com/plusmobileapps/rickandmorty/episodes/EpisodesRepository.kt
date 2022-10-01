@@ -107,7 +107,9 @@ internal class EpisodesRepositoryImpl(
             name = name,
             air_date = air_date,
             episode = episode,
-            characters = characters.split(","),
+            characters = characters.split(",").mapNotNull { character ->
+                character.takeIf { it.isNotBlank() }
+            },
             url = url,
             created = created
         )
