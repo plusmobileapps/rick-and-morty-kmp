@@ -6,6 +6,7 @@ import com.plusmobileapps.rickandmorty.characters.detail.CharacterDetailBloc
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
 import com.plusmobileapps.rickandmorty.episodes.detail.EpisodeDetailBloc
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBloc
+import com.plusmobileapps.rickandmorty.locations.detail.LocationDetailBloc
 import com.plusmobileapps.rickandmorty.root.RootBloc.Child
 import com.plusmobileapps.rickandmorty.runBlocTest
 import com.plusmobileapps.rickandmorty.util.Consumer
@@ -40,6 +41,11 @@ class RootBlocTest : TestsWithMocks() {
     private lateinit var episodeDetailOutput: Consumer<EpisodeDetailBloc.Output>
     private var actualEpisodeId: Int? = null
 
+    @Mock
+    lateinit var locationDetailBloc: LocationDetailBloc
+    private lateinit var locationDetailOutput: Consumer<LocationDetailBloc.Output>
+    private var actualLocationId: Int? = null
+
     private fun AppComponentContext.createBloc(): RootBloc =
         RootBlocImpl(
             componentContext = this,
@@ -64,6 +70,11 @@ class RootBlocTest : TestsWithMocks() {
                 episodeDetailOutput = output
                 actualEpisodeId = id
                 episodeDetailBloc
+            },
+            locationDetail = { _, id, output ->
+                locationDetailOutput = output
+                actualLocationId = id
+                locationDetailBloc
             }
         )
 
@@ -114,6 +125,17 @@ class RootBlocTest : TestsWithMocks() {
         assertTrue { bloc.activeChild is Child.EpisodeDetail && actualEpisodeId == 5 }
 
         episodeDetailOutput(EpisodeDetailBloc.Output.Done)
+        assertTrue { bloc.activeChild is Child.BottomNav }
+    }
+
+    @Test
+    fun bottomNavOutput_showLocationDetail_shouldShowLocationDetail() = runBlocTest {
+        val bloc =  it.createBloc()
+
+        bottomNavOutput(BottomNavBloc.Output.ShowLocationDetail(3))
+        assertTrue { bloc.activeChild is Child.LocationDetail && actualLocationId == 3 }
+
+        locationDetailOutput(LocationDetailBloc.Output.Done)
         assertTrue { bloc.activeChild is Child.BottomNav }
     }
 

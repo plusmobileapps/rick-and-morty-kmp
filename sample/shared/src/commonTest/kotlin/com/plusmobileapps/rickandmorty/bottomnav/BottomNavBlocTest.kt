@@ -111,9 +111,6 @@ class BottomNavBlocTest : TestsWithMocks() {
         val bloc = it.createBloc()
         bloc.onNavItemClicked(BottomNavBloc.NavItem(false, BottomNavBloc.NavItem.Type.LOCATIONS))
 
-        locationsOutput(LocationBloc.Output.OpenLocationSearch)
-        verify { bottomNavOutput(BottomNavBloc.Output.OpenLocationSearch)}
-
         locationsOutput(LocationBloc.Output.OpenLocation(Location(34)))
         verify { bottomNavOutput(BottomNavBloc.Output.ShowLocationDetail(34)) }
     }
