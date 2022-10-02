@@ -46,7 +46,9 @@ You can run the Android app itself from Android Studio or run the following comm
 Open the `sample/iosApp/iosApp.xcworkspace` file or run the following command to open the iOS project. 
 
 ```bash
-xed sample/iosApp/
+cd sample/iosApp/
+pod install
+xed .
 ```
 
 ## Libraries Used 

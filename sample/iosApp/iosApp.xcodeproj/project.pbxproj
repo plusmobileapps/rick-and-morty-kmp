@@ -101,6 +101,16 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		420C664C28E963C400F395B5 /* decompose */ = {
+			isa = PBXGroup;
+			children = (
+				422F7D3C28CE76BF006D320F /* BlocHolder.swift */,
+				422F7D3E28CE76EC006D320F /* MutableStateBuilder.swift */,
+				422F7D4028CE7702006D320F /* ObservableValue.swift */,
+			);
+			path = decompose;
+			sourceTree = "<group>";
+		};
 		422F7D0628CE71E1006D320F = {
 			isa = PBXGroup;
 			children = (
@@ -126,14 +136,12 @@
 		422F7D1128CE71E1006D320F /* iosApp */ = {
 			isa = PBXGroup;
 			children = (
+				420C664C28E963C400F395B5 /* decompose */,
 				422F7D4228CE7726006D320F /* views */,
 				422F7D1228CE71E1006D320F /* iosAppApp.swift */,
 				422F7D1428CE71E1006D320F /* ContentView.swift */,
 				422F7D1628CE71E3006D320F /* Assets.xcassets */,
 				422F7D1828CE71E3006D320F /* Preview Content */,
-				422F7D3C28CE76BF006D320F /* BlocHolder.swift */,
-				422F7D3E28CE76EC006D320F /* MutableStateBuilder.swift */,
-				422F7D4028CE7702006D320F /* ObservableValue.swift */,
 			);
 			path = iosApp;
 			sourceTree = "<group>";
