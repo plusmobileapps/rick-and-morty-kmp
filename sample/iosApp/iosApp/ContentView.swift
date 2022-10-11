@@ -15,7 +15,7 @@ struct ContentView: View {
     }
     
     var body: some View {
-        RootView(blocHolder.bloc)
+        RootView(blocHolder.bloc, blocHolder.lifecycle)
     }
 }
 

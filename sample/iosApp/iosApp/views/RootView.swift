@@ -10,22 +10,21 @@ import SwiftUI
 import rickandmortysdk
 
 struct RootView: View {
-    private let component: RootBloc
-    private let routerState: Value<ChildStack<AnyObject, RootBlocChild>>
+    private let rootBloc: RootBloc
+    private let children: ChildAnimationHelper
 
-    init(_ bloc: RootBloc) {
-        self.component = bloc
-        self.routerState = bloc.routerState
+    init(_ rootBloc: RootBloc, _ lifecycle: LifecycleRegistry) {
+        self.rootBloc = rootBloc
+        self.children = ChildAnimationHelper(routerState: rootBloc.routerState, lifecycle: lifecycle)
     }
-
+    
     var body: some View {
-
-        let child = self.routerState.value.active.instance
-        
-        switch child {
-        case let bottomNav as RootBlocChild.BottomNav:
-            BottomNavigationView(bottomNav.bloc)
-        default: EmptyView()
+        RouterView(children) { child, isHidden in
+            if child is RootBlocChild.BottomNav {
+                BottomNavigationView((child as! RootBlocChild.BottomNav).bloc)
+            } else if child is RootBlocChild.CharacterDetail {
+                CharacterDetailView((child as! RootBlocChild.CharacterDetail).bloc)
+            }
         }
 
     }

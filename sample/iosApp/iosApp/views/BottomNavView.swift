@@ -28,7 +28,7 @@ struct BottomNavigationView: View {
         let model = models.value
         let child = self.routerStates.value.active.instance
 
-        return NavigationView {
+        return NavigationStack {
             ZStack {
                 VStack {
                     switch child {
@@ -44,7 +44,13 @@ struct BottomNavigationView: View {
                     BottomNavComponentView(navItems: model.navItems, onItemClicked: { item in bloc.onNavItemClicked(item: item)})
                 }
             }
-        }.navigationViewStyle(.stack)
+        }.navigationDestination(for: RootBlocChild.self) { child in
+            if (child is RootBlocChild.CharacterDetail) {
+                CharacterDetailView((child as! RootBlocChild.CharacterDetail).bloc)
+            } else {
+                Text("No view provided for child bloc")
+            }
+        }
     }
     
 }

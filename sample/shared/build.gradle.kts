@@ -50,6 +50,7 @@ kotlin {
                 implementation(Deps.ArkIvanov.MVIKotlin.mviKotlinExtensionsCoroutines)
                 implementation(Deps.ArkIvanov.MVIKotlin.mvikotlinLogging)
                 api(Deps.ArkIvanov.MVIKotlin.mvikotlinTimeTravel)
+                implementation(Deps.Logging.napier)
             }
         }
         val commonTest by getting {

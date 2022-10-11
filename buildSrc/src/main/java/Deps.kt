@@ -74,7 +74,7 @@ object Deps {
         }
 
         object Decompose {
-            private const val VERSION = "1.0.0-alpha-04"
+            private const val VERSION = "1.0.0-alpha-05"
             const val decompose = "com.arkivanov.decompose:decompose:$VERSION"
             const val extensionsCompose = "com.arkivanov.decompose:extensions-compose-jetpack:$VERSION"
         }

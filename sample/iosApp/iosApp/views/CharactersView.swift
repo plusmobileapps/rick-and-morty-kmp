@@ -27,10 +27,17 @@ struct CharactersView : View {
                 ForEach(model.listItems) { item in
                     switch item {
                     case let characterItem as CharactersListItem.Character:
-                        HStack {
-                            Text(characterItem.value.name)
-                            Text(characterItem.value.species)
+                        Button(action: {
+                            withAnimation {
+                                bloc.onCharacterClicked(character: characterItem.value)
+                            }
+                        }) {
+                            HStack {
+                                Text(characterItem.value.name)
+                                Text(characterItem.value.species)
+                            }
                         }
+                
                     case let pageLoadingItem as CharactersListItem.PageLoading:
                         ProgressView()
                     default: EmptyView()
@@ -38,7 +45,6 @@ struct CharactersView : View {
                 }
             }
         }.navigationBarTitle("Characters", displayMode: .inline)
-            .padding(.bottom, 80)
     }
 }
 

@@ -27,9 +27,12 @@ import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBlocImpl
 import com.plusmobileapps.rickandmorty.locations.detail.LocationDetailBloc
 import com.plusmobileapps.rickandmorty.locations.detail.LocationDetailBlocImpl
 import com.plusmobileapps.rickandmorty.util.Consumer
+import io.github.aakira.napier.DebugAntilog
+import io.github.aakira.napier.Napier
 
 fun buildRootBloc(context: ComponentContext, driverFactory: DriverFactory): RootBloc {
     val di: DI = ServiceLocator(driverFactory)
+    Napier.base(DebugAntilog())
     return RootBlocImpl(
         componentContext = DefaultAppComponentContext(
             componentContext = context,
