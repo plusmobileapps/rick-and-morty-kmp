@@ -9,18 +9,30 @@ import SwiftUI
 import rickandmortysdk
 
 struct ContentView: View {
-    @State
-    private var blocHolder = BlocHolder {
-        RootBlocImplKt.buildRootBloc(context: $0, driverFactory: DriverFactory())
-    }
+    
+    var di: DI
     
     var body: some View {
-        RootView(blocHolder.bloc)
+        TabView {
+            Text("1")
+                .tabItem {
+                    Image(systemName: "person.3")
+                    Text("Characters")
+                }
+            
+            Text("2")
+                .tabItem {
+                    Image(systemName: "list.triangle")
+                    Text("Episodes")
+                }
+        }
+        
+//        NavigationStack(path: <#T##Binding<NavigationPath>#>, root: <#T##() -> _#>)
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
+//struct ContentView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ContentView()
+//    }
+//}
