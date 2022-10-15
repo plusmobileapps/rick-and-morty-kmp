@@ -26,6 +26,9 @@ struct CharacterDetailView: View {
             Text(model.character.name)
             Text(model.character.species)
             Text(model.character.status)
-        }
+            NavigationLink(value: Route.characterSearch) {
+                Text("Search")
+            }
+        }.navigationBarTitle(model.character.name, displayMode: .inline)
     }
 }

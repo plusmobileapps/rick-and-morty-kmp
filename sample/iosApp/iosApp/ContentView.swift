@@ -85,6 +85,7 @@ struct ContentView: View {
                             CharacterDetailView(id: id)
                         case .characterSearch:
                             Text("Character search")
+                                    .navigationBarTitle("Character Search", displayMode: .inline)
                         case let .epidodeDetail(id):
                             Text("Episode detail id: \(id)")
                         case .episodeSearch:
