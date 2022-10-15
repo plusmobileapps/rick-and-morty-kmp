@@ -10,6 +10,8 @@ import com.plusmobileapps.rickandmorty.characters.list.CharactersBlocImpl
 import com.plusmobileapps.rickandmorty.db.DriverFactory
 import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBloc
 import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBlocImpl
+import com.plusmobileapps.rickandmorty.locations.list.LocationBloc
+import com.plusmobileapps.rickandmorty.locations.list.LocationBlocImpl
 
 object BlocBuilder {
     val di: DI = ServiceLocator(DriverFactory())
@@ -32,12 +34,18 @@ object BlocBuilder {
             output = { episodesBlocOutput?.invoke(it) }
         ).also { lifecycle.doOnDestroy { episodesBlocOutput = null } }
 
+    fun createLocationsBloc(lifecycle: Lifecycle): LocationBloc =
+        LocationBlocImpl(
+            context = lifecycle.createAppComponentContext(),
+            repository = di.locationRepository,
+            output = {}
+        )
+
     private fun Lifecycle.createAppComponentContext(): AppComponentContext =
         DefaultAppComponentContext(
             componentContext = DefaultComponentContext(this),
             dispatchers = di.dispatchers,
             storeFactory = di.storeFactory
         )
-
 
 }

@@ -46,29 +46,3 @@ struct EpisodesListView: View {
 
 extension EpisodeListItem: Identifiable {
 }
-
-class EpisodesBlocHolder : ObservableObject {
-    let lifecycle: LifecycleRegistry
-    let bloc: EpisodesBloc
-
-    init() {
-        lifecycle = LifecycleRegistryKt.LifecycleRegistry()
-        lifecycle.onCreate()
-        bloc = BlocBuilder.shared.createEpisodesBloc(lifecycle: lifecycle)
-    }
-
-    func setOutputListener(_ output: @escaping (EpisodesBlocOutput) -> Void) {
-        BlocBuilder.shared.episodesBlocOutput = output
-    }
-
-    deinit {
-        lifecycle.onDestroy()
-    }
-}
-
-//struct EpisodesListView_Previews: PreviewProvider {
-
-//    static var previews: some View {
-//        EpisodesListView()
-//    }
-//}

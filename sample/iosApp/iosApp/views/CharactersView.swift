@@ -32,8 +32,6 @@ struct CharactersView : View {
                             HStack {
                                 Text(characterItem.value.name)
                                 Text(characterItem.value.species)
-                            }.onTapGesture {
-                                bloc.onCharacterClicked(character: characterItem.value)
                             }
                         }
                     case let pageLoadingItem as CharactersListItem.PageLoading:
@@ -42,27 +40,8 @@ struct CharactersView : View {
                     }
                 }
             }
-        }.navigationBarTitle("Characters", displayMode: .inline)
+        }
     }
 }
 
 extension CharactersListItem : Identifiable {}
-
-class CharactersBlocHolder : ObservableObject {
-    let lifecycle: LifecycleRegistry
-    let bloc: CharactersBloc
-    
-    init() {
-        lifecycle = LifecycleRegistryKt.LifecycleRegistry()
-        lifecycle.onCreate()
-        bloc = BlocBuilder.shared.createCharactersList(lifecycle: lifecycle)
-    }
-    
-    func setOutputListener(_ output: @escaping (CharactersBlocOutput) -> Void) {
-        BlocBuilder.shared.charactersBlocOutput = output
-    }
-    
-    deinit {
-        lifecycle.onDestroy()
-    }
-}

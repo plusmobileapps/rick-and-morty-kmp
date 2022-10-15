@@ -12,9 +12,17 @@ struct ContentView: View {
 
     @State var path: [Route] = []
 
-    let charactersBlocHolder: CharactersBlocHolder = CharactersBlocHolder()
+    let charactersBlocHolder = BlocHolder<CharactersBloc> { lifecycle in
+        BlocBuilder.shared.createCharactersList(lifecycle: lifecycle)
+    }
 
-    let episodesBlocHolder: EpisodesBlocHolder = EpisodesBlocHolder()
+    let episodesBlocHolder = BlocHolder<EpisodesBloc> { lifecycle in
+        BlocBuilder.shared.createEpisodesBloc(lifecycle: lifecycle)
+    }
+
+    let locationBlocHolder = BlocHolder<LocationBloc> { lifecycle in
+        BlocBuilder.shared.createLocationsBloc(lifecycle: lifecycle)
+    }
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -23,9 +31,6 @@ struct ContentView: View {
                     CharactersView(charactersBlocHolder.bloc)
                             .onAppear {
                                 LifecycleRegistryExtKt.resume(charactersBlocHolder.lifecycle)
-                                charactersBlocHolder.setOutputListener { output in
-                                    onCharacterOutput(output: output)
-                                }
                             }
                             .onDisappear {
                                 LifecycleRegistryExtKt.pause(charactersBlocHolder.lifecycle)
@@ -50,7 +55,15 @@ struct ContentView: View {
                             Text("Episodes")
                         }
 
-                Text("Locations List")
+                LazyView {
+                    LocationsListView(locationBlocHolder.bloc)
+                            .onAppear {
+                                LifecycleRegistryExtKt.resume(locationBlocHolder.lifecycle)
+                            }
+                            .onDisappear {
+                                LifecycleRegistryExtKt.pause(locationBlocHolder.lifecycle)
+                            }
+                }
                         .tabItem {
                             Image(systemName: "map.circle.fill")
                             Text("Locations")
@@ -61,7 +74,7 @@ struct ContentView: View {
                             Image(systemName: "info.circle")
                             Text("About")
                         }
-            }
+            }.navigationBarTitle("Characters", displayMode: .inline)
                     .navigationDestination(for: Route.self) { route in
                         switch route {
                         case let .characterDetail(id):
