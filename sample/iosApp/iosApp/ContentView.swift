@@ -14,6 +14,8 @@ struct ContentView: View {
 
     let charactersBlocHolder: CharactersBlocHolder = CharactersBlocHolder()
 
+    let episodesBlocHolder: EpisodesBlocHolder = EpisodesBlocHolder()
+
     var body: some View {
         NavigationStack(path: $path) {
             TabView {
@@ -34,7 +36,15 @@ struct ContentView: View {
                             Text("Characters")
                         }
 
-                Text("Episodes List")
+                LazyView {
+                    EpisodesListView(episodesBlocHolder.bloc)
+                            .onAppear {
+                                LifecycleRegistryExtKt.resume(episodesBlocHolder.lifecycle)
+                            }
+                            .onDisappear {
+                                LifecycleRegistryExtKt.pause(episodesBlocHolder.lifecycle)
+                            }
+                }
                         .tabItem {
                             Image(systemName: "list.triangle")
                             Text("Episodes")
