@@ -9,30 +9,80 @@ import SwiftUI
 import rickandmortysdk
 
 struct ContentView: View {
-    
-    var di: DI
-    
+
+    @State var path: [Route] = []
+
+    let charactersBlocHolder: CharactersBlocHolder = CharactersBlocHolder()
+
     var body: some View {
-        TabView {
-            Text("1")
-                .tabItem {
-                    Image(systemName: "person.3")
-                    Text("Characters")
+        NavigationStack(path: $path) {
+            TabView {
+                LazyView {
+                    CharactersView(charactersBlocHolder.bloc)
+                            .onAppear {
+                                LifecycleRegistryExtKt.resume(charactersBlocHolder.lifecycle)
+                                charactersBlocHolder.setOutputListener { output in
+                                    onCharacterOutput(output: output)
+                                }
+                            }
+                            .onDisappear {
+                                LifecycleRegistryExtKt.pause(charactersBlocHolder.lifecycle)
+                            }
                 }
-            
-            Text("2")
-                .tabItem {
-                    Image(systemName: "list.triangle")
-                    Text("Episodes")
-                }
+                        .tabItem {
+                            Image(systemName: "person.3")
+                            Text("Characters")
+                        }
+
+                Text("Episodes List")
+                        .tabItem {
+                            Image(systemName: "list.triangle")
+                            Text("Episodes")
+                        }
+
+                Text("Locations List")
+                        .tabItem {
+                            Image(systemName: "map.circle.fill")
+                            Text("Locations")
+                        }
+
+                Text("About page")
+                        .tabItem {
+                            Image(systemName: "info.circle")
+                            Text("About")
+                        }
+            }
+                    .navigationDestination(for: Route.self) { route in
+                        switch route {
+                        case let .characterDetail(id):
+                            Text("id : \(id)")
+                        case .characterSearch:
+                            Text("Character search")
+                        case let .epidodeDetail(id):
+                            Text("Episode detail id: \(id)")
+                        case .episodeSearch:
+                            Text("Episode Search")
+                        case let .locationDetail(id):
+                            Text("Location detail id: \(id)")
+                        }
+                    }
         }
-        
-//        NavigationStack(path: <#T##Binding<NavigationPath>#>, root: <#T##() -> _#>)
+    }
+
+    private func onCharacterOutput(output: CharactersBlocOutput) {
+        switch output {
+        case let openCharacter as CharactersBlocOutput.OpenCharacter:
+            path = [Route.characterDetail(openCharacter.character.id)]
+        default:
+            print("Not handled character output \(output.description)")
+        }
     }
 }
 
-//struct ContentView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ContentView()
-//    }
-//}
+enum Route: Hashable {
+    case characterDetail(Int32)
+    case characterSearch
+    case epidodeDetail(Int32)
+    case episodeSearch
+    case locationDetail(Int32)
+}

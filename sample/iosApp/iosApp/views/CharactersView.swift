@@ -9,6 +9,7 @@ import SwiftUI
 import rickandmortysdk
 
 struct CharactersView : View {
+    
     private let bloc: CharactersBloc
     
     @ObservedObject
@@ -27,9 +28,13 @@ struct CharactersView : View {
                 ForEach(model.listItems) { item in
                     switch item {
                     case let characterItem as CharactersListItem.Character:
-                        HStack {
-                            Text(characterItem.value.name)
-                            Text(characterItem.value.species)
+                        NavigationLink(value: Route.characterDetail(characterItem.value.id)) {
+                            HStack {
+                                Text(characterItem.value.name)
+                                Text(characterItem.value.species)
+                            }.onTapGesture {
+                                bloc.onCharacterClicked(character: characterItem.value)
+                            }
                         }
                     case let pageLoadingItem as CharactersListItem.PageLoading:
                         ProgressView()
@@ -38,8 +43,26 @@ struct CharactersView : View {
                 }
             }
         }.navigationBarTitle("Characters", displayMode: .inline)
-            .padding(.bottom, 80)
     }
 }
 
 extension CharactersListItem : Identifiable {}
+
+class CharactersBlocHolder : ObservableObject {
+    let lifecycle: LifecycleRegistry
+    let bloc: CharactersBloc
+    
+    init() {
+        lifecycle = LifecycleRegistryKt.LifecycleRegistry()
+        lifecycle.onCreate()
+        bloc = BlocBuilder.shared.createCharactersList(lifecycle: lifecycle)
+    }
+    
+    func setOutputListener(_ output: @escaping (CharactersBlocOutput) -> Void) {
+        BlocBuilder.shared.charactersBlocOutput = output
+    }
+    
+    deinit {
+        lifecycle.onDestroy()
+    }
+}

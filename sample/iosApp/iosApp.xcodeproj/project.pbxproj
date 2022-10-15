@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4203D13728FA865C00CC86FD /* EpisodesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4203D13628FA865C00CC86FD /* EpisodesListView.swift */; };
 		420C665428F54A7600F395B5 /* LazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420C665328F54A7600F395B5 /* LazyView.swift */; };
 		420C665628F54AB300F395B5 /* FirstAppearModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420C665528F54AB300F395B5 /* FirstAppearModifier.swift */; };
 		422F7D1328CE71E1006D320F /* iosAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422F7D1228CE71E1006D320F /* iosAppApp.swift */; };
@@ -44,6 +45,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4203D13628FA865C00CC86FD /* EpisodesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodesListView.swift; sourceTree = "<group>"; };
 		420C665328F54A7600F395B5 /* LazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyView.swift; sourceTree = "<group>"; };
 		420C665528F54AB300F395B5 /* FirstAppearModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstAppearModifier.swift; sourceTree = "<group>"; };
 		422F7D0F28CE71E1006D320F /* Rick & Morty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Rick & Morty.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -181,6 +183,7 @@
 				422F7D4728CE77FB006D320F /* components */,
 				422F7D4528CE7772006D320F /* BottomNavView.swift */,
 				422F7D4C28CE7932006D320F /* CharactersView.swift */,
+				4203D13628FA865C00CC86FD /* EpisodesListView.swift */,
 			);
 			path = views;
 			sourceTree = "<group>";
@@ -376,6 +379,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4203D13728FA865C00CC86FD /* EpisodesListView.swift in Sources */,
 				420C665628F54AB300F395B5 /* FirstAppearModifier.swift in Sources */,
 				422F7D1528CE71E1006D320F /* ContentView.swift in Sources */,
 				422F7D4128CE7702006D320F /* ObservableValue.swift in Sources */,
