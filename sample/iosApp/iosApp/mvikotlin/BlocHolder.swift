@@ -7,7 +7,7 @@
 
 import rickandmortysdk
 
-class BlocHolder<T> {
+class BlocHolder<T> : ObservableObject {
     let lifecycle: LifecycleRegistry
     let bloc: T
     

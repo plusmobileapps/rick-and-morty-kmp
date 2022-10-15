@@ -12,15 +12,18 @@ struct ContentView: View {
 
     @State var path: [Route] = []
 
-    let charactersBlocHolder = BlocHolder<CharactersBloc> { lifecycle in
+    @StateObject
+    var charactersBlocHolder = BlocHolder<CharactersBloc> { lifecycle in
         BlocBuilder.shared.createCharactersList(lifecycle: lifecycle)
     }
 
-    let episodesBlocHolder = BlocHolder<EpisodesBloc> { lifecycle in
+    @StateObject
+    var episodesBlocHolder = BlocHolder<EpisodesBloc> { lifecycle in
         BlocBuilder.shared.createEpisodesBloc(lifecycle: lifecycle)
     }
 
-    let locationBlocHolder = BlocHolder<LocationBloc> { lifecycle in
+    @StateObject
+    var locationBlocHolder = BlocHolder<LocationBloc> { lifecycle in
         BlocBuilder.shared.createLocationsBloc(lifecycle: lifecycle)
     }
 
@@ -29,13 +32,13 @@ struct ContentView: View {
             TabView {
                 LazyView {
                     CharactersView(charactersBlocHolder.bloc)
-                            .onAppear {
-                                LifecycleRegistryExtKt.resume(charactersBlocHolder.lifecycle)
-                            }
-                            .onDisappear {
-                                LifecycleRegistryExtKt.pause(charactersBlocHolder.lifecycle)
-                            }
                 }
+                        .onAppear {
+                            LifecycleRegistryExtKt.resume(charactersBlocHolder.lifecycle)
+                        }
+                        .onDisappear {
+                            LifecycleRegistryExtKt.pause(charactersBlocHolder.lifecycle)
+                        }
                         .tabItem {
                             Image(systemName: "person.3")
                             Text("Characters")
@@ -74,11 +77,12 @@ struct ContentView: View {
                             Image(systemName: "info.circle")
                             Text("About")
                         }
-            }.navigationBarTitle("Characters", displayMode: .inline)
+            }
+                    .navigationBarTitle("Characters", displayMode: .inline)
                     .navigationDestination(for: Route.self) { route in
                         switch route {
                         case let .characterDetail(id):
-                            Text("id : \(id)")
+                            CharacterDetailView(id: id)
                         case .characterSearch:
                             Text("Character search")
                         case let .epidodeDetail(id):
