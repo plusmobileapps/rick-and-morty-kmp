@@ -12,6 +12,8 @@ struct ContentView: View {
 
     @State var path: [Route] = []
 
+    @State var selection = 1
+
     @StateObject
     var charactersBlocHolder = BlocHolder<CharactersBloc> { lifecycle in
         BlocBuilder.shared.createCharactersList(lifecycle: lifecycle)
@@ -28,8 +30,10 @@ struct ContentView: View {
     }
 
     var body: some View {
+        let title = getTitle(selection: selection)
+
         NavigationStack(path: $path) {
-            TabView {
+            TabView(selection: $selection) {
                 LazyView {
                     CharactersView(charactersBlocHolder.bloc)
                 }
@@ -43,6 +47,7 @@ struct ContentView: View {
                             Image(systemName: "person.3")
                             Text("Characters")
                         }
+                        .tag(1)
 
                 LazyView {
                     EpisodesListView(episodesBlocHolder.bloc)
@@ -57,6 +62,7 @@ struct ContentView: View {
                             Image(systemName: "list.triangle")
                             Text("Episodes")
                         }
+                        .tag(2)
 
                 LazyView {
                     LocationsListView(locationBlocHolder.bloc)
@@ -71,14 +77,16 @@ struct ContentView: View {
                             Image(systemName: "map.circle.fill")
                             Text("Locations")
                         }
+                        .tag(3)
 
                 Text("About page")
                         .tabItem {
                             Image(systemName: "info.circle")
                             Text("About")
                         }
+                        .tag(4)
             }
-                    .navigationBarTitle("Characters", displayMode: .inline)
+                    .navigationBarTitle(title, displayMode: .inline)
                     .navigationDestination(for: Route.self) { route in
                         switch route {
                         case let .characterDetail(id):
@@ -94,6 +102,19 @@ struct ContentView: View {
                             Text("Location detail id: \(id)")
                         }
                     }
+        }
+    }
+
+    private func getTitle(selection: Int) -> String {
+        switch selection {
+        case 1:
+            return "Characters"
+        case 2:
+            return "Episodes"
+        case 3:
+            return "Locations"
+        default:
+            return "About"
         }
     }
 
