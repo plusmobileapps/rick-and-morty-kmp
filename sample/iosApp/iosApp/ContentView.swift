@@ -89,8 +89,8 @@ struct ContentView: View {
                     .navigationBarTitle(title, displayMode: .inline)
                     .navigationDestination(for: Route.self) { route in
                         switch route {
-                        case let .characterDetail(id):
-                            CharacterDetailView(id: id)
+                        case let .characterDetail(character):
+                            CharacterDetailView(character)
                         case .characterSearch:
                             Text("Character search")
                                     .navigationBarTitle("Character Search", displayMode: .inline)
@@ -121,7 +121,7 @@ struct ContentView: View {
     private func onCharacterOutput(output: CharactersBlocOutput) {
         switch output {
         case let openCharacter as CharactersBlocOutput.OpenCharacter:
-            path = [Route.characterDetail(openCharacter.character.id)]
+            path = [Route.characterDetail(openCharacter.character)]
         default:
             print("Not handled character output \(output.description)")
         }
@@ -129,7 +129,7 @@ struct ContentView: View {
 }
 
 enum Route: Hashable {
-    case characterDetail(Int32)
+case characterDetail(RickAndMortyCharacter)
     case characterSearch
     case epidodeDetail(Int32)
     case episodeSearch

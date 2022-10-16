@@ -6,14 +6,16 @@ import SwiftUI
 import rickandmortysdk
 
 struct CharacterDetailView: View {
+    let title: String
     let blocHolder: BlocHolder<CharacterDetailBloc>
 
     @ObservedObject
     private var models: ObservableValue<CharacterDetailBlocModel>
 
-    init(id: Int32) {
+    init(_ character: RickAndMortyCharacter) {
+        title = character.name
         let holder = BlocHolder<CharacterDetailBloc> { lifecycle in
-            BlocBuilder.shared.createCharacterDetailBloc(lifecycle: lifecycle, id: id)
+            BlocBuilder.shared.createCharacterDetailBloc(lifecycle: lifecycle, id: character.id)
         }
         self.blocHolder = holder
         self.models = ObservableValue(holder.bloc.models)
@@ -29,6 +31,6 @@ struct CharacterDetailView: View {
             NavigationLink(value: Route.characterSearch) {
                 Text("Search")
             }
-        }.navigationBarTitle(model.character.name, displayMode: .inline)
+        }.navigationBarTitle(title, displayMode: .inline)
     }
 }
