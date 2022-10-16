@@ -25,12 +25,19 @@ struct CharacterDetailView: View {
         let model = models.value
 
         VStack {
+            Spacer().frame(height: 16.0)
+            AsyncImage(url: URL(string: model.character.imageUrl)) { image in
+                image.resizable()
+            } placeholder: {
+                ProgressView()
+            }.frame(width: 300, height: 300)
             Text(model.character.name)
             Text(model.character.species)
             Text(model.character.status)
             NavigationLink(value: Route.characterSearch) {
                 Text("Search")
             }
+            Spacer()
         }.navigationBarTitle(title, displayMode: .inline)
     }
 }

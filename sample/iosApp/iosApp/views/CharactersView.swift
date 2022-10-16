@@ -30,8 +30,13 @@ struct CharactersView : View {
                     case let characterItem as CharactersListItem.Character:
                         NavigationLink(value: Route.characterDetail(characterItem.value)) {
                             HStack {
+                                AsyncImage(url: URL(string: characterItem.value.imageUrl)) { image in
+                                    image.resizable()
+                                } placeholder: {
+                                    ProgressView()
+                                }.frame(width: 64, height: 64)
+                                Spacer().frame(width: 16)
                                 Text(characterItem.value.name)
-                                Text(characterItem.value.species)
                             }
                         }
                     case _ as CharactersListItem.PageLoading:
