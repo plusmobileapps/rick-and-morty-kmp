@@ -31,13 +31,15 @@ struct CharacterDetailView: View {
             } placeholder: {
                 ProgressView()
             }.frame(width: 300, height: 300)
-            Text(model.character.name)
-            Text(model.character.species)
-            Text(model.character.status)
-            NavigationLink(value: Route.characterSearch) {
-                Text("Search")
-            }
+            LabelWithTextView(label: "Species:", text: model.character.species)
+            Spacer().frame(height: 16)
+            LabelWithTextView(label: "Status:", text: model.character.status)
             Spacer()
-        }.navigationBarTitle(title, displayMode: .inline)
+        }.navigationBarTitle(title)
+                .toolbar {
+                    NavigationLink(value: Route.characterSearch) {
+                        Image(systemName: "magnifyingglass")
+                    }
+                }
     }
 }

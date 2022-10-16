@@ -24,6 +24,7 @@
 		422F7D4D28CE7932006D320F /* CharactersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422F7D4C28CE7932006D320F /* CharactersView.swift */; };
 		4321C71659911DA4DFECBDC9 /* LocationsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4321CBCA21D0C49CBC413620 /* LocationsListView.swift */; };
 		4321CBD6B8407F6E3BA722E9 /* CharacterDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4321C9BF70FAFEFAC9EA9B14 /* CharacterDetailView.swift */; };
+		4321CF09688E3CB1DC31339F /* LabelWithTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4321C9CFAA808899F3BCA180 /* LabelWithTextView.swift */; };
 		E2FC5DBA152B3CB6ECCEC4B7 /* Pods_iosApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D233C2D536832732D2DFEE4 /* Pods_iosApp.framework */; };
 /* End PBXBuildFile section */
 
@@ -64,6 +65,7 @@
 		422F7D4A28CE78CC006D320F /* VisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectView.swift; sourceTree = "<group>"; };
 		422F7D4C28CE7932006D320F /* CharactersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharactersView.swift; sourceTree = "<group>"; };
 		4321C9BF70FAFEFAC9EA9B14 /* CharacterDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CharacterDetailView.swift; sourceTree = "<group>"; };
+		4321C9CFAA808899F3BCA180 /* LabelWithTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LabelWithTextView.swift; sourceTree = "<group>"; };
 		4321CBCA21D0C49CBC413620 /* LocationsListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationsListView.swift; sourceTree = "<group>"; };
 		8D233C2D536832732D2DFEE4 /* Pods_iosApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_iosApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B6974DB148C2586423C47BB /* Pods-iosApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iosApp.release.xcconfig"; path = "Target Support Files/Pods-iosApp/Pods-iosApp.release.xcconfig"; sourceTree = "<group>"; };
@@ -193,6 +195,7 @@
 			isa = PBXGroup;
 			children = (
 				422F7D4A28CE78CC006D320F /* VisualEffectView.swift */,
+				4321C9CFAA808899F3BCA180 /* LabelWithTextView.swift */,
 			);
 			path = components;
 			sourceTree = "<group>";
@@ -391,6 +394,7 @@
 				422F7D3D28CE76BF006D320F /* BlocHolder.swift in Sources */,
 				4321C71659911DA4DFECBDC9 /* LocationsListView.swift in Sources */,
 				4321CBD6B8407F6E3BA722E9 /* CharacterDetailView.swift in Sources */,
+				4321CF09688E3CB1DC31339F /* LabelWithTextView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

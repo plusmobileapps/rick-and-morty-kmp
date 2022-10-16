@@ -86,7 +86,21 @@ struct ContentView: View {
                         }
                         .tag(4)
             }
-                    .navigationBarTitle(title, displayMode: .inline)
+                    .navigationBarTitle(title)
+                    .toolbar {
+                        switch selection {
+                        case 1:
+                            NavigationLink(value: Route.characterSearch) {
+                                Image(systemName: "magnifyingglass")
+                            }
+                        case 2:
+                            NavigationLink(value: Route.episodeSearch) {
+                                Image(systemName: "magnifyingglass")
+                            }
+                        default: EmptyView()
+                        }
+
+                    }
                     .navigationDestination(for: Route.self) { route in
                         switch route {
                         case let .characterDetail(character):
@@ -129,7 +143,7 @@ struct ContentView: View {
 }
 
 enum Route: Hashable {
-case characterDetail(RickAndMortyCharacter)
+    case characterDetail(RickAndMortyCharacter)
     case characterSearch
     case epidodeDetail(Int32)
     case episodeSearch
