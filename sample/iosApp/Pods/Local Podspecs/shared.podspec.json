@@ -1,6 +1,6 @@
 {
   "name": "shared",
-  "version": "0.1-alpha08",
+  "version": "0.2",
   "homepage": "https://github.com/plusmobileapps/rick-and-morty-kmp",
   "source": {
     "http": ""

@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import rickandmortysdk
 
 @main
 struct iosAppApp: App {
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

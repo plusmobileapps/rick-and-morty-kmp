@@ -7,13 +7,13 @@
 
 import rickandmortysdk
 
-class BlocHolder<T> {
+class BlocHolder<T> : ObservableObject {
     let lifecycle: LifecycleRegistry
     let bloc: T
     
-    init(factory: (ComponentContext) -> T) {
+    init(factory: (Lifecycle) -> T) {
         let lifecycle = LifecycleRegistryKt.LifecycleRegistry()
-        let bloc = factory(DefaultComponentContext(lifecycle: lifecycle))
+        let bloc = factory(lifecycle)
         self.lifecycle = lifecycle
         self.bloc = bloc
         

@@ -9,6 +9,7 @@ import SwiftUI
 import rickandmortysdk
 
 struct CharactersView : View {
+    
     private let bloc: CharactersBloc
     
     @ObservedObject
@@ -27,18 +28,24 @@ struct CharactersView : View {
                 ForEach(model.listItems) { item in
                     switch item {
                     case let characterItem as CharactersListItem.Character:
-                        HStack {
-                            Text(characterItem.value.name)
-                            Text(characterItem.value.species)
+                        NavigationLink(value: Route.characterDetail(characterItem.value)) {
+                            HStack {
+                                AsyncImage(url: URL(string: characterItem.value.imageUrl)) { image in
+                                    image.resizable()
+                                } placeholder: {
+                                    ProgressView()
+                                }.frame(width: 64, height: 64)
+                                Spacer().frame(width: 16)
+                                Text(characterItem.value.name)
+                            }
                         }
-                    case let pageLoadingItem as CharactersListItem.PageLoading:
+                    case _ as CharactersListItem.PageLoading:
                         ProgressView()
                     default: EmptyView()
                     }
                 }
             }
-        }.navigationBarTitle("Characters", displayMode: .inline)
-            .padding(.bottom, 80)
+        }
     }
 }
 

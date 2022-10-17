@@ -54,7 +54,7 @@ internal class LocationRepositoryImpl(
     }
 
     override val hasMoreEpisodesToLoad: Boolean
-        get() = nextPage < totalPages
+        get() = nextPage <= totalPages
 
     override val locations: Flow<List<Location>> =
         db.selectAll()
