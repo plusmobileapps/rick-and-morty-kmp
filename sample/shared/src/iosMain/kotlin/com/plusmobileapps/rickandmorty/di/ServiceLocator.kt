@@ -11,6 +11,8 @@ import com.plusmobileapps.rickandmorty.characters.list.CharactersBlocImpl
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBlocImpl
 import com.plusmobileapps.rickandmorty.db.DriverFactory
+import com.plusmobileapps.rickandmorty.episodes.detail.EpisodeDetailBloc
+import com.plusmobileapps.rickandmorty.episodes.detail.EpisodeDetailBlocImpl
 import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBloc
 import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBlocImpl
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBloc
@@ -52,10 +54,10 @@ object BlocBuilder {
             output = { }
         )
 
-    fun createEpisodeDetailBloc(lifecycle: Lifecycle, id: Int): LocationDetailBloc =
-        LocationDetailBlocImpl(
+    fun createEpisodeDetailBloc(lifecycle: Lifecycle, id: Int): EpisodeDetailBloc =
+        EpisodeDetailBlocImpl(
             context = lifecycle.createAppComponentContext(),
-            locationId = id,
+            id = id,
             di = di,
             output = { }
         )

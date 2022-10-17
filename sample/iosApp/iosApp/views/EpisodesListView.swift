@@ -27,7 +27,7 @@ struct EpisodesListView: View {
                 ForEach(model.episodes) { item in
                     switch item {
                     case let episodeItem as EpisodeListItem.EpisodeItem:
-                        NavigationLink(value: Route.epidodeDetail(episodeItem.value.id)) {
+                        NavigationLink(value: Route.epidodeDetail(episodeItem)) {
                             HStack {
                                 Text(episodeItem.value.name)
                                 Spacer()

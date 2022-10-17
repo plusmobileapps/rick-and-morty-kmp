@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		4203D13728FA865C00CC86FD /* EpisodesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4203D13628FA865C00CC86FD /* EpisodesListView.swift */; };
 		420C665428F54A7600F395B5 /* LazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420C665328F54A7600F395B5 /* LazyView.swift */; };
-		420C665628F54AB300F395B5 /* FirstAppearModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420C665528F54AB300F395B5 /* FirstAppearModifier.swift */; };
 		422F7D1328CE71E1006D320F /* iosAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422F7D1228CE71E1006D320F /* iosAppApp.swift */; };
 		422F7D1528CE71E1006D320F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422F7D1428CE71E1006D320F /* ContentView.swift */; };
 		422F7D1728CE71E3006D320F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 422F7D1628CE71E3006D320F /* Assets.xcassets */; };
@@ -20,9 +19,9 @@
 		422F7D3D28CE76BF006D320F /* BlocHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422F7D3C28CE76BF006D320F /* BlocHolder.swift */; };
 		422F7D3F28CE76EC006D320F /* MutableStateBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422F7D3E28CE76EC006D320F /* MutableStateBuilder.swift */; };
 		422F7D4128CE7702006D320F /* ObservableValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422F7D4028CE7702006D320F /* ObservableValue.swift */; };
-		422F7D4B28CE78CC006D320F /* VisualEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422F7D4A28CE78CC006D320F /* VisualEffectView.swift */; };
 		422F7D4D28CE7932006D320F /* CharactersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422F7D4C28CE7932006D320F /* CharactersView.swift */; };
 		4321C71659911DA4DFECBDC9 /* LocationsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4321CBCA21D0C49CBC413620 /* LocationsListView.swift */; };
+		4321C76F9EE456254C5E94B1 /* EpisodeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4321C75FDE09DCBBC1CF0B28 /* EpisodeDetailView.swift */; };
 		4321CBD6B8407F6E3BA722E9 /* CharacterDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4321C9BF70FAFEFAC9EA9B14 /* CharacterDetailView.swift */; };
 		4321CF09688E3CB1DC31339F /* LabelWithTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4321C9CFAA808899F3BCA180 /* LabelWithTextView.swift */; };
 		E2FC5DBA152B3CB6ECCEC4B7 /* Pods_iosApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D233C2D536832732D2DFEE4 /* Pods_iosApp.framework */; };
@@ -48,7 +47,6 @@
 /* Begin PBXFileReference section */
 		4203D13628FA865C00CC86FD /* EpisodesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodesListView.swift; sourceTree = "<group>"; };
 		420C665328F54A7600F395B5 /* LazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyView.swift; sourceTree = "<group>"; };
-		420C665528F54AB300F395B5 /* FirstAppearModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstAppearModifier.swift; sourceTree = "<group>"; };
 		422F7D0F28CE71E1006D320F /* Rick & Morty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Rick & Morty.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		422F7D1228CE71E1006D320F /* iosAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iosAppApp.swift; sourceTree = "<group>"; };
 		422F7D1428CE71E1006D320F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -62,8 +60,8 @@
 		422F7D3C28CE76BF006D320F /* BlocHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlocHolder.swift; sourceTree = "<group>"; };
 		422F7D3E28CE76EC006D320F /* MutableStateBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutableStateBuilder.swift; sourceTree = "<group>"; };
 		422F7D4028CE7702006D320F /* ObservableValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableValue.swift; sourceTree = "<group>"; };
-		422F7D4A28CE78CC006D320F /* VisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectView.swift; sourceTree = "<group>"; };
 		422F7D4C28CE7932006D320F /* CharactersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharactersView.swift; sourceTree = "<group>"; };
+		4321C75FDE09DCBBC1CF0B28 /* EpisodeDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EpisodeDetailView.swift; sourceTree = "<group>"; };
 		4321C9BF70FAFEFAC9EA9B14 /* CharacterDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CharacterDetailView.swift; sourceTree = "<group>"; };
 		4321C9CFAA808899F3BCA180 /* LabelWithTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LabelWithTextView.swift; sourceTree = "<group>"; };
 		4321CBCA21D0C49CBC413620 /* LocationsListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationsListView.swift; sourceTree = "<group>"; };
@@ -114,7 +112,6 @@
 				422F7D3E28CE76EC006D320F /* MutableStateBuilder.swift */,
 				422F7D4028CE7702006D320F /* ObservableValue.swift */,
 				420C665328F54A7600F395B5 /* LazyView.swift */,
-				420C665528F54AB300F395B5 /* FirstAppearModifier.swift */,
 			);
 			path = mvikotlin;
 			sourceTree = "<group>";
@@ -187,6 +184,7 @@
 				4203D13628FA865C00CC86FD /* EpisodesListView.swift */,
 				4321CBCA21D0C49CBC413620 /* LocationsListView.swift */,
 				4321C9BF70FAFEFAC9EA9B14 /* CharacterDetailView.swift */,
+				4321C75FDE09DCBBC1CF0B28 /* EpisodeDetailView.swift */,
 			);
 			path = views;
 			sourceTree = "<group>";
@@ -194,7 +192,6 @@
 		422F7D4728CE77FB006D320F /* components */ = {
 			isa = PBXGroup;
 			children = (
-				422F7D4A28CE78CC006D320F /* VisualEffectView.swift */,
 				4321C9CFAA808899F3BCA180 /* LabelWithTextView.swift */,
 			);
 			path = components;
@@ -383,10 +380,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4203D13728FA865C00CC86FD /* EpisodesListView.swift in Sources */,
-				420C665628F54AB300F395B5 /* FirstAppearModifier.swift in Sources */,
 				422F7D1528CE71E1006D320F /* ContentView.swift in Sources */,
 				422F7D4128CE7702006D320F /* ObservableValue.swift in Sources */,
-				422F7D4B28CE78CC006D320F /* VisualEffectView.swift in Sources */,
 				422F7D1328CE71E1006D320F /* iosAppApp.swift in Sources */,
 				422F7D4D28CE7932006D320F /* CharactersView.swift in Sources */,
 				420C665428F54A7600F395B5 /* LazyView.swift in Sources */,
@@ -395,6 +390,7 @@
 				4321C71659911DA4DFECBDC9 /* LocationsListView.swift in Sources */,
 				4321CBD6B8407F6E3BA722E9 /* CharacterDetailView.swift in Sources */,
 				4321CF09688E3CB1DC31339F /* LabelWithTextView.swift in Sources */,
+				4321C76F9EE456254C5E94B1 /* EpisodeDetailView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
