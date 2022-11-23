@@ -106,8 +106,7 @@ struct ContentView: View {
                         case let .characterDetail(character):
                             CharacterDetailView(character)
                         case .characterSearch:
-                            Text("Character search")
-                                    .navigationBarTitle("Character Search", displayMode: .inline)
+                           CharacterSearchView()
                         case let .epidodeDetail(episodeItem):
                             EpisodeDetailView(title: episodeItem.value.episode, id: episodeItem.value.id)
                         case .episodeSearch:
@@ -129,15 +128,6 @@ struct ContentView: View {
             return "Locations"
         default:
             return "About"
-        }
-    }
-
-    private func onCharacterOutput(output: CharactersBlocOutput) {
-        switch output {
-        case let openCharacter as CharactersBlocOutput.OpenCharacter:
-            path = [Route.characterDetail(openCharacter.character)]
-        default:
-            print("Not handled character output \(output.description)")
         }
     }
 }

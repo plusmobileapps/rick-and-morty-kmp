@@ -49,6 +49,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun RootScreen(bloc: RootBloc, windowSize: WindowSizeClass) {
+    bloc.routerState.value.items
     Children(stack = bloc.routerState, animation = stackAnimation(slide())) {
         when (val child = it.instance) {
             is RootBloc.Child.BottomNav -> BottomNavUI(bloc = child.bloc, windowSize)
