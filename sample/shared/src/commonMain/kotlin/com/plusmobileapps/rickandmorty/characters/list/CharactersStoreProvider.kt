@@ -58,7 +58,7 @@ internal class CharactersStoreProvider(
             if (state.isLoading || state.isPageLoading) {
                 return
             }
-            val hasMoreToLoad = repository.hasMoreCharactersToLoad
+            val hasMoreToLoad = repository.hasMoreToLoad
             if (hasMoreToLoad) {
                 dispatch(Message.LoadingNextPage(hasMore = hasMoreToLoad))
                 repository.loadNextPage()

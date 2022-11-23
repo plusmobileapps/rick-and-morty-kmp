@@ -46,7 +46,6 @@ class ServiceLocator(driverFactory: DriverFactory) : DI {
         CharactersRepositoryImpl(
             ioContext = dispatchers.default,
             db = database.characterQueries,
-            settings = settings,
             api = rickAndMortyApi,
             pagingDataSourceFactory = PagingDataSourceFactory,
             uuidUtil = uuidUtil
