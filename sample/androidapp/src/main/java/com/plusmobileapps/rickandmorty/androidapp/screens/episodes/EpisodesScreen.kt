@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
 import com.plusmobileapps.rickandmorty.api.episodes.Episode
-import com.plusmobileapps.rickandmorty.characters.CharactersListItem
 import com.plusmobileapps.rickandmorty.episodes.EpisodeListItem
 import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBloc
 import kotlinx.coroutines.launch
@@ -74,7 +73,7 @@ fun EpisodesList(
         items(episodes, key = {
             when (it) {
                 is EpisodeListItem.EpisodeItem -> it.value.id
-                is EpisodeListItem.NextPageLoading -> CharactersListItem.PageLoading.KEY
+                is EpisodeListItem.NextPageLoading -> EpisodeListItem.NextPageLoading.KEY
             }
         }) {
             when (it) {

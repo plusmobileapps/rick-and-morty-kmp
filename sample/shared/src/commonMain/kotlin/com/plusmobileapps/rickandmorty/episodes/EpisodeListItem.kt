@@ -4,5 +4,7 @@ import com.plusmobileapps.rickandmorty.api.episodes.Episode
 
 sealed class EpisodeListItem {
     data class EpisodeItem(val value: Episode) : EpisodeListItem()
-    object NextPageLoading : EpisodeListItem()
+    object NextPageLoading : EpisodeListItem() {
+        const val KEY = "episode-list-item-loading"
+    }
 }

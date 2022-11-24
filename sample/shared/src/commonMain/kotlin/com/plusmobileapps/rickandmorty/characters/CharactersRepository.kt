@@ -1,21 +1,19 @@
 package com.plusmobileapps.rickandmorty.characters
 
-import com.plusmobileapps.paging.PageLoaderRequest
-import com.plusmobileapps.paging.PageLoaderResponse
-import com.plusmobileapps.paging.PageLoaderState
-import com.plusmobileapps.paging.PagingDataSource
+import com.plusmobileapps.paging.*
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.db.CharacterQueries
-import com.plusmobileapps.rickandmorty.util.UuidUtil
 import com.squareup.sqldelight.TransactionWithoutReturn
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 interface CharactersRepository {
+    val pageLoaderState: StateFlow<PageLoaderData<RickAndMortyCharacter>>
     val hasMoreToLoad: Boolean
     fun loadNextPage()
     suspend fun getCharacters(): Flow<List<RickAndMortyCharacter>>
@@ -27,7 +25,6 @@ internal class CharactersRepositoryImpl(
     private val ioContext: CoroutineContext,
     private val db: CharacterQueries,
     private val api: RickAndMortyApiClient,
-    private val uuidUtil: UuidUtil,
     pagingDataSourceFactory: PagingDataSource.Factory,
 ) : CharactersRepository {
 
@@ -39,23 +36,21 @@ internal class CharactersRepositoryImpl(
     private val pagingDataSource: PagingDataSource<Unit, RickAndMortyCharacter> =
         pagingDataSourceFactory.create(this::loadPage)
 
+    override val pageLoaderState: StateFlow<PageLoaderData<RickAndMortyCharacter>>
+        get() = pagingDataSource.pageLoaderData
+
     init {
-        pagingDataSource.loadFirstPage(
+        pagingDataSource.clearAndLoadFirstPage(
             input = Unit,
             pageSize = PAGE_SIZE,
-            requestKey = uuidUtil.randomUuid()
         )
     }
 
     override val hasMoreToLoad: Boolean
-        get() = (pagingDataSource.pageLoaderData.value.pageLoaderState as? PageLoaderState.Idle)?.hasMorePages == true
-                || (pagingDataSource.pageLoaderData.value.pageLoaderState is PageLoaderState.Failed)
+        get() = pagingDataSource.pageLoaderData.value.hasMoreToLoad
 
     override fun loadNextPage() {
-        pagingDataSource.loadNextPage(
-            input = Unit,
-            requestKey = uuidUtil.randomUuid()
-        )
+        pagingDataSource.loadNextPage()
     }
 
     override suspend fun getCharacters(): Flow<List<RickAndMortyCharacter>> =

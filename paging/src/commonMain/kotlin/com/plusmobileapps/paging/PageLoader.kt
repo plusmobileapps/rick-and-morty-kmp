@@ -2,12 +2,27 @@ package com.plusmobileapps.paging
 
 typealias PageLoader<INPUT, DATA> = suspend (PageLoaderRequest<INPUT>) -> PageLoaderResponse<DATA>
 
-data class PageLoaderData<DATA>(val pageLoaderState: PageLoaderState, val data: List<DATA>)
+data class PageLoaderData<DATA>(
+    val isFirstPageLoading: Boolean,
+    val isNextPageLoading: Boolean,
+    val data: List<DATA>,
+    val pageLoaderError: PageLoaderError?,
+    val hasMoreToLoad: Boolean,
+)
 
-sealed class PageLoaderState {
+sealed class PageLoaderError {
+    data class FirstPage(val message: String?) : PageLoaderError()
+    data class NextPage(val message: String?) : PageLoaderError()
+}
+
+internal sealed class PageLoaderState {
     data class Idle(val hasMorePages: Boolean) : PageLoaderState()
     data class Loading(val isFirstPage: Boolean) : PageLoaderState()
-    data class Failed(val canRetrySameRequest: Boolean, val message: String?) : PageLoaderState()
+    data class Failed(
+        val canRetrySameRequest: Boolean,
+        val message: String?,
+        val isFirstPage: Boolean
+    ) : PageLoaderState()
 }
 
 data class PageLoaderRequest<INPUT>(

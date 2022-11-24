@@ -31,9 +31,11 @@ internal class CharactersBlocImpl(
 
     override val models: Value<CharactersBloc.Model> = store.asValue().map { state ->
         CharactersBloc.Model(
-            listItems = state.items,
-            error = state.error,
-            isLoading = state.isLoading
+            characters = state.items,
+            firstPageIsLoading = state.firstPageIsLoading,
+            nextPageIsLoading = state.nextPageIsLoading,
+            pageLoadedError = state.pageLoadedError,
+            hasMoreToLoad = state.hasMoreToLoad,
         )
     }
 

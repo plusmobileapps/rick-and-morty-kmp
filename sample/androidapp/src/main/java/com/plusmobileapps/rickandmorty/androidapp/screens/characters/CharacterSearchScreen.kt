@@ -29,7 +29,6 @@ import com.plusmobileapps.rickandmorty.androidapp.theme.Rick_and_Morty_KMPTheme
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus.ALIVE
-import com.plusmobileapps.rickandmorty.characters.CharactersListItem
 import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
 
@@ -130,18 +129,15 @@ fun SearchBar(
 @Composable
 fun CharacterSearchResults(
     modifier: Modifier,
-    characters: List<CharactersListItem>,
+    characters: List<RickAndMortyCharacter>,
     onCharacterClicked: (RickAndMortyCharacter) -> Unit
 ) {
     LazyColumn(modifier = modifier) {
         items(characters) {
-            when (it) {
-                is CharactersListItem.Character -> CharacterListItemCard(
-                    character = it.value,
-                    onClick = { onCharacterClicked(it.value) })
-                is CharactersListItem.PageLoading -> TODO()
-            }
-
+            CharacterListItemCard(
+                character = it,
+                onClick = { onCharacterClicked(it) }
+            )
         }
     }
 }
@@ -208,10 +204,7 @@ fun CharacterSearchPreview() {
                             isLoading = true,
                             query = "",
                             results = listOf(
-                                CharactersListItem.Character(
-                                    RickAndMortyCharacter(name = "Pickle Rick")
-                                ),
-                                CharactersListItem.PageLoading(isLoading = true, hasMore = false),
+                                RickAndMortyCharacter(name = "Pickle Rick")
                             ),
                             status = ALIVE,
                             species = "",

@@ -48,7 +48,6 @@ class ServiceLocator(driverFactory: DriverFactory) : DI {
             db = database.characterQueries,
             api = rickAndMortyApi,
             pagingDataSourceFactory = PagingDataSourceFactory,
-            uuidUtil = uuidUtil
         )
     }
     override val episodesRepository: EpisodesRepository by lazy {

@@ -39,7 +39,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(project(":rick-and-morty-api"))
-                implementation(project(":paging"))
+                api(project(":paging"))
                 implementation(Deps.Jetbrains.coroutines)
                 implementation(Deps.Jetbrains.serialization)
                 implementation(Deps.SqlDelight.coroutines)
