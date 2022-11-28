@@ -131,13 +131,22 @@ internal class RootBlocImpl(
                 )
             }
             Configuration.CharacterSearch -> RootBloc.Child.CharacterSearch(
-                characterSearch(context) { navigation.pop() }
+                characterSearch(context, this::onCharacterSearchOutput)
             )
             Configuration.EpisodeSearch -> RootBloc.Child.EpisodeSearch(
                 episodeSearch(context) { navigation.pop() }
             )
             is Configuration.LocationDetail -> RootBloc.Child.LocationDetail(
                 locationDetail(context, configuration.id, ::onLocationDetailOutput)
+            )
+        }
+    }
+
+    private fun onCharacterSearchOutput(output: CharacterSearchBloc.Output) {
+        when (output) {
+            CharacterSearchBloc.Output.GoBack -> navigation.pop()
+            is CharacterSearchBloc.Output.OpenCharacter -> navigation.push(
+                Configuration.CharacterDetail(output.id)
             )
         }
     }

@@ -3,11 +3,14 @@ package com.plusmobileapps.rickandmorty.di
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import com.plusmobileapps.konnectivity.Konnectivity
+import com.plusmobileapps.paging.PagingDataSource
 import com.plusmobileapps.paging.PagingDataSourceFactory
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApi
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.characters.CharactersRepository
 import com.plusmobileapps.rickandmorty.characters.CharactersRepositoryImpl
+import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchUseCase
+import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchUseCaseImpl
 import com.plusmobileapps.rickandmorty.db.DriverFactory
 import com.plusmobileapps.rickandmorty.db.MyDatabase
 import com.plusmobileapps.rickandmorty.db.createDatabase
@@ -32,6 +35,7 @@ interface DI {
     val episodesRepository: EpisodesRepository
     val locationRepository: LocationRepository
     val uuidUtil: UuidUtil
+    val characterSearchUseCase: CharacterSearchUseCase
 }
 
 class ServiceLocator(driverFactory: DriverFactory) : DI {
@@ -66,4 +70,9 @@ class ServiceLocator(driverFactory: DriverFactory) : DI {
             settings = settings
         )
     }
+    override val characterSearchUseCase: CharacterSearchUseCase
+        get() = CharacterSearchUseCaseImpl(
+            api = rickAndMortyApi,
+            factory = PagingDataSourceFactory,
+        )
 }

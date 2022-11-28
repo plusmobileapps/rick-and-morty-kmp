@@ -10,7 +10,7 @@ interface PagingDataSource<INPUT, DATA> {
 
     val pageLoaderData: StateFlow<PageLoaderData<DATA>>
 
-    fun clearAndLoadFirstPage(input: INPUT, pageSize: Int)
+    fun clearAndLoadFirstPage(input: INPUT)
 
     fun loadNextPage()
 
@@ -36,8 +36,6 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
     private val scope = CoroutineScope(ioContext)
 
     private val pagingState = MutableStateFlow<State<INPUT, DATA>>(State())
-    private val pageSize: Int
-        get() = pagingState.value.pageSize
     private val pagingKey: String?
         get() = pagingState.value.pagingKey
 
@@ -59,10 +57,9 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
                 )
             }
 
-    override fun clearAndLoadFirstPage(input: INPUT, pageSize: Int) {
+    override fun clearAndLoadFirstPage(input: INPUT) {
         pagingState.value = State(
             input = input,
-            pageSize = pageSize,
             pageLoaderState = PageLoaderState.Loading(
                 isFirstPage = true
             ),
@@ -90,7 +87,6 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
         val response: PageLoaderResponse<DATA> = pageLoader(
             PageLoaderRequest(
                 pagingKey = pagingKey,
-                pageSize = pageSize,
                 input = input
                     ?: throw IllegalStateException("Attempting to load next page without loading first page since the input is null"),
             )
@@ -98,14 +94,12 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
         val currentState = pagingState.value
         when (response) {
             is PageLoaderResponse.Error -> {
-                val (canRetrySameRequest, message) = response
+                val (message) = response
                 pagingState.value = pagingState.value.copy(
                     pageLoaderState = PageLoaderState.Failed(
-                        canRetrySameRequest = canRetrySameRequest,
                         message = message,
                         isFirstPage = isFirstPage
                     ),
-                    data = currentState.data,
                 )
             }
             is PageLoaderResponse.Success -> {
@@ -115,7 +109,6 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
                         hasMorePages = pagingToken != null
                     ),
                     data = currentState.data + data,
-                    pageSize = pageSize,
                     pagingKey = response.pagingToken
                 )
             }
@@ -135,7 +128,6 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
         val input: INPUT? = null,
         val pageLoaderState: PageLoaderState = PageLoaderState.Idle(hasMorePages = true),
         val data: List<DATA> = emptyList(),
-        val pageSize: Int = 0,
         val pagingKey: String? = null,
     ) {
         val firstPageIsLoading: Boolean

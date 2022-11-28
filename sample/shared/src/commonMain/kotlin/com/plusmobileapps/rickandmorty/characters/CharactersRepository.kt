@@ -29,7 +29,6 @@ internal class CharactersRepositoryImpl(
 ) : CharactersRepository {
 
     companion object {
-        const val PAGING_URL = "https://rickandmortyapi.com/api/character?page="
         const val PAGE_SIZE = 20
     }
 
@@ -42,7 +41,6 @@ internal class CharactersRepositoryImpl(
     init {
         pagingDataSource.clearAndLoadFirstPage(
             input = Unit,
-            pageSize = PAGE_SIZE,
         )
     }
 
@@ -120,12 +118,10 @@ internal class CharactersRepositoryImpl(
                         insertCharactersIntoDb(it)
                     }
                 },
-                pagingToken = response.info.next?.removePrefix(PAGING_URL)?.toIntOrNull()
-                    ?.toString()
+                pagingToken = response.info.nextPageNumber
             )
         } catch (e: Exception) {
             PageLoaderResponse.Error(
-                canRetrySameRequest = true,
                 message = e.message.toString()
             )
         }

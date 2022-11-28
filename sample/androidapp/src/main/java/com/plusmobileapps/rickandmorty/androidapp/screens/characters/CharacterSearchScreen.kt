@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -23,9 +24,12 @@ import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
+import com.plusmobileapps.paging.PageLoaderData
+import com.plusmobileapps.paging.PageLoaderError
 import com.plusmobileapps.rickandmorty.androidapp.R
 import com.plusmobileapps.rickandmorty.androidapp.components.SearchFilterDropdown
 import com.plusmobileapps.rickandmorty.androidapp.theme.Rick_and_Morty_KMPTheme
+import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus.ALIVE
@@ -61,23 +65,52 @@ fun CharacterSearchScreen(bloc: CharacterSearchBloc) {
                 onSpeciesChanged = bloc::onSpeciesChanged,
             )
         }
-        AnimatedVisibility(model.value.error != null) {
-            Text(text = model.value.error ?: "Error")
-        }
-        AnimatedVisibility(model.value.isLoading) {
-            CircularProgressIndicator()
-        }
-        val items = model.value.results
-        if (items.isEmpty()) {
-            Text(modifier = Modifier.weight(1f), text = "No results")
-        } else {
-            CharacterSearchResults(
-                modifier = Modifier.weight(1f),
-                characters = items,
-                onCharacterClicked = { })
+        val error = model.value.pageLoaderState.pageLoaderError
+        when {
+            model.value.pageLoaderState.isFirstPageLoading -> FirstPageLoadingIndicator()
+            error is PageLoaderError.FirstPage -> {
+                FirstPageErrorContent(error = error) { bloc.onFirstPageTryAgainClicked() }
+            }
+            model.value.pageLoaderState.data.isEmpty() -> NoCharacterSearchResultsContent()
+            else -> {
+                CharacterSearchResults(
+                    modifier = Modifier.weight(1f),
+                    pageLoadingState = model.value.pageLoaderState,
+                    onCharacterClicked = bloc::onCharacterClicked,
+                    onLoadMore = bloc::onLoadNextPage,
+                    onNextPageTryAgainClicked = bloc::onNextPageTryAgainClicked,
+                )
+            }
         }
     }
 
+}
+
+@Composable
+private fun FirstPageLoadingIndicator() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+private fun FirstPageErrorContent(error: PageLoaderError.FirstPage, onTryAgainClicked: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(
+            text = error.message ?: "Error loading first page",
+            style = MaterialTheme.typography.titleLarge
+        )
+    }
+}
+
+@Composable
+fun NoCharacterSearchResultsContent() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(
+            text = "No results to display, try to update your query and try again.",
+            style = MaterialTheme.typography.titleLarge
+        )
+    }
 }
 
 @Composable
@@ -129,15 +162,57 @@ fun SearchBar(
 @Composable
 fun CharacterSearchResults(
     modifier: Modifier,
-    characters: List<RickAndMortyCharacter>,
-    onCharacterClicked: (RickAndMortyCharacter) -> Unit
+    pageLoadingState: PageLoaderData<RickAndMortyCharacter>,
+    onCharacterClicked: (RickAndMortyCharacter) -> Unit,
+    onLoadMore: () -> Unit,
+    onNextPageTryAgainClicked: () -> Unit,
 ) {
-    LazyColumn(modifier = modifier) {
-        items(characters) {
+    val lazyColumnState = rememberLazyListState()
+
+    LazyColumn(modifier = modifier, state = lazyColumnState) {
+        items(pageLoadingState.data, key = { it.id }) {
             CharacterListItemCard(
                 character = it,
                 onClick = { onCharacterClicked(it) }
             )
+        }
+
+        if (pageLoadingState.hasMoreToLoad) {
+            item("character-search-load-more-button") {
+                Button(onClick = onLoadMore) {
+                    Text("Load More")
+                }
+            }
+        }
+
+        if (pageLoadingState.isNextPageLoading) {
+            item("character-search-next-page-loading") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+        }
+
+        if (pageLoadingState.pageLoaderError is PageLoaderError.NextPage) {
+            item("character-search-next-page-error") {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(text = "Error loading next page.")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = onNextPageTryAgainClicked) {
+                        Text("Try again")
+                    }
+                }
+            }
         }
     }
 }
@@ -201,11 +276,12 @@ fun CharacterSearchPreview() {
                 override val models: Value<CharacterSearchBloc.Model> =
                     MutableValue(
                         CharacterSearchBloc.Model(
-                            isLoading = true,
-                            query = "",
-                            results = listOf(
-                                RickAndMortyCharacter(name = "Pickle Rick")
+                            pageLoaderState = PageLoaderData(
+                                data = listOf(
+                                    RickAndMortyCharacter(name = "Pickle rick")
+                                )
                             ),
+                            query = "",
                             status = ALIVE,
                             species = "",
                             gender = CharacterGender.MALE,
@@ -215,6 +291,22 @@ fun CharacterSearchPreview() {
                     )
 
                 override fun onClearSearch() {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onLoadNextPage() {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onFirstPageTryAgainClicked() {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onNextPageTryAgainClicked() {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onCharacterClicked(character: RickAndMortyCharacter) {
                     TODO("Not yet implemented")
                 }
 

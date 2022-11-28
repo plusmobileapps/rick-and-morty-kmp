@@ -1,6 +1,7 @@
 package com.plusmobileapps.rickandmorty.characters.search
 
 import com.arkivanov.decompose.value.Value
+import com.plusmobileapps.paging.PageLoaderData
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
 import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
@@ -11,6 +12,14 @@ interface CharacterSearchBloc : BackClickBloc {
     val models: Value<Model>
 
     fun onSearchClicked()
+
+    fun onLoadNextPage()
+
+    fun onFirstPageTryAgainClicked()
+
+    fun onNextPageTryAgainClicked()
+
+    fun onCharacterClicked(character: RickAndMortyCharacter)
 
     fun onClearSearch()
 
@@ -33,9 +42,8 @@ interface CharacterSearchBloc : BackClickBloc {
     fun onFiltersClicked()
 
     data class Model(
-        val isLoading: Boolean,
+        val pageLoaderState: PageLoaderData<RickAndMortyCharacter>,
         val query: String,
-        val results: List<RickAndMortyCharacter>,
         val status: CharacterStatus?,
         val species: String,
         val gender: CharacterGender?,
@@ -45,5 +53,6 @@ interface CharacterSearchBloc : BackClickBloc {
 
     sealed class Output {
         object GoBack : Output()
+        data class OpenCharacter(val id: Int) : Output()
     }
 }
