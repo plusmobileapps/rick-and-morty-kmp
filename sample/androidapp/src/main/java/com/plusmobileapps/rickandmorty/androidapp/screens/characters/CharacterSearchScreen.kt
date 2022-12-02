@@ -62,6 +62,9 @@ fun CharacterSearchScreen(bloc: CharacterSearchBloc) {
                 onSpeciesChanged = bloc::onSpeciesChanged,
             )
         }
+        AnimatedVisibility(model.value.error != null) {
+            Text(text = model.value.error ?: "Error")
+        }
         AnimatedVisibility(model.value.isLoading) {
             CircularProgressIndicator()
         }
@@ -176,7 +179,9 @@ fun FiltersBottomSheet(
             )
         }
         TextField(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             value = species,
             onValueChange = onSpeciesChanged,
             label = { Text("Species") },

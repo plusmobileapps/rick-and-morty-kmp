@@ -5,6 +5,7 @@ import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
+import com.plusmobileapps.konnectivity.Konnectivity
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
@@ -13,15 +14,19 @@ import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchStore.Intent
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchStore.State
 import com.plusmobileapps.rickandmorty.util.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 internal class CharacterSearchStoreProvider(
     private val storeFactory: StoreFactory,
     private val dispatchers: Dispatchers,
     private val api: RickAndMortyApiClient,
+    private val konnectivity: Konnectivity,
 ) {
 
     sealed class Message {
+        data class NetworkConnectionUpdated(val isConnected: Boolean) : Message()
+        data class Error(val error: String) : Message()
         data class UpdateQuery(val query: String) : Message()
         data class ResultsUpdated(val results: List<CharactersListItem>) : Message()
         data class StatusUpdated(val status: CharacterStatus?) : Message()
@@ -35,7 +40,7 @@ internal class CharacterSearchStoreProvider(
     fun provide(): CharacterSearchStore =
         object : CharacterSearchStore, Store<Intent, State, Nothing> by storeFactory.create(
             name = "Store",
-            initialState = State(),
+            initialState = State(isConnectedToNetwork = konnectivity.isConnected),
             bootstrapper = SimpleBootstrapper(Unit),
             executorFactory = ::Executor,
             reducer = ReducerImpl
@@ -43,6 +48,14 @@ internal class CharacterSearchStoreProvider(
 
     private inner class Executor :
         CoroutineExecutor<Intent, Unit, State, Message, Nothing>(dispatchers.main) {
+
+        override fun executeAction(action: Unit, getState: () -> State) {
+            scope.launch {
+                konnectivity.isConnectedState.collect {
+                    dispatch(Message.NetworkConnectionUpdated(it))
+                }
+            }
+        }
 
         override fun executeIntent(intent: Intent, getState: () -> State) {
             when (intent) {
@@ -57,6 +70,10 @@ internal class CharacterSearchStoreProvider(
         }
 
         private fun search(state: State) {
+            if (!state.isConnectedToNetwork) {
+                dispatch(Message.Error("Not connected to internet."))
+                return
+            }
             dispatch(Message.LoadingQuery)
             scope.launch {
                 try {
@@ -75,7 +92,7 @@ internal class CharacterSearchStoreProvider(
                     }
                     dispatch(Message.ResultsUpdated(characters))
                 } catch (e: Exception) {
-                    println(e)
+                    dispatch(Message.Error(e.message.toString()))
                 }
             }
         }
@@ -84,13 +101,19 @@ internal class CharacterSearchStoreProvider(
     private object ReducerImpl : Reducer<State, Message> {
         override fun State.reduce(msg: Message): State = when (msg) {
             is Message.GenderUpdated -> copy(gender = msg.gender)
-            is Message.ResultsUpdated -> copy(results = msg.results, isLoading = false)
+            is Message.ResultsUpdated -> copy(
+                results = msg.results,
+                isLoading = false,
+                error = null,
+            )
             is Message.SpeciesUpdated -> copy(species = msg.species)
             is Message.StatusUpdated -> copy(status = msg.status)
             is Message.UpdateQuery -> copy(query = msg.query)
             Message.LoadingQuery -> copy(isLoading = true)
             is Message.FilterVisibilityUpdated -> copy(showFilters = msg.show)
-            Message.ClearSearch -> State()
+            Message.ClearSearch -> State(isConnectedToNetwork = isConnectedToNetwork)
+            is Message.NetworkConnectionUpdated -> copy(isConnectedToNetwork = msg.isConnected)
+            is Message.Error -> copy(error = msg.error)
         }
     }
 }
