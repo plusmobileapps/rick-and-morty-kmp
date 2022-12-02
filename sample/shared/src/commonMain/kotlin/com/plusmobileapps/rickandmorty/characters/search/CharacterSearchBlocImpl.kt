@@ -3,6 +3,7 @@ package com.plusmobileapps.rickandmorty.characters.search
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.operator.map
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
+import com.plusmobileapps.konnectivity.Konnectivity
 import com.plusmobileapps.rickandmorty.AppComponentContext
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
@@ -16,17 +17,19 @@ import com.plusmobileapps.rickandmorty.util.asValue
 internal class CharacterSearchBlocImpl(
     componentContext: AppComponentContext,
     private val rickAndMortyApi: RickAndMortyApiClient,
+    private val konnectivity: Konnectivity,
     private val output: Consumer<Output>
 ) : CharacterSearchBloc, AppComponentContext by componentContext {
 
     constructor(componentContext: AppComponentContext, di: DI, output: Consumer<Output>) : this(
         componentContext = componentContext,
         rickAndMortyApi = di.rickAndMortyApi,
+        konnectivity = di.konnectivity,
         output = output,
     )
 
     private val store = instanceKeeper.getStore {
-        CharacterSearchStoreProvider(storeFactory, dispatchers, rickAndMortyApi).provide()
+        CharacterSearchStoreProvider(storeFactory, dispatchers, rickAndMortyApi, konnectivity).provide()
     }
 
     override val models: Value<CharacterSearchBloc.Model> = store.asValue().map {

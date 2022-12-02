@@ -79,4 +79,8 @@ object Deps {
             const val extensionsCompose = "com.arkivanov.decompose:extensions-compose-jetpack:$VERSION"
         }
     }
+
+    object PlusMobileApps {
+        const val konnectivity = "com.plusmobileapps:konnectivity:0.1-alpha01"
+    }
 }
