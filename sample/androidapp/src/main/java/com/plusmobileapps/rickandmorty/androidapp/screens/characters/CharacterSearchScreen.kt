@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
-import com.plusmobileapps.paging.PageLoaderData
 import com.plusmobileapps.paging.PageLoaderError
+import com.plusmobileapps.paging.PagingDataSource
 import com.plusmobileapps.rickandmorty.androidapp.R
 import com.plusmobileapps.rickandmorty.androidapp.components.SearchFilterDropdown
 import com.plusmobileapps.rickandmorty.androidapp.theme.Rick_and_Morty_KMPTheme
@@ -162,7 +162,7 @@ fun SearchBar(
 @Composable
 fun CharacterSearchResults(
     modifier: Modifier,
-    pageLoadingState: PageLoaderData<RickAndMortyCharacter>,
+    pageLoadingState: PagingDataSource.State<RickAndMortyCharacter>,
     onCharacterClicked: (RickAndMortyCharacter) -> Unit,
     onLoadMore: () -> Unit,
     onNextPageTryAgainClicked: () -> Unit,
@@ -276,7 +276,7 @@ fun CharacterSearchPreview() {
                 override val models: Value<CharacterSearchBloc.Model> =
                     MutableValue(
                         CharacterSearchBloc.Model(
-                            pageLoaderState = PageLoaderData(
+                            pageLoaderState = PagingDataSource.State(
                                 data = listOf(
                                     RickAndMortyCharacter(name = "Pickle rick")
                                 )

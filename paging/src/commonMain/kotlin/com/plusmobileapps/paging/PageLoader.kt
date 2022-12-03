@@ -1,24 +1,22 @@
 package com.plusmobileapps.paging
 
+/**
+ * A type alias for a function that makes an async call with [PageLoaderRequest] and returns
+ * a [PageLoaderResponse]. This is then passed as a parameter for [PagingDataSource.Factory.create]
+ * and will be where one typically fetches data from an API.
+ */
 typealias PageLoader<INPUT, DATA> = suspend (PageLoaderRequest<INPUT>) -> PageLoaderResponse<DATA>
 
-data class PageLoaderData<DATA>(
-    val isFirstPageLoading: Boolean = false,
-    val isNextPageLoading: Boolean = false,
-    val data: List<DATA> = emptyList(),
-    val pageLoaderError: PageLoaderError? = null,
-    val hasMoreToLoad: Boolean = false,
-)
-
 sealed class PageLoaderError {
-    data class FirstPage(val message: String?) : PageLoaderError()
-    data class NextPage(val message: String?) : PageLoaderError()
+    data class FirstPage(val exception: Exception, val message: String? = null) : PageLoaderError()
+    data class NextPage(val exception: Exception, val message: String?) : PageLoaderError()
 }
 
 internal sealed class PageLoaderState {
     data class Idle(val hasMorePages: Boolean) : PageLoaderState()
     data class Loading(val isFirstPage: Boolean) : PageLoaderState()
     data class Failed(
+        val exception: Exception,
         val message: String?,
         val isFirstPage: Boolean
     ) : PageLoaderState()
@@ -36,7 +34,7 @@ sealed class PageLoaderResponse<out DATA> {
     ) : PageLoaderResponse<DATA>()
 
     data class Error(
+        val exception: Exception,
         val message: String? = null,
-        val exception: Exception? = null,
     ) : PageLoaderResponse<Nothing>()
 }

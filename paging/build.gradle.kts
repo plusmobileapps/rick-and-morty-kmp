@@ -24,6 +24,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(Deps.Jetbrains.coroutines)
+                implementation(Deps.PlusMobileApps.konnectivity)
             }
         }
         val commonTest by getting {

@@ -5,7 +5,7 @@ import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
-import com.plusmobileapps.paging.PageLoaderData
+import com.plusmobileapps.paging.PagingDataSource
 import com.plusmobileapps.rickandmorty.characters.CharactersRepository
 import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
 import com.plusmobileapps.rickandmorty.characters.list.CharactersStore.Intent
@@ -21,7 +21,7 @@ internal class CharactersStoreProvider(
 
     private sealed class Message {
         data class CharactersUpdated(val items: List<RickAndMortyCharacter>) : Message()
-        data class PageLoaderStateUpdated(val state: PageLoaderData<RickAndMortyCharacter>) :
+        data class PageLoaderStateUpdated(val state: PagingDataSource.State<RickAndMortyCharacter>) :
             Message()
     }
 

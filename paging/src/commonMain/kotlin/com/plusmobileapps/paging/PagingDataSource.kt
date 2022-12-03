@@ -1,5 +1,6 @@
 package com.plusmobileapps.paging
 
+import com.plusmobileapps.konnectivity.Konnectivity
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -8,29 +9,60 @@ import kotlinx.coroutines.flow.*
 
 interface PagingDataSource<INPUT, DATA> {
 
-    val pageLoaderData: StateFlow<PageLoaderData<DATA>>
+    val state: StateFlow<State<DATA>>
 
     fun clearAndLoadFirstPage(input: INPUT)
 
     fun loadNextPage()
 
     interface Factory {
-        fun <INPUT, DATA> create(pageLoader: PageLoader<INPUT, DATA>): PagingDataSource<INPUT, DATA>
+        fun <INPUT, DATA> create(
+            pageLoader: PageLoader<INPUT, DATA>,
+        ): PagingDataSource<INPUT, DATA>
     }
+
+    /**
+     * Model for [PagingDataSource.state]
+     *
+     * @param DATA The type of data to be return from the [PageLoader]
+     * @property isFirstPageLoading When no [PageLoaderResponse.Success] has
+     *     been returned, then this will be true while a request is in flight.
+     *     Can be helpful for showing a loading indicator for the whole screen.
+     * @property isNextPageLoading When at least one
+     *     [PageLoaderResponse.Success] has been returned, then this will
+     *     return true while the next page is being loaded. Can be helpful for
+     *     knowing when to show a loading indicator at the bottom of the list.
+     * @property data A combined list of all the returned pages.
+     * @property pageLoaderError An error that can be returned when loading a
+     *     page indicating the first or next page. Can be helpful to know if
+     *     its the first to show a full screen errror and next page of showing
+     *     a footer with a try again button for the user.
+     * @property hasMoreToLoad True if there are more pages that can be loaded.
+     */
+    data class State<DATA>(
+        val isFirstPageLoading: Boolean = false,
+        val isNextPageLoading: Boolean = false,
+        val data: List<DATA> = emptyList(),
+        val pageLoaderError: PageLoaderError? = null,
+        val hasMoreToLoad: Boolean = false,
+    )
 }
 
 object PagingDataSourceFactory : PagingDataSource.Factory {
+    private val konnectivity = Konnectivity()
     override fun <INPUT, DATA> create(
         pageLoader: PageLoader<INPUT, DATA>
     ): PagingDataSource<INPUT, DATA> = PagingDataSourceImpl(
         ioContext = Dispatchers.Default,
         pageLoader = pageLoader,
+        konnectivity = konnectivity,
     )
 }
 
 internal class PagingDataSourceImpl<INPUT, DATA>(
     ioContext: CoroutineDispatcher,
     private val pageLoader: PageLoader<INPUT, DATA>,
+    private val konnectivity: Konnectivity,
 ) : PagingDataSource<INPUT, DATA> {
 
     private val scope = CoroutineScope(ioContext)
@@ -39,21 +71,22 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
     private val pagingKey: String?
         get() = pagingState.value.pagingKey
 
-    override val pageLoaderData: StateFlow<PageLoaderData<DATA>> =
+    override val state: StateFlow<PagingDataSource.State<DATA>> =
         pagingState.asStateFlow()
             .map(scope) {
-                PageLoaderData(
+                PagingDataSource.State(
                     isFirstPageLoading = it.firstPageIsLoading,
                     isNextPageLoading = it.nextPageIsLoading,
                     data = it.data,
                     pageLoaderError = (it.pageLoaderState as? PageLoaderState.Failed)?.let { error ->
                         if (it.pageLoaderState.isFirstPage) {
-                            PageLoaderError.FirstPage(error.message)
+                            PageLoaderError.FirstPage(error.exception, error.message)
                         } else {
-                            PageLoaderError.NextPage(error.message)
+                            PageLoaderError.NextPage(error.exception, error.message)
                         }
                     },
-                    hasMoreToLoad = (it.pageLoaderState as? PageLoaderState.Idle)?.hasMorePages ?: false
+                    hasMoreToLoad = (it.pageLoaderState as? PageLoaderState.Idle)?.hasMorePages
+                        ?: false
                 )
             }
 
@@ -94,10 +127,10 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
         val currentState = pagingState.value
         when (response) {
             is PageLoaderResponse.Error -> {
-                val (message) = response
                 pagingState.value = pagingState.value.copy(
                     pageLoaderState = PageLoaderState.Failed(
-                        message = message,
+                        exception = response.exception,
+                        message = response.message,
                         isFirstPage = isFirstPage
                     ),
                 )

@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 interface CharactersRepository {
-    val pageLoaderState: StateFlow<PageLoaderData<RickAndMortyCharacter>>
+    val pageLoaderState: StateFlow<PagingDataSource.State<RickAndMortyCharacter>>
     val hasMoreToLoad: Boolean
     fun loadNextPage()
     suspend fun getCharacters(): Flow<List<RickAndMortyCharacter>>
@@ -35,8 +35,8 @@ internal class CharactersRepositoryImpl(
     private val pagingDataSource: PagingDataSource<Unit, RickAndMortyCharacter> =
         pagingDataSourceFactory.create(this::loadPage)
 
-    override val pageLoaderState: StateFlow<PageLoaderData<RickAndMortyCharacter>>
-        get() = pagingDataSource.pageLoaderData
+    override val pageLoaderState: StateFlow<PagingDataSource.State<RickAndMortyCharacter>>
+        get() = pagingDataSource.state
 
     init {
         pagingDataSource.clearAndLoadFirstPage(
@@ -45,7 +45,7 @@ internal class CharactersRepositoryImpl(
     }
 
     override val hasMoreToLoad: Boolean
-        get() = pagingDataSource.pageLoaderData.value.hasMoreToLoad
+        get() = pagingDataSource.state.value.hasMoreToLoad
 
     override fun loadNextPage() {
         pagingDataSource.loadNextPage()
@@ -122,6 +122,7 @@ internal class CharactersRepositoryImpl(
             )
         } catch (e: Exception) {
             PageLoaderResponse.Error(
+                exception = e,
                 message = e.message.toString()
             )
         }

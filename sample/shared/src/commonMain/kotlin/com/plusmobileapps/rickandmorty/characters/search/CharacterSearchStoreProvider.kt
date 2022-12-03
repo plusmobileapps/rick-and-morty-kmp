@@ -7,7 +7,7 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import com.plusmobileapps.konnectivity.Konnectivity
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
-import com.plusmobileapps.paging.PageLoaderData
+import com.plusmobileapps.paging.PagingDataSource
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
 import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
@@ -26,7 +26,7 @@ internal class CharacterSearchStoreProvider(
     sealed class Message {
         data class NetworkConnectionUpdated(val isConnected: Boolean) : Message()
         data class Error(val error: String) : Message()
-        data class PageLoaderDataUpdated(val data: PageLoaderData<RickAndMortyCharacter>) : Message()
+        data class PageLoaderDataUpdated(val data: PagingDataSource.State<RickAndMortyCharacter>) : Message()
         data class UpdateQuery(val query: String) : Message()
         data class StatusUpdated(val status: CharacterStatus?) : Message()
         data class SpeciesUpdated(val species: String) : Message()
