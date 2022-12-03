@@ -24,11 +24,12 @@ import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
-import com.plusmobileapps.paging.PageLoaderError
+import com.plusmobileapps.paging.PageLoaderException
 import com.plusmobileapps.paging.PagingDataSource
 import com.plusmobileapps.rickandmorty.androidapp.R
 import com.plusmobileapps.rickandmorty.androidapp.components.SearchFilterDropdown
 import com.plusmobileapps.rickandmorty.androidapp.theme.Rick_and_Morty_KMPTheme
+import com.plusmobileapps.rickandmorty.androidapp.util.getUserMessage
 import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
@@ -68,7 +69,7 @@ fun CharacterSearchScreen(bloc: CharacterSearchBloc) {
         val error = model.value.pageLoaderState.pageLoaderError
         when {
             model.value.pageLoaderState.isFirstPageLoading -> FirstPageLoadingIndicator()
-            error is PageLoaderError.FirstPage -> {
+            error?.isFirstPage == true -> {
                 FirstPageErrorContent(error = error) { bloc.onFirstPageTryAgainClicked() }
             }
             model.value.pageLoaderState.data.isEmpty() -> NoCharacterSearchResultsContent()
@@ -94,12 +95,19 @@ private fun FirstPageLoadingIndicator() {
 }
 
 @Composable
-private fun FirstPageErrorContent(error: PageLoaderError.FirstPage, onTryAgainClicked: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+private fun FirstPageErrorContent(error: PageLoaderException, onTryAgainClicked: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Text(
-            text = error.message ?: "Error loading first page",
+            text = error.getUserMessage(),
             style = MaterialTheme.typography.titleLarge
         )
+        Button(onClick = onTryAgainClicked) {
+            Text("Try again")
+        }
     }
 }
 
@@ -198,7 +206,9 @@ fun CharacterSearchResults(
             }
         }
 
-        if (pageLoadingState.pageLoaderError is PageLoaderError.NextPage) {
+        val error = pageLoadingState.pageLoaderError
+
+        if (error != null && !error.isFirstPage) {
             item("character-search-next-page-error") {
                 Column(
                     modifier = Modifier
@@ -206,7 +216,7 @@ fun CharacterSearchResults(
                         .padding(32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Text(text = "Error loading next page.")
+                    Text(text = error.getUserMessage())
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = onNextPageTryAgainClicked) {
                         Text("Try again")

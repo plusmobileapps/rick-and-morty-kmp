@@ -17,9 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
-import com.plusmobileapps.paging.PageLoaderError
+import com.plusmobileapps.paging.PageLoaderException
 import com.plusmobileapps.rickandmorty.androidapp.components.CharacterCard
 import com.plusmobileapps.rickandmorty.androidapp.components.characterCardWidth
+import com.plusmobileapps.rickandmorty.androidapp.util.getUserMessage
 import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
 import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
 import com.plusmobileapps.rickandmorty.characters.list.CharactersBloc
@@ -72,13 +73,13 @@ private fun CharactersUIBody(
     val model by bloc.models.subscribeAsState()
 
     when {
-        model.pageLoadedError is PageLoaderError.FirstPage -> {
+        model.pageLoadedError?.isFirstPage == true -> {
             Column(
                 modifier = modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Text("Error loading data", style = MaterialTheme.typography.titleLarge)
+                Text(model.pageLoadedError!!.getUserMessage(), style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(32.dp))
                 Button(onClick = bloc::loadMoreCharacters) {
                     Text(text = "Try again")
@@ -97,7 +98,7 @@ private fun CharactersUIBody(
                 characters = model.characters,
                 onCharacterClicked = bloc::onCharacterClicked,
                 nextPageIsLoading = model.nextPageIsLoading,
-                error = model.pageLoadedError as? PageLoaderError.NextPage,
+                error = model.pageLoadedError,
                 onLoadNextPage = bloc::loadMoreCharacters,
             )
         }
@@ -110,7 +111,7 @@ fun CharactersList(
     lazyListState: LazyGridState,
     characters: List<RickAndMortyCharacter>,
     nextPageIsLoading: Boolean,
-    error: PageLoaderError.NextPage?,
+    error: PageLoaderException?,
     onCharacterClicked: (RickAndMortyCharacter) -> Unit,
     onLoadNextPage: () -> Unit,
 ) {
@@ -141,14 +142,16 @@ fun CharactersList(
             }
         }
 
+        val showError = error != null && !error.isFirstPage
+
         item("character-page-loading-error") {
-            AnimatedVisibility(visible = error != null) {
+            AnimatedVisibility(visible = showError) {
                 Column(
                     modifier = modifier.padding(vertical = 32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    Text("Error loading next page", style = MaterialTheme.typography.titleLarge)
+                    Text(error!!.getUserMessage(), style = MaterialTheme.typography.titleLarge)
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = onLoadNextPage) {
                         Text(text = "Try again")

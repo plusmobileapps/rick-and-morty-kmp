@@ -18,7 +18,6 @@ internal interface CharacterSearchStore : Store<Intent, State, Nothing> {
         val gender: CharacterGender? = null,
         val error: String? = null,
         val showFilters: Boolean = false,
-        val isConnectedToNetwork: Boolean = false,
     )
 
     sealed class Intent {

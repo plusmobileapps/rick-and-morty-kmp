@@ -16,20 +16,18 @@ import com.plusmobileapps.rickandmorty.util.asValue
 
 internal class CharacterSearchBlocImpl(
     componentContext: AppComponentContext,
-    private val konnectivity: Konnectivity,
     private val useCase: CharacterSearchUseCase,
     private val output: Consumer<Output>,
 ) : CharacterSearchBloc, AppComponentContext by componentContext {
 
     constructor(componentContext: AppComponentContext, di: DI, output: Consumer<Output>) : this(
         componentContext = componentContext,
-        konnectivity = di.konnectivity,
         output = output,
         useCase = di.characterSearchUseCase,
     )
 
     private val store = instanceKeeper.getStore {
-        CharacterSearchStoreProvider(storeFactory, dispatchers, useCase, konnectivity).provide()
+        CharacterSearchStoreProvider(storeFactory, dispatchers, useCase).provide()
     }
 
     override val models: Value<CharacterSearchBloc.Model> = store.asValue().map {

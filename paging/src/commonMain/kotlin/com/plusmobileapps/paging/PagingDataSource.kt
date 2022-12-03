@@ -7,6 +7,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.*
 
+/**
+ * A data source that can load pages and manage the state of loading pages.
+ *
+ * @param INPUT The type of input to be used on a [PageLoaderRequest].
+ * @param DATA The type of data to be return from [PageLoaderResponse].
+ */
 interface PagingDataSource<INPUT, DATA> {
 
     val state: StateFlow<State<DATA>>
@@ -43,7 +49,7 @@ interface PagingDataSource<INPUT, DATA> {
         val isFirstPageLoading: Boolean = false,
         val isNextPageLoading: Boolean = false,
         val data: List<DATA> = emptyList(),
-        val pageLoaderError: PageLoaderError? = null,
+        val pageLoaderError: PageLoaderException? = null,
         val hasMoreToLoad: Boolean = false,
     )
 }
@@ -78,13 +84,7 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
                     isFirstPageLoading = it.firstPageIsLoading,
                     isNextPageLoading = it.nextPageIsLoading,
                     data = it.data,
-                    pageLoaderError = (it.pageLoaderState as? PageLoaderState.Failed)?.let { error ->
-                        if (it.pageLoaderState.isFirstPage) {
-                            PageLoaderError.FirstPage(error.exception, error.message)
-                        } else {
-                            PageLoaderError.NextPage(error.exception, error.message)
-                        }
-                    },
+                    pageLoaderError = (it.pageLoaderState as? PageLoaderState.Failed)?.exception,
                     hasMoreToLoad = (it.pageLoaderState as? PageLoaderState.Idle)?.hasMorePages
                         ?: false
                 )
@@ -111,12 +111,20 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
         scope.launch {
             sendRequest(
                 input = currentState.input,
-                isFirstPage = (currentState.pageLoaderState as? PageLoaderState.Failed)?.isFirstPage == true
+                isFirstPage = (currentState.pageLoaderState as? PageLoaderState.Failed)?.exception?.isFirstPage == true
             )
         }
     }
 
     private suspend fun sendRequest(input: INPUT?, isFirstPage: Boolean) {
+        if (!konnectivity.isConnected) {
+            pagingState.value = pagingState.value.copy(
+                pageLoaderState = PageLoaderState.Failed(
+                    exception = PageLoaderException.NoNetworkException(isFirstPage),
+                )
+            )
+            return
+        }
         val response: PageLoaderResponse<DATA> = pageLoader(
             PageLoaderRequest(
                 pagingKey = pagingKey,
@@ -129,9 +137,11 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
             is PageLoaderResponse.Error -> {
                 pagingState.value = pagingState.value.copy(
                     pageLoaderState = PageLoaderState.Failed(
-                        exception = response.exception,
-                        message = response.message,
-                        isFirstPage = isFirstPage
+                        PageLoaderException.GeneralError(
+                            exception = response.exception,
+                            errorMessage = response.message,
+                            isFirstPage = isFirstPage
+                        )
                     ),
                 )
             }

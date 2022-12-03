@@ -21,10 +21,8 @@ internal class CharacterSearchStoreProvider(
     private val storeFactory: StoreFactory,
     private val dispatchers: Dispatchers,
     private val useCase: CharacterSearchUseCase,
-    private val konnectivity: Konnectivity,
 ) {
     sealed class Message {
-        data class NetworkConnectionUpdated(val isConnected: Boolean) : Message()
         data class Error(val error: String) : Message()
         data class PageLoaderDataUpdated(val data: PagingDataSource.State<RickAndMortyCharacter>) : Message()
         data class UpdateQuery(val query: String) : Message()
@@ -38,7 +36,7 @@ internal class CharacterSearchStoreProvider(
     fun provide(): CharacterSearchStore =
         object : CharacterSearchStore, Store<Intent, State, Nothing> by storeFactory.create(
             name = "Store",
-            initialState = State(isConnectedToNetwork = konnectivity.isConnected),
+            initialState = State(),
             bootstrapper = SimpleBootstrapper(Unit),
             executorFactory = ::Executor,
             reducer = ReducerImpl
@@ -51,11 +49,6 @@ internal class CharacterSearchStoreProvider(
             scope.launch {
                 useCase.pageLoaderState.collect {
                     dispatch(Message.PageLoaderDataUpdated(it))
-                }
-            }
-            scope.launch {
-                konnectivity.isConnectedState.collect {
-                    dispatch(Message.NetworkConnectionUpdated(it))
                 }
             }
         }
@@ -74,10 +67,6 @@ internal class CharacterSearchStoreProvider(
         }
 
         private fun search(state: State) {
-            if (!state.isConnectedToNetwork) {
-                dispatch(Message.Error("Not connected to internet."))
-                return
-            }
             useCase.loadFirstPage(
                 query = state.query,
                 status = state.status,
@@ -94,8 +83,7 @@ internal class CharacterSearchStoreProvider(
             is Message.StatusUpdated -> copy(status = msg.status)
             is Message.UpdateQuery -> copy(query = msg.query)
             is Message.FilterVisibilityUpdated -> copy(showFilters = msg.show)
-            Message.ClearSearch -> State(isConnectedToNetwork = isConnectedToNetwork)
-            is Message.NetworkConnectionUpdated -> copy(isConnectedToNetwork = msg.isConnected)
+            Message.ClearSearch -> State()
             is Message.Error -> copy(error = msg.error)
             is Message.PageLoaderDataUpdated -> copy(pageLoaderState = msg.data, error = null)
         }
