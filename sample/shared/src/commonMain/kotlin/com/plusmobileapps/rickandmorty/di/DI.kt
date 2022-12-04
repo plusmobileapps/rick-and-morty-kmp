@@ -3,10 +3,14 @@ package com.plusmobileapps.rickandmorty.di
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import com.plusmobileapps.konnectivity.Konnectivity
+import com.plusmobileapps.paging.PagingDataSource
+import com.plusmobileapps.paging.PagingDataSourceFactory
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApi
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.characters.CharactersRepository
 import com.plusmobileapps.rickandmorty.characters.CharactersRepositoryImpl
+import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchUseCase
+import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchUseCaseImpl
 import com.plusmobileapps.rickandmorty.db.DriverFactory
 import com.plusmobileapps.rickandmorty.db.MyDatabase
 import com.plusmobileapps.rickandmorty.db.createDatabase
@@ -16,6 +20,8 @@ import com.plusmobileapps.rickandmorty.locations.LocationRepository
 import com.plusmobileapps.rickandmorty.locations.LocationRepositoryImpl
 import com.plusmobileapps.rickandmorty.util.Dispatchers
 import com.plusmobileapps.rickandmorty.util.DispatchersImpl
+import com.plusmobileapps.rickandmorty.util.UuidUtil
+import com.plusmobileapps.rickandmorty.util.UuidUtilImpl
 import com.russhwolf.settings.Settings
 
 interface DI {
@@ -28,6 +34,8 @@ interface DI {
     val charactersRepository: CharactersRepository
     val episodesRepository: EpisodesRepository
     val locationRepository: LocationRepository
+    val uuidUtil: UuidUtil
+    val characterSearchUseCase: CharacterSearchUseCase
 }
 
 class ServiceLocator(driverFactory: DriverFactory) : DI {
@@ -37,12 +45,13 @@ class ServiceLocator(driverFactory: DriverFactory) : DI {
     override val dispatchers: Dispatchers = DispatchersImpl
     override val settings: Settings by lazy { Settings() }
     override val database: MyDatabase = createDatabase(driverFactory)
+    override val uuidUtil: UuidUtil = UuidUtilImpl()
     override val charactersRepository: CharactersRepository by lazy {
         CharactersRepositoryImpl(
             ioContext = dispatchers.default,
             db = database.characterQueries,
-            settings = settings,
-            api = rickAndMortyApi
+            api = rickAndMortyApi,
+            pagingDataSourceFactory = PagingDataSourceFactory,
         )
     }
     override val episodesRepository: EpisodesRepository by lazy {
@@ -61,4 +70,9 @@ class ServiceLocator(driverFactory: DriverFactory) : DI {
             settings = settings
         )
     }
+    override val characterSearchUseCase: CharacterSearchUseCase
+        get() = CharacterSearchUseCaseImpl(
+            api = rickAndMortyApi,
+            factory = PagingDataSourceFactory,
+        )
 }

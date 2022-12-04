@@ -1,5 +1,6 @@
 package com.plusmobileapps.rickandmorty.api.episodes
 
+import io.ktor.http.*
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -14,7 +15,13 @@ data class EpisodesInfo(
     val pages: Int,
     val next: String?,
     val prev: String?
-)
+) {
+    val nextPageNumber: String? by lazy {
+        next?.let {
+            Url(it).parameters["page"]
+        }
+    }
+}
 
 @Serializable
 data class Episode(

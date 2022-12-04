@@ -5,8 +5,9 @@ import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
-import com.plusmobileapps.rickandmorty.characters.CharactersListItem
+import com.plusmobileapps.paging.PagingDataSource
 import com.plusmobileapps.rickandmorty.characters.CharactersRepository
+import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
 import com.plusmobileapps.rickandmorty.characters.list.CharactersStore.Intent
 import com.plusmobileapps.rickandmorty.characters.list.CharactersStore.State
 import com.plusmobileapps.rickandmorty.util.Dispatchers
@@ -19,8 +20,9 @@ internal class CharactersStoreProvider(
 ) {
 
     private sealed class Message {
-        data class CharactersUpdated(val items: List<CharactersListItem>) : Message()
-        data class LoadingNextPage(val hasMore: Boolean) : Message()
+        data class CharactersUpdated(val items: List<RickAndMortyCharacter>) : Message()
+        data class PageLoaderStateUpdated(val state: PagingDataSource.State<RickAndMortyCharacter>) :
+            Message()
     }
 
     fun provide(): CharactersStore = object : CharactersStore,
@@ -37,7 +39,7 @@ internal class CharactersStoreProvider(
 
         override fun executeIntent(intent: Intent, getState: () -> State) {
             when (intent) {
-                Intent.LoadMoreCharacters -> loadMoreCharacters(getState)
+                Intent.LoadMoreCharacters -> loadMoreCharacters()
             }
         }
 
@@ -48,21 +50,18 @@ internal class CharactersStoreProvider(
         private fun observeCharacters() {
             scope.launch {
                 repository.getCharacters().collect { characters ->
-                    dispatch(Message.CharactersUpdated(characters.map(CharactersListItem::Character)))
+                    dispatch(Message.CharactersUpdated(characters))
+                }
+            }
+            scope.launch {
+                repository.pageLoaderState.collect { state ->
+                    dispatch(Message.PageLoaderStateUpdated(state))
                 }
             }
         }
 
-        private fun loadMoreCharacters(getState: () -> State) {
-            val state = getState()
-            if (state.isLoading || state.isPageLoading) {
-                return
-            }
-            val hasMoreToLoad = repository.hasMoreCharactersToLoad
-            if (hasMoreToLoad) {
-                dispatch(Message.LoadingNextPage(hasMore = hasMoreToLoad))
-                repository.loadNextPage()
-            }
+        private fun loadMoreCharacters() {
+            repository.loadNextPage()
         }
     }
 
@@ -71,13 +70,12 @@ internal class CharactersStoreProvider(
             when (msg) {
                 is Message.CharactersUpdated -> copy(
                     items = msg.items,
-                    isLoading = false
                 )
-                is Message.LoadingNextPage -> copy(
-                    items = items + CharactersListItem.PageLoading(
-                        isLoading = true,
-                        hasMore = msg.hasMore
-                    )
+                is Message.PageLoaderStateUpdated -> copy(
+                    firstPageIsLoading = msg.state.isFirstPageLoading,
+                    nextPageIsLoading = msg.state.isNextPageLoading,
+                    pageLoadedError = msg.state.pageLoaderError,
+                    hasMoreToLoad = msg.state.hasMoreToLoad,
                 )
             }
     }

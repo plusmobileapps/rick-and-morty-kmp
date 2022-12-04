@@ -1,7 +1,7 @@
 package com.plusmobileapps.rickandmorty.characters.list
 
 import com.arkivanov.decompose.value.Value
-import com.plusmobileapps.rickandmorty.characters.CharactersListItem
+import com.plusmobileapps.paging.PageLoaderException
 import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
 
 interface CharactersBloc {
@@ -15,9 +15,11 @@ interface CharactersBloc {
     fun loadMoreCharacters()
 
     data class Model(
-        val listItems: List<CharactersListItem> = emptyList(),
-        val error: String? = null,
-        val isLoading: Boolean = false
+        val characters: List<RickAndMortyCharacter> = emptyList(),
+        val firstPageIsLoading: Boolean = false,
+        val nextPageIsLoading: Boolean = false,
+        val pageLoadedError: PageLoaderException? = null,
+        val hasMoreToLoad: Boolean = true,
     )
 
     sealed class Output {

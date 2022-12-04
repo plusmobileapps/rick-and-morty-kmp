@@ -5,9 +5,9 @@ import com.arkivanov.decompose.value.operator.map
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.plusmobileapps.konnectivity.Konnectivity
 import com.plusmobileapps.rickandmorty.AppComponentContext
-import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
+import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc.Output
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchStore.Intent
 import com.plusmobileapps.rickandmorty.di.DI
@@ -16,27 +16,24 @@ import com.plusmobileapps.rickandmorty.util.asValue
 
 internal class CharacterSearchBlocImpl(
     componentContext: AppComponentContext,
-    private val rickAndMortyApi: RickAndMortyApiClient,
-    private val konnectivity: Konnectivity,
-    private val output: Consumer<Output>
+    private val useCase: CharacterSearchUseCase,
+    private val output: Consumer<Output>,
 ) : CharacterSearchBloc, AppComponentContext by componentContext {
 
     constructor(componentContext: AppComponentContext, di: DI, output: Consumer<Output>) : this(
         componentContext = componentContext,
-        rickAndMortyApi = di.rickAndMortyApi,
-        konnectivity = di.konnectivity,
         output = output,
+        useCase = di.characterSearchUseCase,
     )
 
     private val store = instanceKeeper.getStore {
-        CharacterSearchStoreProvider(storeFactory, dispatchers, rickAndMortyApi, konnectivity).provide()
+        CharacterSearchStoreProvider(storeFactory, dispatchers, useCase).provide()
     }
 
     override val models: Value<CharacterSearchBloc.Model> = store.asValue().map {
         CharacterSearchBloc.Model(
-            isLoading = it.isLoading,
+            pageLoaderState = it.pageLoaderState,
             query = it.query,
-            results = it.results,
             status = it.status,
             species = it.species,
             gender = it.gender,
@@ -51,6 +48,22 @@ internal class CharacterSearchBlocImpl(
 
     override fun onSearchClicked() {
         store.accept(Intent.InitiateSearch)
+    }
+
+    override fun onFirstPageTryAgainClicked() {
+        store.accept(Intent.LoadNextPage)
+    }
+
+    override fun onNextPageTryAgainClicked() {
+        store.accept(Intent.LoadNextPage)
+    }
+
+    override fun onCharacterClicked(character: RickAndMortyCharacter) {
+        output(Output.OpenCharacter(character.id))
+    }
+
+    override fun onLoadNextPage() {
+        store.accept(Intent.LoadNextPage)
     }
 
     override fun onClearSearch() {

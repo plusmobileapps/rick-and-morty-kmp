@@ -1,22 +1,20 @@
 package com.plusmobileapps.rickandmorty.characters
 
+import com.plusmobileapps.paging.*
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
-import com.plusmobileapps.rickandmorty.api.characters.CharactersResponse
 import com.plusmobileapps.rickandmorty.db.CharacterQueries
-import com.russhwolf.settings.Settings
-import com.russhwolf.settings.set
+import com.squareup.sqldelight.TransactionWithoutReturn
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 interface CharactersRepository {
-    val hasMoreCharactersToLoad: Boolean
+    val pageLoaderState: StateFlow<PagingDataSource.State<RickAndMortyCharacter>>
+    val hasMoreToLoad: Boolean
     fun loadNextPage()
     suspend fun getCharacters(): Flow<List<RickAndMortyCharacter>>
     suspend fun getCharacter(id: Int): RickAndMortyCharacter
@@ -26,30 +24,31 @@ interface CharactersRepository {
 internal class CharactersRepositoryImpl(
     private val ioContext: CoroutineContext,
     private val db: CharacterQueries,
-    private val settings: Settings,
     private val api: RickAndMortyApiClient,
+    pagingDataSourceFactory: PagingDataSource.Factory,
 ) : CharactersRepository {
 
     companion object {
-        const val CHARACTERS_PAGE_KEY = "CHARACTERS_PAGE_KEY"
-        const val TOTAL_PAGES_KEY = "CHARACTER_TOTAL_PAGES_KEY"
+        const val PAGE_SIZE = 20
     }
 
-    private var nextPage = settings.getInt(CHARACTERS_PAGE_KEY, 1)
-    private var totalPages = settings.getInt(TOTAL_PAGES_KEY, Int.MAX_VALUE)
+    private val pagingDataSource: PagingDataSource<Unit, RickAndMortyCharacter> =
+        pagingDataSourceFactory.create(this::loadPage)
 
-    private val job = Job()
-    private val scope = CoroutineScope(ioContext + job)
+    override val pageLoaderState: StateFlow<PagingDataSource.State<RickAndMortyCharacter>>
+        get() = pagingDataSource.state
 
     init {
-        if (nextPage == 1) loadNextPage()
+        pagingDataSource.clearAndLoadFirstPage(
+            input = Unit,
+        )
     }
 
-    override val hasMoreCharactersToLoad: Boolean
-        get() = nextPage < totalPages
+    override val hasMoreToLoad: Boolean
+        get() = pagingDataSource.state.value.hasMoreToLoad
 
     override fun loadNextPage() {
-        scope.launch { fetchCharacters(page = nextPage) }
+        pagingDataSource.loadNextPage()
     }
 
     override suspend fun getCharacters(): Flow<List<RickAndMortyCharacter>> =
@@ -86,35 +85,46 @@ internal class CharactersRepositoryImpl(
                 listOf(RickAndMortyCharacter.fromDTO(api.getCharacter(ids.first())))
             } else {
                 api.getCharacters(ids).map { RickAndMortyCharacter.fromDTO(it) }
-            }.also { insertCharactersIntoDb(it) }
+            }.also {
+                db.transaction {
+                    insertCharactersIntoDb(it)
+                }
+            }
         }
 
-    private suspend fun fetchCharacters(page: Int) {
-        if (!hasMoreCharactersToLoad) return
-        try {
-            val response: CharactersResponse = api.getCharacters(page)
-            val characters = response.results.map { RickAndMortyCharacter.fromDTO(it) }
-            insertCharactersIntoDb(characters)
-            nextPage = page + 1
-            totalPages = response.info.pages
-            settings[CHARACTERS_PAGE_KEY] = page + 1
-            settings[TOTAL_PAGES_KEY] = response.info.pages
-        } catch (e: Exception) {
-            // Todo log
+    private fun TransactionWithoutReturn.insertCharactersIntoDb(characters: List<RickAndMortyCharacter>) {
+        characters.forEach { character ->
+            db.insertCharacter(
+                id = character.id.toLong(),
+                name = character.name,
+                imageUrl = character.imageUrl,
+                status = character.status,
+                species = character.species
+            )
         }
     }
 
-    private fun insertCharactersIntoDb(characters: List<RickAndMortyCharacter>) {
-        db.transaction {
-            characters.forEach { character ->
-                db.insertCharacter(
-                    id = character.id.toLong(),
-                    name = character.name,
-                    imageUrl = character.imageUrl,
-                    status = character.status,
-                    species = character.species
-                )
-            }
+    private suspend fun loadPage(request: PageLoaderRequest<Unit>): PageLoaderResponse<RickAndMortyCharacter> {
+        return try {
+            val response = api.getCharacters(
+                page = request.pagingKey?.toIntOrNull() ?: 1,
+            )
+            PageLoaderResponse.Success(
+                data = response.results.map { RickAndMortyCharacter.fromDTO(it) }.also {
+                    db.transaction {
+                        if (request.pagingKey == null) {
+                            db.deleteAll()
+                        }
+                        insertCharactersIntoDb(it)
+                    }
+                },
+                pagingToken = response.info.nextPageNumber
+            )
+        } catch (e: Exception) {
+            PageLoaderResponse.Error(
+                exception = e,
+                message = e.message.toString()
+            )
         }
     }
 }
