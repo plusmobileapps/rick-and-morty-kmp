@@ -12,6 +12,8 @@ object Deps {
         const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$COROUTINES_VERSION"
         const val coroutinesTesting =
             "org.jetbrains.kotlinx:kotlinx-coroutines-test:$COROUTINES_VERSION"
+
+        const val dateTime = "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0"
     }
 
     object Ktor {
@@ -51,7 +53,7 @@ object Deps {
     }
 
     object RushWolf {
-        const val multiplatformSettings = "com.russhwolf:multiplatform-settings-no-arg:0.8.1"
+        const val multiplatformSettings = "com.russhwolf:multiplatform-settings-no-arg:1.0.0-RC"
     }
 
     object SqlDelight {

@@ -25,6 +25,8 @@ kotlin {
             dependencies {
                 implementation(Deps.Jetbrains.coroutines)
                 implementation(Deps.PlusMobileApps.konnectivity)
+                implementation(Deps.RushWolf.multiplatformSettings)
+                implementation(Deps.Jetbrains.dateTime)
             }
         }
         val commonTest by getting {
