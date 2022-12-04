@@ -23,25 +23,37 @@ struct CharactersView : View {
     var body: some View {
         let model = models.value
         
-        return VStack {
-            List {
-                ForEach(model.listItems) { item in
-                    switch item {
-                    case let characterItem as CharactersListItem.Character:
-                        NavigationLink(value: Route.characterDetail(characterItem.value)) {
+        if model.firstPageIsLoading {
+            ProgressView()
+        } else if model.pageLoadedError != nil && model.pageLoadedError!.isFirstPage {
+            Text("Error loading the first page")
+        } else {
+            VStack {
+                List {
+                    ForEach(model.characters) { item in
+                        NavigationLink(value: Route.characterDetail(item)) {
                             HStack {
-                                AsyncImage(url: URL(string: characterItem.value.imageUrl)) { image in
+                                AsyncImage(url: URL(string: item.imageUrl)) { image in
                                     image.resizable()
                                 } placeholder: {
                                     ProgressView()
                                 }.frame(width: 64, height: 64)
                                 Spacer().frame(width: 16)
-                                Text(characterItem.value.name)
+                                Text(item.name)
                             }
                         }
-                    case _ as CharactersListItem.PageLoading:
+                    }
+                    
+                    if model.hasMoreToLoad || model.nextPageIsLoading {
                         ProgressView()
-                    default: EmptyView()
+                            .onAppear(perform: bloc.loadMoreCharacters)
+                    } else {
+                        Text("End of List")
+                    }
+                    if model.pageLoadedError != nil {
+                        Button(action: bloc.loadMoreCharacters) {
+                            Text("Try again")
+                        }
                     }
                 }
             }
@@ -49,4 +61,4 @@ struct CharactersView : View {
     }
 }
 
-extension CharactersListItem : Identifiable {}
+extension RickAndMortyCharacter : Identifiable {}
