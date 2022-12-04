@@ -44,6 +44,7 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
             }
 
     override fun clearAndLoadFirstPage(input: INPUT) {
+        if (pagingState.value.firstPageIsLoading) return
         pagingState.value = State(
             input = input,
             pageLoaderState = PageLoaderState.Loading(
@@ -111,7 +112,7 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
         }
     }
 
-    fun <T, M> StateFlow<T>.map(
+    private fun <T, M> StateFlow<T>.map(
         coroutineScope: CoroutineScope,
         mapper: (value: T) -> M
     ): StateFlow<M> = map { mapper(it) }.stateIn(
