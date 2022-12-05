@@ -1,32 +1,55 @@
 package com.plusmobileapps.paging
 
 import com.plusmobileapps.konnectivity.Konnectivity
+import com.plusmobileapps.paging.PagingDataSource.CacheInfo
+import com.russhwolf.settings.Settings
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlin.time.Duration
 
 object PagingDataSourceFactory : PagingDataSource.Factory {
     private val konnectivity = Konnectivity()
+    private val settings = Settings()
+
     override fun <INPUT, DATA> create(
+        cacheInfo: CacheInfo?,
         pageLoader: PageLoader<INPUT, DATA>
     ): PagingDataSource<INPUT, DATA> = PagingDataSourceImpl(
+        cacheInfo = cacheInfo,
         ioContext = Dispatchers.Default,
         pageLoader = pageLoader,
         konnectivity = konnectivity,
+        settings = settings,
+        getCurrentInstant = { Clock.System.now() }
     )
 }
 
 internal class PagingDataSourceImpl<INPUT, DATA>(
+    private val cacheInfo: CacheInfo?,
     ioContext: CoroutineDispatcher,
     private val pageLoader: PageLoader<INPUT, DATA>,
     private val konnectivity: Konnectivity,
+    private val settings: Settings,
+    private val getCurrentInstant: () -> Instant,
 ) : PagingDataSource<INPUT, DATA> {
 
     private val scope = CoroutineScope(ioContext)
 
-    private val pagingState = MutableStateFlow<State<INPUT, DATA>>(State())
+    private val firstPageCacheKey = "${cacheInfo?.cachingKey}-first-page-caching-key"
+    private val nextPagePagingKey = "${cacheInfo?.cachingKey}-next-page-paging-key"
+
+    private val pagingState = MutableStateFlow<State<INPUT, DATA>>(
+        State(
+            pagingKey = settings.getStringOrNull(nextPagePagingKey)?.let {
+                it.takeIf { isFirstPageCacheValid() }
+            },
+        )
+    )
     private val pagingKey: String?
         get() = pagingState.value.pagingKey
 
@@ -44,6 +67,10 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
             }
 
     override fun clearAndLoadFirstPage(input: INPUT) {
+        if (isFirstPageCacheValid()) {
+            pagingState.value = pagingState.value.copy(input = input)
+            return
+        }
         if (pagingState.value.firstPageIsLoading) return
         pagingState.value = State(
             input = input,
@@ -108,6 +135,12 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
                     data = currentState.data + data,
                     pagingKey = response.pagingToken
                 )
+                if (cacheInfo != null && isFirstPage) {
+                    settings.putString(firstPageCacheKey, getCurrentInstant().toString())
+                }
+                if (pagingToken != null && cacheInfo != null && !isFirstPage) {
+                    settings.putString(nextPagePagingKey, pagingToken)
+                }
             }
         }
     }
@@ -120,6 +153,16 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
         SharingStarted.Eagerly,
         mapper(value)
     )
+
+    private fun isFirstPageCacheValid(): Boolean {
+        if (cacheInfo == null) return false
+        val lastFetchedFirstPageKeyInstant = settings.getStringOrNull(firstPageCacheKey)?.let {
+            Instant.parse(it)
+        } ?: return false
+        val now = getCurrentInstant()
+        val durationSinceLastFetch: Duration = now - lastFetchedFirstPageKeyInstant
+        return durationSinceLastFetch < cacheInfo.ttl
+    }
 
     private data class State<INPUT, DATA>(
         val input: INPUT? = null,

@@ -151,7 +151,7 @@ fun CharactersList(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    Text(error!!.getUserMessage(), style = MaterialTheme.typography.titleLarge)
+                    Text(error?.getUserMessage() ?: "An error occured", style = MaterialTheme.typography.titleLarge)
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = onLoadNextPage) {
                         Text(text = "Try again")

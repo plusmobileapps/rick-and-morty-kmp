@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration.Companion.minutes
 
 interface CharactersRepository {
     val pageLoaderState: StateFlow<PagingDataSource.State<RickAndMortyCharacter>>
@@ -28,12 +29,14 @@ internal class CharactersRepositoryImpl(
     pagingDataSourceFactory: PagingDataSource.Factory,
 ) : CharactersRepository {
 
-    companion object {
-        const val PAGE_SIZE = 20
-    }
-
     private val pagingDataSource: PagingDataSource<Unit, RickAndMortyCharacter> =
-        pagingDataSourceFactory.create(this::loadPage)
+        pagingDataSourceFactory.create(
+            cacheInfo = PagingDataSource.CacheInfo(
+                ttl = 2.minutes,
+                cachingKey = "character-repository"
+            ),
+            pageLoader = this::loadPage,
+        )
 
     override val pageLoaderState: StateFlow<PagingDataSource.State<RickAndMortyCharacter>>
         get() = pagingDataSource.state

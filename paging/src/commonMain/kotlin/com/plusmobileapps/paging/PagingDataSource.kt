@@ -1,11 +1,7 @@
 package com.plusmobileapps.paging
 
-import com.plusmobileapps.konnectivity.Konnectivity
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.StateFlow
+import kotlin.time.Duration
 
 /**
  * A data source that can load pages and manage the state of loading pages.
@@ -38,12 +34,15 @@ interface PagingDataSource<INPUT, DATA> {
          * Create an instance of a [PagingDataSource] by providing a lambda that
          * can make page loader request.
          *
+         * @param cacheInfo If set, will enable caching logic to only fetch new
+         *     pages or unfetched pages if the cache is no longer valid.
          * @param pageLoader
          * @param INPUT The input used for loading all pages on the request.
          * @param DATA The results returned in a [PageLoaderResponse].
          * @return
          */
         fun <INPUT, DATA> create(
+            cacheInfo: CacheInfo? = null,
             pageLoader: PageLoader<INPUT, DATA>,
         ): PagingDataSource<INPUT, DATA>
     }
@@ -72,5 +71,10 @@ interface PagingDataSource<INPUT, DATA> {
         val data: List<DATA> = emptyList(),
         val pageLoaderError: PageLoaderException? = null,
         val hasMoreToLoad: Boolean = false,
+    )
+
+    data class CacheInfo(
+        val ttl: Duration,
+        val cachingKey: String,
     )
 }
