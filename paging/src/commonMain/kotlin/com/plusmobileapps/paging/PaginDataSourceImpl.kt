@@ -15,18 +15,19 @@ import kotlin.time.Duration
 object PagingDataSourceFactory : PagingDataSource.Factory {
     private val konnectivity = Konnectivity()
     private val settings = Settings()
-
     override fun <INPUT, DATA> create(
         cacheInfo: CacheInfo?,
         pageLoader: PageLoader<INPUT, DATA>
-    ): PagingDataSource<INPUT, DATA> = PagingDataSourceImpl(
-        cacheInfo = cacheInfo,
-        ioContext = Dispatchers.Default,
-        pageLoader = pageLoader,
-        konnectivity = konnectivity,
-        settings = settings,
-        getCurrentInstant = { Clock.System.now() }
-    )
+    ): PagingDataSource<INPUT, DATA> {
+        return PagingDataSourceImpl(
+            cacheInfo = cacheInfo,
+            ioContext = Dispatchers.Default,
+            pageLoader = pageLoader,
+            konnectivity = konnectivity,
+            settings = settings,
+            getCurrentInstant = { Clock.System.now() }
+        )
+    }
 }
 
 internal class PagingDataSourceImpl<INPUT, DATA>(
@@ -106,7 +107,7 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
             )
             return
         }
-        val response: PageLoaderResponse<DATA> = pageLoader(
+        val response: PageLoaderResponse<DATA> = pageLoader.load(
             PageLoaderRequest(
                 pagingKey = pagingKey,
                 input = input

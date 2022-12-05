@@ -6,7 +6,9 @@ package com.plusmobileapps.paging
  * passed as a parameter for [PagingDataSource.Factory.create] and will be
  * where one typically fetches data from an API.
  */
-typealias PageLoader<INPUT, DATA> = suspend (PageLoaderRequest<INPUT>) -> PageLoaderResponse<DATA>
+interface PageLoader<INPUT, DATA> {
+    suspend fun load(request: PageLoaderRequest<INPUT>): PageLoaderResponse<DATA>
+}
 
 /** An error that can happen when loading a page. */
 sealed class PageLoaderException(message: String?) : Exception(message) {

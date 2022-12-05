@@ -27,7 +27,7 @@ internal class CharactersRepositoryImpl(
     private val db: CharacterQueries,
     private val api: RickAndMortyApiClient,
     pagingDataSourceFactory: PagingDataSource.Factory,
-) : CharactersRepository {
+) : CharactersRepository, PageLoader<Unit, RickAndMortyCharacter> {
 
     private val pagingDataSource: PagingDataSource<Unit, RickAndMortyCharacter> =
         pagingDataSourceFactory.create(
@@ -35,7 +35,7 @@ internal class CharactersRepositoryImpl(
                 ttl = 2.minutes,
                 cachingKey = "character-repository"
             ),
-            pageLoader = this::loadPage,
+            pageLoader = this,
         )
 
     override val pageLoaderState: StateFlow<PagingDataSource.State<RickAndMortyCharacter>>
@@ -107,7 +107,7 @@ internal class CharactersRepositoryImpl(
         }
     }
 
-    private suspend fun loadPage(request: PageLoaderRequest<Unit>): PageLoaderResponse<RickAndMortyCharacter> {
+    override suspend fun load(request: PageLoaderRequest<Unit>): PageLoaderResponse<RickAndMortyCharacter> {
         return try {
             val response = api.getCharacters(
                 page = request.pagingKey?.toIntOrNull() ?: 1,

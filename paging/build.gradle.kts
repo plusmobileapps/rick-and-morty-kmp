@@ -34,7 +34,8 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(Deps.Jetbrains.coroutinesTesting)
-
+                implementation(Deps.CashApp.turbine)
+                implementation(Deps.RushWolf.multiplatformSettingsTest)
             }
         }
         val androidMain by getting
@@ -67,4 +68,12 @@ android {
         minSdk = Deps.Android.minSDK
         targetSdk = Deps.Android.targetSDK
     }
+}
+
+mockmp {
+    usesHelper = true
+}
+
+tasks.getByName<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest>("iosX64Test") {
+    deviceId = "iPhone 14"
 }

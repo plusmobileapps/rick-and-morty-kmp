@@ -53,7 +53,9 @@ object Deps {
     }
 
     object RushWolf {
-        const val multiplatformSettings = "com.russhwolf:multiplatform-settings-no-arg:1.0.0-RC"
+        const val VERSION = "1.0.0-RC"
+        const val multiplatformSettings = "com.russhwolf:multiplatform-settings-no-arg:$VERSION"
+        const val multiplatformSettingsTest = "com.russhwolf:multiplatform-settings-test:$VERSION"
     }
 
     object SqlDelight {
@@ -84,6 +86,10 @@ object Deps {
 
     object KosiLibs {
         const val MOCK_KMP_VERSION = "1.10.0"
+    }
+
+    object CashApp {
+        const val turbine = "app.cash.turbine:turbine:0.12.1"
     }
 
     object PlusMobileApps {
