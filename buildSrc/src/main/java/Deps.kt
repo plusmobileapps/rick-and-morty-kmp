@@ -3,7 +3,7 @@ object Deps {
     const val LIBRARY_VERSION = "0.2"
 
     object Jetbrains {
-        const val KOTLIN_VERSION = "1.7.10"
+        const val KOTLIN_VERSION = "1.7.20"
         const val COROUTINES_VERSION = "1.6.4"
 
         const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$KOTLIN_VERSION"
@@ -42,8 +42,8 @@ object Deps {
     }
 
     object Compose {
-        const val VERSION = "1.2.1"
-        const val COMPILER_VERSION = "1.3.1"
+        const val VERSION = "1.3.1"
+        const val COMPILER_VERSION = "1.3.2"
         const val ACCOMPANIST_VERSION = "0.25.1"
         const val MATERIAL_VERSION = "1.0.0-beta03"
     }
@@ -80,6 +80,10 @@ object Deps {
             const val decompose = "com.arkivanov.decompose:decompose:$VERSION"
             const val extensionsCompose = "com.arkivanov.decompose:extensions-compose-jetpack:$VERSION"
         }
+    }
+
+    object KosiLibs {
+        const val MOCK_KMP_VERSION = "1.10.0"
     }
 
     object PlusMobileApps {
