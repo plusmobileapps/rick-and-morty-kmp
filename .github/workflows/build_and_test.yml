@@ -22,12 +22,9 @@ jobs:
       - name: Run Tests
         run: ./gradlew allTests
 
-      - name: Upload build and unit test reports
-        if: always()
-        uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
         with:
-          name: build-and-unit-test-reports
+          name: test-reports
           path: |
-          sample/shared/build/reports/
-          paging/build/reports/
-          rick-and-morty-api/build/reports
+            paging/build/reports/
+            sample/shared/build/reports/
