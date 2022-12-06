@@ -36,6 +36,7 @@ kotlin {
                 implementation(Deps.Jetbrains.coroutinesTesting)
                 implementation(Deps.CashApp.turbine)
                 implementation(Deps.RushWolf.multiplatformSettingsTest)
+                implementation(Deps.Kotest.assertionCore)
             }
         }
         val androidMain by getting

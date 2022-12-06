@@ -4,7 +4,7 @@ jobs:
   gradle:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ ubuntu-latest, macos-latest ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -21,3 +21,13 @@ jobs:
 
       - name: Run Tests
         run: ./gradlew allTests
+
+      - name: Upload build and unit test reports
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-and-unit-test-reports
+          path: |
+          sample/shared/build/reports/
+          paging/build/reports/
+          rick-and-morty-api/build/reports

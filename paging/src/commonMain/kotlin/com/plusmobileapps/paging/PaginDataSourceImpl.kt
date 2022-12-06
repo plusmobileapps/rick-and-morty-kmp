@@ -63,7 +63,7 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
                     data = it.data,
                     pageLoaderError = (it.pageLoaderState as? PageLoaderState.Failed)?.exception,
                     hasMoreToLoad = (it.pageLoaderState as? PageLoaderState.Idle)?.hasMorePages
-                        ?: false
+                        ?: true
                 )
             }
 

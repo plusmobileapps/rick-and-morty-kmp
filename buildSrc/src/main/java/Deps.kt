@@ -95,4 +95,9 @@ object Deps {
     object PlusMobileApps {
         const val konnectivity = "com.plusmobileapps:konnectivity:0.1-alpha01"
     }
+
+    object Kotest {
+        const val VERSION = "5.5.4"
+        const val assertionCore = "io.kotest:kotest-assertions-core:$VERSION"
+    }
 }
