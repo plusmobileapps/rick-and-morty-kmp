@@ -1,10 +1,12 @@
 package com.plusmobileapps.rickandmorty.characters
 
+import com.plusmobileapps.paging.PagingDataSource
 import com.plusmobileapps.rickandmorty.AppComponentContext
 import com.plusmobileapps.rickandmorty.characters.list.CharactersBloc
 import com.plusmobileapps.rickandmorty.characters.list.CharactersBlocImpl
 import com.plusmobileapps.rickandmorty.runBlocTest
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.kodein.mock.Mock
 import org.kodein.mock.tests.TestsWithMocks
 import kotlin.test.Test
@@ -30,12 +32,13 @@ class CharactersBlocTest : TestsWithMocks() {
     fun charactersUpdatingShouldUpdateModel() = runBlocTest {
         val character = RickAndMortyCharacter(id = 4)
         val charactersFlow = MutableSharedFlow<List<RickAndMortyCharacter>>()
+        every { repository.pageLoaderState } returns MutableStateFlow(PagingDataSource.State())
         everySuspending { repository.getCharacters() } returns charactersFlow
 
         val bloc = it.createBloc()
         charactersFlow.emit(listOf(character))
 
-        assertEquals(listOf(CharactersListItem.Character(character)), bloc.models.value.listItems)
+        assertEquals(listOf(character), bloc.models.value.characters)
     }
 
 }

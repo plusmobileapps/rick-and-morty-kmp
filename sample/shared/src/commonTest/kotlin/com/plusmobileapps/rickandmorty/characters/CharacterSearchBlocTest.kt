@@ -4,6 +4,7 @@ import com.plusmobileapps.rickandmorty.AppComponentContext
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBlocImpl
+import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchUseCase
 import com.plusmobileapps.rickandmorty.runBlocTest
 import org.kodein.mock.Mock
 import org.kodein.mock.tests.TestsWithMocks
@@ -18,13 +19,13 @@ class CharacterSearchBlocTest : TestsWithMocks() {
     lateinit var output: (CharacterSearchBloc.Output) -> Unit
 
     @Mock
-    lateinit var api: RickAndMortyApiClient
+    lateinit var useCase: CharacterSearchUseCase
 
     private fun AppComponentContext.createBloc(): CharacterSearchBloc =
         CharacterSearchBlocImpl(
             componentContext = this,
-            rickAndMortyApi = api,
-            output = { output(it) }
+            output = { output(it) },
+            useCase = useCase,
         )
 
     @BeforeTest
