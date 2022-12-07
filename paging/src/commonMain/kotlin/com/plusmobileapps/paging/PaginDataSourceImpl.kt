@@ -62,8 +62,10 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
                     isNextPageLoading = it.nextPageIsLoading,
                     data = it.data,
                     pageLoaderError = (it.pageLoaderState as? PageLoaderState.Failed)?.exception,
-                    hasMoreToLoad = (it.pageLoaderState as? PageLoaderState.Idle)?.hasMorePages
-                        ?: true
+                    hasMoreToLoad = (it.pageLoaderState as? PageLoaderState.Idle)?.hasMorePages == true
+                            || (it.pageLoaderState as? PageLoaderState.Failed)?.exception?.isFirstPage == true
+                            || it.pageLoaderState is PageLoaderState.Loading
+                            || it.pagingKey != null
                 )
             }
 
@@ -134,7 +136,7 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
                         hasMorePages = pagingToken != null
                     ),
                     data = currentState.data + data,
-                    pagingKey = response.pagingToken
+                    pagingKey = response.pagingToken,
                 )
                 if (cacheInfo != null && isFirstPage) {
                     settings.putString(firstPageCacheKey, getCurrentInstant().toString())

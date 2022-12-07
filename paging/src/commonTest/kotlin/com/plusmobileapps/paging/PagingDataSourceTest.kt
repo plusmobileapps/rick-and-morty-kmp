@@ -24,8 +24,7 @@ class PagingDataSourceTest : TestsWithMocks() {
     @Mock
     lateinit var konnectivity: Konnectivity
 
-    @Mock
-    lateinit var pageLoader: PageLoader<String, String>
+    private val pageLoader = PageLoaderMock()
 
     val dataSource: PagingDataSource<String, String> by withMocks {
         every { konnectivity.isConnected } returns true
@@ -41,17 +40,10 @@ class PagingDataSourceTest : TestsWithMocks() {
 
     @Test
     fun happyPathLoadingTwoPagesUntilNoMoreCanBeLoaded() = runTest(testDispatcher) {
-        mockRequest(INPUT, pagingKey = null) {
+        pageLoader.everyLoad {
             PageLoaderResponse.Success(
                 data = listOf(COOL_RICK),
                 pagingToken = FIRST_PAGING_TOKEN
-            )
-        }
-
-        mockRequest(INPUT, pagingKey = FIRST_PAGING_TOKEN) {
-            PageLoaderResponse.Success(
-                data = listOf(PICKLE_RICK),
-                pagingToken = null
             )
         }
 
@@ -68,6 +60,13 @@ class PagingDataSourceTest : TestsWithMocks() {
                 pageLoaderError = null,
                 hasMoreToLoad = true,
             )
+
+            pageLoader.everyLoad {
+                PageLoaderResponse.Success(
+                    data = listOf(PICKLE_RICK),
+                    pagingToken = null
+                )
+            }
 
             dataSource.loadNextPage()
 
@@ -88,25 +87,63 @@ class PagingDataSourceTest : TestsWithMocks() {
         }
     }
 
-    private suspend fun mockRequest(
-        input: String,
-        pagingKey: String? = null,
-        response: () -> PageLoaderResponse<String>
-    ) {
-        everySuspending {
-            pageLoader.load(
-                PageLoaderRequest(
-                    pagingKey = pagingKey,
-                    input = input
-                ))
-        } returns response()
-    }
+    @Test
+    fun whenFirstPageLoadingError_thenErrorShouldBeSetForFirstPageAndClearedOutOnNextSuccessfulPageLoad() =
+        runTest(testDispatcher) {
+            pageLoader.everyLoad {
+                PageLoaderResponse.Error(pageRequestException, ERROR_MESSAGE)
+            }
+            dataSource.state.test {
+                awaitItem() shouldBe initialIdleState
+                dataSource.clearAndLoadFirstPage(INPUT)
+                awaitItem() shouldBe firstPageLoadingState
+                awaitItem() shouldBe State(
+                    isFirstPageLoading = false,
+                    isNextPageLoading = false,
+                    data = listOf(),
+                    pageLoaderError = PageLoaderException.GeneralError(
+                        exception = pageRequestException,
+                        isFirstPage = true,
+                        errorMessage = ERROR_MESSAGE,
+                    ),
+                    hasMoreToLoad = true,
+                )
+
+                pageLoader.everyLoad {
+                    PageLoaderResponse.Success(
+                        data = listOf(COOL_RICK),
+                        pagingToken = FIRST_PAGING_TOKEN,
+                    )
+                }
+                testDispatcher.scheduler.runCurrent()
+
+                dataSource.loadNextPage()
+
+                awaitItem() shouldBe State(
+                    isFirstPageLoading = true,
+                    isNextPageLoading = false,
+                    data = listOf(),
+                    pageLoaderError = null,
+                    hasMoreToLoad = true,
+                )
+                awaitItem() shouldBe State(
+                    isFirstPageLoading = false,
+                    isNextPageLoading = false,
+                    data = listOf(COOL_RICK),
+                    pageLoaderError = null,
+                    hasMoreToLoad = true,
+                )
+            }
+        }
 
     companion object {
         const val INPUT = "rick sanchez"
         const val FIRST_PAGING_TOKEN = "first-paging-token"
         const val COOL_RICK = "Cool Rick"
         const val PICKLE_RICK = "Pickle Rick"
+        const val ERROR_MESSAGE = "something bad happened"
+
+        val pageRequestException = IllegalStateException()
 
         val initialIdleState = State<String>(
             isFirstPageLoading = false,
@@ -125,4 +162,19 @@ class PagingDataSourceTest : TestsWithMocks() {
         )
     }
 
+}
+
+class PageLoaderMock : PageLoader<String, String> {
+
+    private var mockResponse: () -> PageLoaderResponse<String> = {
+        PageLoaderResponse.Error(Exception("Not implemented"))
+    }
+
+    fun everyLoad(mock: () -> PageLoaderResponse<String>) {
+        mockResponse = mock
+    }
+
+    override suspend fun load(request: PageLoaderRequest<String>): PageLoaderResponse<String> {
+        return mockResponse()
+    }
 }
