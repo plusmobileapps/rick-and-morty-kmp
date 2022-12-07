@@ -141,7 +141,7 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
                 if (cacheInfo != null && isFirstPage) {
                     settings.putString(firstPageCacheKey, getCurrentInstant().toString())
                 }
-                if (pagingToken != null && cacheInfo != null && !isFirstPage) {
+                if (pagingToken != null && cacheInfo != null) {
                     settings.putString(nextPagePagingKey, pagingToken)
                 }
             }
