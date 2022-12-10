@@ -1,9 +1,6 @@
 package com.plusmobileapps.rickandmorty.characters.search
 
-import com.plusmobileapps.paging.PageLoader
-import com.plusmobileapps.paging.PageLoaderRequest
-import com.plusmobileapps.paging.PageLoaderResponse
-import com.plusmobileapps.paging.PagingDataSource
+import com.plusmobileapps.paging.*
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
@@ -12,7 +9,7 @@ import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchUseCaseI
 import kotlinx.coroutines.flow.StateFlow
 
 interface CharacterSearchUseCase {
-    val pageLoaderState: StateFlow<PagingDataSource.State<RickAndMortyCharacter>>
+    val pageLoaderState: StateFlow<PagingDataSourceState<RickAndMortyCharacter>>
     fun loadFirstPage(
         query: String,
         status: CharacterStatus?,
@@ -25,14 +22,14 @@ interface CharacterSearchUseCase {
 
 internal class CharacterSearchUseCaseImpl(
     private val api: RickAndMortyApiClient,
-    private val factory: PagingDataSource.Factory,
+    private val factory: InMemoryPageLoader.Factory,
 ) : CharacterSearchUseCase, PageLoader<Input, RickAndMortyCharacter> {
 
     private val pageDataSource = factory.create<Input, RickAndMortyCharacter>(
         pageLoader = this,
     )
 
-    override val pageLoaderState: StateFlow<PagingDataSource.State<RickAndMortyCharacter>> =
+    override val pageLoaderState: StateFlow<PagingDataSourceState<RickAndMortyCharacter>> =
         pageDataSource.state
 
     override fun loadFirstPage(

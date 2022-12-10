@@ -5,7 +5,7 @@ import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
-import com.plusmobileapps.paging.PagingDataSource
+import com.plusmobileapps.paging.PagingDataSourceState
 import com.plusmobileapps.rickandmorty.characters.CharactersRepository
 import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
 import com.plusmobileapps.rickandmorty.characters.list.CharactersStore.Intent
@@ -21,7 +21,7 @@ internal class CharactersStoreProvider(
 
     private sealed class Message {
         data class CharactersUpdated(val items: List<RickAndMortyCharacter>) : Message()
-        data class PageLoaderStateUpdated(val state: PagingDataSource.State<RickAndMortyCharacter>) :
+        data class PageLoaderStateUpdated(val state: PagingDataSourceState<RickAndMortyCharacter>) :
             Message()
     }
 
@@ -49,11 +49,6 @@ internal class CharactersStoreProvider(
 
         private fun observeCharacters() {
             scope.launch {
-                repository.getCharacters().collect { characters ->
-                    dispatch(Message.CharactersUpdated(characters))
-                }
-            }
-            scope.launch {
                 repository.pageLoaderState.collect { state ->
                     dispatch(Message.PageLoaderStateUpdated(state))
                 }
@@ -76,6 +71,7 @@ internal class CharactersStoreProvider(
                     nextPageIsLoading = msg.state.isNextPageLoading,
                     pageLoadedError = msg.state.pageLoaderError,
                     hasMoreToLoad = msg.state.hasMoreToLoad,
+                    items = msg.state.data,
                 )
             }
     }

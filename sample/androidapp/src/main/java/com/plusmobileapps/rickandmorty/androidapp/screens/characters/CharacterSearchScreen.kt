@@ -25,12 +25,11 @@ import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.plusmobileapps.paging.PageLoaderException
-import com.plusmobileapps.paging.PagingDataSource
+import com.plusmobileapps.paging.PagingDataSourceState
 import com.plusmobileapps.rickandmorty.androidapp.R
 import com.plusmobileapps.rickandmorty.androidapp.components.SearchFilterDropdown
 import com.plusmobileapps.rickandmorty.androidapp.theme.Rick_and_Morty_KMPTheme
 import com.plusmobileapps.rickandmorty.androidapp.util.getUserMessage
-import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus.ALIVE
@@ -170,7 +169,7 @@ fun SearchBar(
 @Composable
 fun CharacterSearchResults(
     modifier: Modifier,
-    pageLoadingState: PagingDataSource.State<RickAndMortyCharacter>,
+    pageLoadingState: PagingDataSourceState<RickAndMortyCharacter>,
     onCharacterClicked: (RickAndMortyCharacter) -> Unit,
     onLoadMore: () -> Unit,
     onNextPageTryAgainClicked: () -> Unit,
@@ -286,7 +285,7 @@ fun CharacterSearchPreview() {
                 override val models: Value<CharacterSearchBloc.Model> =
                     MutableValue(
                         CharacterSearchBloc.Model(
-                            pageLoaderState = PagingDataSource.State(
+                            pageLoaderState = PagingDataSourceState(
                                 data = listOf(
                                     RickAndMortyCharacter(name = "Pickle rick")
                                 )

@@ -1,7 +1,7 @@
 package com.plusmobileapps.rickandmorty.characters.search
 
 import com.arkivanov.mvikotlin.core.store.Store
-import com.plusmobileapps.paging.PagingDataSource
+import com.plusmobileapps.paging.PagingDataSourceState
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
 import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
@@ -11,7 +11,7 @@ import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchStore.St
 internal interface CharacterSearchStore : Store<Intent, State, Nothing> {
 
     data class State(
-        val pageLoaderState: PagingDataSource.State<RickAndMortyCharacter> = PagingDataSource.State(),
+        val pageLoaderState: PagingDataSourceState<RickAndMortyCharacter> = PagingDataSourceState(),
         val query: String = "",
         val status: CharacterStatus? = null,
         val species: String = "",

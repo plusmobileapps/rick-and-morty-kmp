@@ -3,7 +3,6 @@ package com.plusmobileapps.rickandmorty.di
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import com.plusmobileapps.konnectivity.Konnectivity
-import com.plusmobileapps.paging.PagingDataSource
 import com.plusmobileapps.paging.PagingDataSourceFactory
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApi
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
@@ -51,7 +50,7 @@ class ServiceLocator(driverFactory: DriverFactory) : DI {
             ioContext = dispatchers.default,
             db = database.characterQueries,
             api = rickAndMortyApi,
-            pagingDataSourceFactory = PagingDataSourceFactory,
+            cachedPageLoaderFactory = PagingDataSourceFactory,
         )
     }
     override val episodesRepository: EpisodesRepository by lazy {

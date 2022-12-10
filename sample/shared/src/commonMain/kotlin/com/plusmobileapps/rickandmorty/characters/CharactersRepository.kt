@@ -1,6 +1,7 @@
 package com.plusmobileapps.rickandmorty.characters
 
 import com.plusmobileapps.paging.*
+import com.plusmobileapps.paging.CachedPageLoader.CacheInfo
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.db.CharacterQueries
 import com.squareup.sqldelight.TransactionWithoutReturn
@@ -14,10 +15,9 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.minutes
 
 interface CharactersRepository {
-    val pageLoaderState: StateFlow<PagingDataSource.State<RickAndMortyCharacter>>
+    val pageLoaderState: StateFlow<PagingDataSourceState<RickAndMortyCharacter>>
     val hasMoreToLoad: Boolean
     fun loadNextPage()
-    suspend fun getCharacters(): Flow<List<RickAndMortyCharacter>>
     suspend fun getCharacter(id: Int): RickAndMortyCharacter
     suspend fun getCharacters(ids: List<Int>): List<RickAndMortyCharacter>
 }
@@ -26,35 +26,43 @@ internal class CharactersRepositoryImpl(
     private val ioContext: CoroutineContext,
     private val db: CharacterQueries,
     private val api: RickAndMortyApiClient,
-    pagingDataSourceFactory: PagingDataSource.Factory,
+    cachedPageLoaderFactory: CachedPageLoader.Factory,
 ) : CharactersRepository, PageLoader<Unit, RickAndMortyCharacter> {
 
-    private val pagingDataSource: PagingDataSource<Unit, RickAndMortyCharacter> =
-        pagingDataSourceFactory.create(
-            cacheInfo = PagingDataSource.CacheInfo(
+    private val cachedPageLoader: CachedPageLoader<Unit, RickAndMortyCharacter> =
+        cachedPageLoaderFactory.create(
+            cacheInfo = CacheInfo(
                 ttl = 2.minutes,
                 cachingKey = "character-repository"
             ),
             pageLoader = this,
+            reader = { getCharacters() },
+            writer = { db.transaction { insertCharactersIntoDb(it) } },
+            deleteAllAndWrite = {
+                db.transaction {
+                    db.deleteAll()
+                    insertCharactersIntoDb(it)
+                }
+            },
         )
 
-    override val pageLoaderState: StateFlow<PagingDataSource.State<RickAndMortyCharacter>>
-        get() = pagingDataSource.state
+    override val pageLoaderState: StateFlow<PagingDataSourceState<RickAndMortyCharacter>>
+        get() = cachedPageLoader.state
 
     init {
-        pagingDataSource.clearAndLoadFirstPage(
+        cachedPageLoader.clearAndLoadFirstPage(
             input = Unit,
         )
     }
 
     override val hasMoreToLoad: Boolean
-        get() = pagingDataSource.state.value.hasMoreToLoad
+        get() = cachedPageLoader.state.value.hasMoreToLoad
 
     override fun loadNextPage() {
-        pagingDataSource.loadNextPage()
+        cachedPageLoader.loadNextPage()
     }
 
-    override suspend fun getCharacters(): Flow<List<RickAndMortyCharacter>> =
+    private fun getCharacters(): Flow<List<RickAndMortyCharacter>> =
         db.selectAll()
             .asFlow()
             .mapToList()
