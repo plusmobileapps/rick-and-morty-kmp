@@ -3,6 +3,7 @@ package com.plusmobileapps.rickandmorty.androidapp.screens.characters
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
@@ -79,7 +80,10 @@ private fun CharactersUIBody(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Text(model.pageLoadedError!!.getUserMessage(), style = MaterialTheme.typography.titleLarge)
+                Text(
+                    model.pageLoadedError!!.getUserMessage(),
+                    style = MaterialTheme.typography.titleLarge
+                )
                 Spacer(modifier = Modifier.height(32.dp))
                 Button(onClick = bloc::loadMoreCharacters) {
                     Text(text = "Try again")
@@ -98,6 +102,7 @@ private fun CharactersUIBody(
                 characters = model.characters,
                 onCharacterClicked = bloc::onCharacterClicked,
                 nextPageIsLoading = model.nextPageIsLoading,
+                hasMoreToLoad = model.hasMoreToLoad,
                 error = model.pageLoadedError,
                 onLoadNextPage = bloc::loadMoreCharacters,
             )
@@ -111,15 +116,11 @@ fun CharactersList(
     lazyListState: LazyGridState,
     characters: List<RickAndMortyCharacter>,
     nextPageIsLoading: Boolean,
+    hasMoreToLoad: Boolean,
     error: PageLoaderException?,
     onCharacterClicked: (RickAndMortyCharacter) -> Unit,
     onLoadNextPage: () -> Unit,
 ) {
-    val scrollContext = rememberScrollContext(lazyListState)
-
-    if (scrollContext.isBottom) {
-        onLoadNextPage()
-    }
     LazyVerticalGrid(
         modifier = modifier,
         state = lazyListState,
@@ -129,7 +130,12 @@ fun CharactersList(
             CharacterCard(character = it) { onCharacterClicked(it) }
         }
 
-        item("character-next-page-loading") {
+        item(
+            key = "character-next-page-loading",
+            span = {
+                GridItemSpan(maxLineSpan)
+            }
+        ) {
             AnimatedVisibility(visible = nextPageIsLoading) {
                 Box(
                     modifier = Modifier
@@ -144,17 +150,44 @@ fun CharactersList(
 
         val showError = error != null && !error.isFirstPage
 
-        item("character-page-loading-error") {
+        item(
+            key = "character-page-loading-error",
+            span = {
+                GridItemSpan(maxLineSpan)
+            }
+        ) {
             AnimatedVisibility(visible = showError) {
                 Column(
-                    modifier = modifier.padding(vertical = 32.dp),
+                    modifier = modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
+                    verticalArrangement = spacedBy(16.dp),
                 ) {
-                    Text(error?.getUserMessage() ?: "An error occured", style = MaterialTheme.typography.titleLarge)
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        error?.getUserMessage() ?: "An error occured",
+                        style = MaterialTheme.typography.titleLarge
+                    )
                     Button(onClick = onLoadNextPage) {
                         Text(text = "Try again")
+                    }
+                }
+            }
+        }
+
+        item(
+            key = "character-next-page-load-section",
+            span = {
+                GridItemSpan(maxLineSpan)
+            }
+        ) {
+            AnimatedVisibility(visible = hasMoreToLoad && !nextPageIsLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Button(onClick = onLoadNextPage) {
+                        Text(text = "Load more")
                     }
                 }
             }
