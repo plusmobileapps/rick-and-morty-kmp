@@ -82,9 +82,17 @@ internal class CachedPageLoaderImpl<INPUT, DATA>(
     private suspend fun sendRequest(input: INPUT?, isFirstPage: Boolean) {
         if (!konnectivity.isConnected) {
             pagingState.value = pagingState.value.copy(
-                pageLoaderState = PageLoaderState.Failed(
-                    exception = PageLoaderException.NoNetworkException(isFirstPage),
-                )
+                pageLoaderState = if (pagingState.value.data.isEmpty() || !isFirstPage) {
+                    PageLoaderState.Failed(
+                        exception = PageLoaderException.NoNetworkException(isFirstPage),
+                    )
+                } else {
+                    PageLoaderState.Failed(
+                        exception = PageLoaderException.FirstPageErrorWithCachedResults(
+                            PageLoaderException.NoNetworkException(true)
+                        )
+                    )
+                }
             )
             return
         }
@@ -143,7 +151,19 @@ internal class CachedPageLoaderImpl<INPUT, DATA>(
     private fun collectFromReader() {
         scope.launch {
             reader().collect { results ->
-                pagingState.value = pagingState.value.copy(data = results)
+                val currentState = pagingState.value
+                pagingState.value = currentState.copy(
+                    data = results,
+                    pageLoaderState = if (results.isNotEmpty() && currentState.pageLoaderState is PageLoaderState.Failed) {
+                        PageLoaderState.Failed(
+                            PageLoaderException.FirstPageErrorWithCachedResults(
+                                currentState.pageLoaderState.exception
+                            )
+                        )
+                    } else {
+                        currentState.pageLoaderState
+                    }
+                )
             }
         }
     }

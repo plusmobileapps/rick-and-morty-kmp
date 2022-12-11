@@ -9,10 +9,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -31,10 +30,28 @@ import kotlinx.coroutines.launch
 fun CharactersUI(bloc: CharactersBloc) {
     val model = bloc.models.subscribeAsState()
     val lazyListState = rememberLazyGridState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val showFirstPageErrorWithCachedResultsSnackbar by remember {
+        derivedStateOf {
+            model.value.pageLoadedError is PageLoaderException.FirstPageErrorWithCachedResults
+        }
+    }
 
     val scope = rememberCoroutineScope()
     val scrollContext = rememberScrollContext(lazyListState)
 
+    LaunchedEffect(showFirstPageErrorWithCachedResultsSnackbar) {
+        snackbarHostState.showSnackbar(
+            message = "Couldn't load the first page, but viewing cached results.",
+            actionLabel = "Refresh",
+            duration = if (showFirstPageErrorWithCachedResultsSnackbar) {
+                SnackbarDuration.Indefinite
+            } else {
+                SnackbarDuration.Short
+            }
+        )
+    }
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(text = "Characters") }, actions = {
@@ -51,6 +68,19 @@ fun CharactersUI(bloc: CharactersBloc) {
                     }
                 }) {
                     Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
+                }
+            }
+        },
+        bottomBar = {
+            AnimatedVisibility(visible = showFirstPageErrorWithCachedResultsSnackbar) {
+                Snackbar(
+                    action = {
+                        TextButton(onClick = { bloc.loadMoreCharacters() }) {
+                            Text("Refresh", color = MaterialTheme.colorScheme.background)
+                        }
+                    },
+                ) {
+                    Text(text = "Couldn't load the first page, but viewing cached results")
                 }
             }
         }
@@ -74,7 +104,7 @@ private fun CharactersUIBody(
     val model by bloc.models.subscribeAsState()
 
     when {
-        model.pageLoadedError?.isFirstPage == true -> {
+        model.pageLoadedError?.isFirstPage == true && model.pageLoadedError !is PageLoaderException.FirstPageErrorWithCachedResults -> {
             Column(
                 modifier = modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -179,7 +209,7 @@ fun CharactersList(
                 GridItemSpan(maxLineSpan)
             }
         ) {
-            AnimatedVisibility(visible = hasMoreToLoad && !nextPageIsLoading) {
+            AnimatedVisibility(visible = hasMoreToLoad && !nextPageIsLoading && !showError) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

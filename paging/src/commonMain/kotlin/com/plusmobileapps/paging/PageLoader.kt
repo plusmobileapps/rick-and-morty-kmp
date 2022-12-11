@@ -37,6 +37,12 @@ sealed class PageLoaderException(message: String?) : Exception(message) {
         override val isFirstPage: Boolean,
         private val errorMessage: String?,
     ) : PageLoaderException(errorMessage)
+
+    data class FirstPageErrorWithCachedResults(
+        val exception: Exception,
+    ) : PageLoaderException("Error loading first page but cached results") {
+        override val isFirstPage: Boolean = true
+    }
 }
 
 /** Model for the state of the current page loader. */
