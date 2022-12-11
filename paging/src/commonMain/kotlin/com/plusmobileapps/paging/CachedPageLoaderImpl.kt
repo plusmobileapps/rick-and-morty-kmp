@@ -120,7 +120,7 @@ internal class CachedPageLoaderImpl<INPUT, DATA>(
                     ),
                     pagingKey = response.pagingToken,
                 )
-                if (cacheInfo != null && isFirstPage) {
+                if (isFirstPage) {
                     settings.putString(firstPageCacheKey, getCurrentInstant().toString())
                 }
                 if (pagingToken != null) {

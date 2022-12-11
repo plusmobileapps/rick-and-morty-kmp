@@ -175,8 +175,6 @@ class InMemoryPagingLoaderTest {
     companion object {
         const val INPUT = "rick sanchez"
         const val FIRST_PAGING_TOKEN = "first-paging-token"
-        const val FIRST_PAGE_SUCCESS_KEY = "some-key-first-page-caching-key"
-        const val NEXT_PAGE_PAGING_KEY = "some-key-next-page-paging-key"
         const val COOL_RICK = "Cool Rick"
         const val PICKLE_RICK = "Pickle Rick"
         const val ERROR_MESSAGE = "something bad happened"
