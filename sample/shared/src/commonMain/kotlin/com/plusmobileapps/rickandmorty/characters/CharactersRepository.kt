@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
 interface CharactersRepository {
@@ -32,7 +33,7 @@ internal class CharactersRepositoryImpl(
     private val cachedPageLoader: CachedPageLoader<Unit, RickAndMortyCharacter> =
         cachedPageLoaderFactory.create(
             cacheInfo = CacheInfo(
-                ttl = 2.minutes,
+                ttl = 1.days,
                 cachingKey = "character-repository"
             ),
             pageLoader = this,
