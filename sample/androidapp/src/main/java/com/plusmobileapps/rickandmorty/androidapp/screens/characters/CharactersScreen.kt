@@ -41,17 +41,6 @@ fun CharactersUI(bloc: CharactersBloc) {
     val scope = rememberCoroutineScope()
     val scrollContext = rememberScrollContext(lazyListState)
 
-    LaunchedEffect(showFirstPageErrorWithCachedResultsSnackbar) {
-        snackbarHostState.showSnackbar(
-            message = "Couldn't load the first page, but viewing cached results.",
-            actionLabel = "Refresh",
-            duration = if (showFirstPageErrorWithCachedResultsSnackbar) {
-                SnackbarDuration.Indefinite
-            } else {
-                SnackbarDuration.Short
-            }
-        )
-    }
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(text = "Characters") }, actions = {
