@@ -186,8 +186,15 @@ fun CharacterSearchResults(
 
         if (pageLoadingState.hasMoreToLoad) {
             item("character-search-load-more-button") {
-                Button(onClick = onLoadMore) {
-                    Text("Load More")
+                Box(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Button(onClick = onLoadMore) {
+                        Text("Load More")
+                    }
                 }
             }
         }
