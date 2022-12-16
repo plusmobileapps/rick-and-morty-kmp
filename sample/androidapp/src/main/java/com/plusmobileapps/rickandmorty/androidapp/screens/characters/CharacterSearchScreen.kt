@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package com.plusmobileapps.rickandmorty.androidapp.screens.characters
 
 import androidx.compose.animation.AnimatedVisibility
@@ -15,8 +17,10 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,6 +42,7 @@ import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
 
 @Composable
 fun CharacterSearchScreen(bloc: CharacterSearchBloc) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     val model = bloc.models.subscribeAsState()
     Column(
         modifier = Modifier
@@ -50,7 +55,10 @@ fun CharacterSearchScreen(bloc: CharacterSearchBloc) {
             showFilters = model.value.showFilters,
             onBackClicked = bloc::onBackClicked,
             onQueryChanged = bloc::onQueryChanged,
-            onSearchClicked = bloc::onSearchClicked,
+            onSearchClicked = {
+                keyboardController?.hide()
+                bloc.onSearchClicked()
+            },
             onFiltersClicked = bloc::onFiltersClicked
         )
         AnimatedVisibility(model.value.showFilters) {
