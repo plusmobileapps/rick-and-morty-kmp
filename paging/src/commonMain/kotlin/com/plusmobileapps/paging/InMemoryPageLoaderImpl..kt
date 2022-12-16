@@ -3,26 +3,14 @@ package com.plusmobileapps.paging
 import com.plusmobileapps.konnectivity.Konnectivity
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-object PagingDataSourceFactory : PagingDataSource.Factory {
-    private val konnectivity = Konnectivity()
-    override fun <INPUT, DATA> create(
-        pageLoader: PageLoader<INPUT, DATA>
-    ): PagingDataSource<INPUT, DATA> = PagingDataSourceImpl(
-        ioContext = Dispatchers.Default,
-        pageLoader = pageLoader,
-        konnectivity = konnectivity,
-    )
-}
-
-internal class PagingDataSourceImpl<INPUT, DATA>(
+internal class InMemoryPageLoaderImpl<INPUT, DATA>(
     ioContext: CoroutineDispatcher,
     private val pageLoader: PageLoader<INPUT, DATA>,
     private val konnectivity: Konnectivity,
-) : PagingDataSource<INPUT, DATA> {
+) : InMemoryPageLoader<INPUT, DATA> {
 
     private val scope = CoroutineScope(ioContext)
 
@@ -30,18 +18,9 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
     private val pagingKey: String?
         get() = pagingState.value.pagingKey
 
-    override val state: StateFlow<PagingDataSource.State<DATA>> =
+    override val state: StateFlow<PagingDataSourceState<DATA>> =
         pagingState.asStateFlow()
-            .map(scope) {
-                PagingDataSource.State(
-                    isFirstPageLoading = it.firstPageIsLoading,
-                    isNextPageLoading = it.nextPageIsLoading,
-                    data = it.data,
-                    pageLoaderError = (it.pageLoaderState as? PageLoaderState.Failed)?.exception,
-                    hasMoreToLoad = (it.pageLoaderState as? PageLoaderState.Idle)?.hasMorePages
-                        ?: false
-                )
-            }
+            .map(scope) { it.toPagingDataSourceState() }
 
     override fun clearAndLoadFirstPage(input: INPUT) {
         if (pagingState.value.firstPageIsLoading) return
@@ -79,7 +58,7 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
             )
             return
         }
-        val response: PageLoaderResponse<DATA> = pageLoader(
+        val response: PageLoaderResponse<DATA> = pageLoader.load(
             PageLoaderRequest(
                 pagingKey = pagingKey,
                 input = input
@@ -106,33 +85,9 @@ internal class PagingDataSourceImpl<INPUT, DATA>(
                         hasMorePages = pagingToken != null
                     ),
                     data = currentState.data + data,
-                    pagingKey = response.pagingToken
+                    pagingKey = response.pagingToken,
                 )
             }
         }
-    }
-
-    private fun <T, M> StateFlow<T>.map(
-        coroutineScope: CoroutineScope,
-        mapper: (value: T) -> M
-    ): StateFlow<M> = map { mapper(it) }.stateIn(
-        coroutineScope,
-        SharingStarted.Eagerly,
-        mapper(value)
-    )
-
-    private data class State<INPUT, DATA>(
-        val input: INPUT? = null,
-        val pageLoaderState: PageLoaderState = PageLoaderState.Idle(hasMorePages = true),
-        val data: List<DATA> = emptyList(),
-        val pagingKey: String? = null,
-    ) {
-        val firstPageIsLoading: Boolean
-            get() = (pageLoaderState as? PageLoaderState.Loading)?.isFirstPage ?: false
-
-        val nextPageIsLoading: Boolean
-            get() = (pageLoaderState as? PageLoaderState.Loading)?.let {
-                !it.isFirstPage
-            } ?: false
     }
 }

@@ -2,6 +2,7 @@ plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
     id("com.android.library")
+    id("org.kodein.mock.mockmp") version Deps.KosiLibs.MOCK_KMP_VERSION
 }
 
 kotlin {
@@ -25,13 +26,17 @@ kotlin {
             dependencies {
                 implementation(Deps.Jetbrains.coroutines)
                 implementation(Deps.PlusMobileApps.konnectivity)
+                implementation(Deps.RushWolf.multiplatformSettings)
+                implementation(Deps.Jetbrains.dateTime)
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(Deps.Jetbrains.coroutinesTesting)
-
+                implementation(Deps.CashApp.turbine)
+                implementation(Deps.RushWolf.multiplatformSettingsTest)
+                implementation(Deps.Kotest.assertionCore)
             }
         }
         val androidMain by getting
@@ -64,4 +69,12 @@ android {
         minSdk = Deps.Android.minSDK
         targetSdk = Deps.Android.targetSDK
     }
+}
+
+mockmp {
+    usesHelper = true
+}
+
+tasks.getByName<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest>("iosX64Test") {
+    deviceId = "iPhone 14"
 }

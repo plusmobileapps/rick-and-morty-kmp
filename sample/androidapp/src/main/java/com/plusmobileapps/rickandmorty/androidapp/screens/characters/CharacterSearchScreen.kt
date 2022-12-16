@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package com.plusmobileapps.rickandmorty.androidapp.screens.characters
 
 import androidx.compose.animation.AnimatedVisibility
@@ -15,8 +17,10 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,12 +29,11 @@ import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.plusmobileapps.paging.PageLoaderException
-import com.plusmobileapps.paging.PagingDataSource
+import com.plusmobileapps.paging.PagingDataSourceState
 import com.plusmobileapps.rickandmorty.androidapp.R
 import com.plusmobileapps.rickandmorty.androidapp.components.SearchFilterDropdown
 import com.plusmobileapps.rickandmorty.androidapp.theme.Rick_and_Morty_KMPTheme
 import com.plusmobileapps.rickandmorty.androidapp.util.getUserMessage
-import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus.ALIVE
@@ -39,6 +42,7 @@ import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
 
 @Composable
 fun CharacterSearchScreen(bloc: CharacterSearchBloc) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     val model = bloc.models.subscribeAsState()
     Column(
         modifier = Modifier
@@ -51,7 +55,10 @@ fun CharacterSearchScreen(bloc: CharacterSearchBloc) {
             showFilters = model.value.showFilters,
             onBackClicked = bloc::onBackClicked,
             onQueryChanged = bloc::onQueryChanged,
-            onSearchClicked = bloc::onSearchClicked,
+            onSearchClicked = {
+                keyboardController?.hide()
+                bloc.onSearchClicked()
+            },
             onFiltersClicked = bloc::onFiltersClicked
         )
         AnimatedVisibility(model.value.showFilters) {
@@ -170,7 +177,7 @@ fun SearchBar(
 @Composable
 fun CharacterSearchResults(
     modifier: Modifier,
-    pageLoadingState: PagingDataSource.State<RickAndMortyCharacter>,
+    pageLoadingState: PagingDataSourceState<RickAndMortyCharacter>,
     onCharacterClicked: (RickAndMortyCharacter) -> Unit,
     onLoadMore: () -> Unit,
     onNextPageTryAgainClicked: () -> Unit,
@@ -187,8 +194,15 @@ fun CharacterSearchResults(
 
         if (pageLoadingState.hasMoreToLoad) {
             item("character-search-load-more-button") {
-                Button(onClick = onLoadMore) {
-                    Text("Load More")
+                Box(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Button(onClick = onLoadMore) {
+                        Text("Load More")
+                    }
                 }
             }
         }
@@ -286,7 +300,7 @@ fun CharacterSearchPreview() {
                 override val models: Value<CharacterSearchBloc.Model> =
                     MutableValue(
                         CharacterSearchBloc.Model(
-                            pageLoaderState = PagingDataSource.State(
+                            pageLoaderState = PagingDataSourceState(
                                 data = listOf(
                                     RickAndMortyCharacter(name = "Pickle rick")
                                 )

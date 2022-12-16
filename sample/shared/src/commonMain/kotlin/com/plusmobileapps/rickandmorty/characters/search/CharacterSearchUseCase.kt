@@ -1,15 +1,15 @@
 package com.plusmobileapps.rickandmorty.characters.search
 
-import com.plusmobileapps.paging.PageLoaderResponse
-import com.plusmobileapps.paging.PagingDataSource
+import com.plusmobileapps.paging.*
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
 import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
+import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchUseCaseImpl.Input
 import kotlinx.coroutines.flow.StateFlow
 
 interface CharacterSearchUseCase {
-    val pageLoaderState: StateFlow<PagingDataSource.State<RickAndMortyCharacter>>
+    val pageLoaderState: StateFlow<PagingDataSourceState<RickAndMortyCharacter>>
     fun loadFirstPage(
         query: String,
         status: CharacterStatus?,
@@ -22,30 +22,14 @@ interface CharacterSearchUseCase {
 
 internal class CharacterSearchUseCaseImpl(
     private val api: RickAndMortyApiClient,
-    private val factory: PagingDataSource.Factory,
-) : CharacterSearchUseCase {
+    private val factory: InMemoryPageLoader.Factory,
+) : CharacterSearchUseCase, PageLoader<Input, RickAndMortyCharacter> {
 
-    private val pageDataSource = factory.create<Input, RickAndMortyCharacter> { request ->
-        try {
-            val response = api.getCharacters(
-                page = request.pagingKey?.toIntOrNull() ?: 0,
-                name = request.input.query,
-                status = request.input.status,
-                species = request.input.species,
-                type = null, // TODO
-                gender = request.input.gender
-            )
-            val characters = response.results.map { RickAndMortyCharacter.fromDTO(it) }
-            PageLoaderResponse.Success(
-                data = characters,
-                pagingToken = response.info.nextPageNumber
-            )
-        } catch (e: Exception) {
-            PageLoaderResponse.Error(exception = e)
-        }
-    }
+    private val pageDataSource = factory.create<Input, RickAndMortyCharacter>(
+        pageLoader = this,
+    )
 
-    override val pageLoaderState: StateFlow<PagingDataSource.State<RickAndMortyCharacter>> =
+    override val pageLoaderState: StateFlow<PagingDataSourceState<RickAndMortyCharacter>> =
         pageDataSource.state
 
     override fun loadFirstPage(
@@ -68,7 +52,27 @@ internal class CharacterSearchUseCaseImpl(
         pageDataSource.loadNextPage()
     }
 
-    private data class Input(
+    override suspend fun load(request: PageLoaderRequest<Input>): PageLoaderResponse<RickAndMortyCharacter> {
+        return try {
+            val response = api.getCharacters(
+                page = request.pagingKey?.toIntOrNull() ?: 0,
+                name = request.input.query,
+                status = request.input.status,
+                species = request.input.species,
+                type = null, // TODO
+                gender = request.input.gender
+            )
+            val characters = response.results.map { RickAndMortyCharacter.fromDTO(it) }
+            PageLoaderResponse.Success(
+                data = characters,
+                pagingToken = response.info.nextPageNumber
+            )
+        } catch (e: Exception) {
+            PageLoaderResponse.Error(exception = e)
+        }
+    }
+
+    internal data class Input(
         val query: String = "",
         val status: CharacterStatus? = null,
         val species: String = "",

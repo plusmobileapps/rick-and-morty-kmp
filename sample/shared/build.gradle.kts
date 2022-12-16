@@ -6,7 +6,7 @@ plugins {
     id("maven-publish")
     kotlin("plugin.serialization")
     id("kotlin-parcelize")
-    id("org.kodein.mock.mockmp") version "1.9.0"
+    id("org.kodein.mock.mockmp") version Deps.KosiLibs.MOCK_KMP_VERSION
 }
 
 group = "com.plusmobileapps"
@@ -58,6 +58,8 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(Deps.Jetbrains.coroutinesTesting)
+                implementation(Deps.CashApp.turbine)
+                implementation(Deps.Kotest.assertionCore)
             }
         }
         val androidMain by getting {

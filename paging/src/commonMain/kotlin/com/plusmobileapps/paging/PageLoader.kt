@@ -1,12 +1,28 @@
 package com.plusmobileapps.paging
 
 /**
- * A type alias for a function that makes an async call with
- * [PageLoaderRequest] and returns a [PageLoaderResponse]. This is then
- * passed as a parameter for [PagingDataSource.Factory.create] and will be
- * where one typically fetches data from an API.
+ * A single function interface for making asynchronous requests of pages.
+ *
+ * @param INPUT The input for each request.
+ * @param DATA The list of results type returned in the response.
  */
-typealias PageLoader<INPUT, DATA> = suspend (PageLoaderRequest<INPUT>) -> PageLoaderResponse<DATA>
+interface PageLoader<INPUT, DATA> {
+
+    /**
+     * Loads the next page with the latest input and paging token if there is
+     * one.
+     *
+     * @param request Parameters for loading the next page with paging token if
+     *     there is one. A null [PageLoaderRequest.pagingKey] will be made when
+     *     the first page is fetched otherwise should have a value.
+     * @return The list of results and paging token if there is one from the
+     *     network call. A null paging token returned in the response will
+     *     indicate the last page has been loaded and no more requests will be
+     *     made until [PagingDataSource.clearAndLoadFirstPage] is called with
+     *     new input.
+     */
+    suspend fun load(request: PageLoaderRequest<INPUT>): PageLoaderResponse<DATA>
+}
 
 /** An error that can happen when loading a page. */
 sealed class PageLoaderException(message: String?) : Exception(message) {
@@ -21,6 +37,12 @@ sealed class PageLoaderException(message: String?) : Exception(message) {
         override val isFirstPage: Boolean,
         private val errorMessage: String?,
     ) : PageLoaderException(errorMessage)
+
+    data class FirstPageErrorWithCachedResults(
+        val exception: Exception,
+    ) : PageLoaderException("Error loading first page but cached results") {
+        override val isFirstPage: Boolean = true
+    }
 }
 
 /** Model for the state of the current page loader. */

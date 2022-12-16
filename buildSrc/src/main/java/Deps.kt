@@ -3,7 +3,7 @@ object Deps {
     const val LIBRARY_VERSION = "0.2"
 
     object Jetbrains {
-        const val KOTLIN_VERSION = "1.7.10"
+        const val KOTLIN_VERSION = "1.7.20"
         const val COROUTINES_VERSION = "1.6.4"
 
         const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$KOTLIN_VERSION"
@@ -12,6 +12,8 @@ object Deps {
         const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$COROUTINES_VERSION"
         const val coroutinesTesting =
             "org.jetbrains.kotlinx:kotlinx-coroutines-test:$COROUTINES_VERSION"
+
+        const val dateTime = "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0"
     }
 
     object Ktor {
@@ -40,8 +42,8 @@ object Deps {
     }
 
     object Compose {
-        const val VERSION = "1.2.1"
-        const val COMPILER_VERSION = "1.3.1"
+        const val VERSION = "1.3.1"
+        const val COMPILER_VERSION = "1.3.2"
         const val ACCOMPANIST_VERSION = "0.25.1"
         const val MATERIAL_VERSION = "1.0.0-beta03"
     }
@@ -51,7 +53,9 @@ object Deps {
     }
 
     object RushWolf {
-        const val multiplatformSettings = "com.russhwolf:multiplatform-settings-no-arg:0.8.1"
+        const val VERSION = "1.0.0-RC"
+        const val multiplatformSettings = "com.russhwolf:multiplatform-settings-no-arg:$VERSION"
+        const val multiplatformSettingsTest = "com.russhwolf:multiplatform-settings-test:$VERSION"
     }
 
     object SqlDelight {
@@ -80,7 +84,20 @@ object Deps {
         }
     }
 
+    object KosiLibs {
+        const val MOCK_KMP_VERSION = "1.10.0"
+    }
+
+    object CashApp {
+        const val turbine = "app.cash.turbine:turbine:0.12.1"
+    }
+
     object PlusMobileApps {
         const val konnectivity = "com.plusmobileapps:konnectivity:0.1-alpha01"
+    }
+
+    object Kotest {
+        const val VERSION = "5.5.4"
+        const val assertionCore = "io.kotest:kotest-assertions-core:$VERSION"
     }
 }

@@ -51,7 +51,7 @@ internal class CharacterSearchBlocImpl(
     }
 
     override fun onFirstPageTryAgainClicked() {
-        store.accept(Intent.LoadNextPage)
+        store.accept(Intent.InitiateSearch)
     }
 
     override fun onNextPageTryAgainClicked() {
