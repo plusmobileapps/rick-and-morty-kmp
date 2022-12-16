@@ -58,6 +58,8 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(Deps.Jetbrains.coroutinesTesting)
+                implementation(Deps.CashApp.turbine)
+                implementation(Deps.Kotest.assertionCore)
             }
         }
         val androidMain by getting {
