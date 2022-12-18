@@ -4,11 +4,11 @@ plugins {
     id("com.android.library")
     id("maven-publish")
     kotlin("plugin.serialization")
-    id("convention.publication")
+    id("rickandmortyapi.publication")
 }
 
 group = "com.plusmobileapps"
-version = Deps.LIBRARY_VERSION
+version = Deps.RICK_AND_MORTY_API_VERSION
 
 kotlin {
     android {

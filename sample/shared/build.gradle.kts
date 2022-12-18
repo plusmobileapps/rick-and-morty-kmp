@@ -9,9 +9,6 @@ plugins {
     id("org.kodein.mock.mockmp") version Deps.KosiLibs.MOCK_KMP_VERSION
 }
 
-group = "com.plusmobileapps"
-version = Deps.LIBRARY_VERSION
-
 kotlin {
     android {
         publishLibraryVariants("release", "debug")
@@ -23,6 +20,7 @@ kotlin {
     cocoapods {
         summary = "Rick and Morty KMP SDK"
         homepage = "https://github.com/plusmobileapps/rick-and-morty-kmp"
+        version = "1.0"
         ios.deploymentTarget = "14.1"
         framework {
             baseName = "rickandmortysdk"
