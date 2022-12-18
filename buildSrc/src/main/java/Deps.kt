@@ -1,6 +1,6 @@
 object Deps {
 
-    const val RICK_AND_MORTY_API_VERSION = "0.3-alpha01"
+    const val RICK_AND_MORTY_API_VERSION = "0.3"
     const val PAGING_VERSION = "0.1-alpha01"
 
     object Jetbrains {
