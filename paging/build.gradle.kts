@@ -3,18 +3,25 @@ plugins {
     kotlin("native.cocoapods")
     id("com.android.library")
     id("org.kodein.mock.mockmp") version Deps.KosiLibs.MOCK_KMP_VERSION
+    id("paging.publication")
 }
 
+
+group = "com.plusmobileapps"
+version = Deps.PAGING_VERSION
+
 kotlin {
-    android()
+    android {
+        publishLibraryVariants("release", "debug")
+    }
     iosX64()
     iosArm64()
     iosSimulatorArm64()
 
     cocoapods {
-        summary = "Some description for the Shared Module"
-        homepage = "Link to the Shared Module homepage"
-        version = "1.0"
+        summary = "Paging helper KMM library"
+        homepage = "https://github.com/plusmobileapps/rick-and-morty-kmp"
+        version = Deps.PAGING_VERSION
         ios.deploymentTarget = "14.1"
         framework {
             baseName = "paging"

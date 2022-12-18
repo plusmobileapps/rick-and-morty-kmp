@@ -1,6 +1,7 @@
 object Deps {
 
-    const val LIBRARY_VERSION = "0.2"
+    const val RICK_AND_MORTY_API_VERSION = "0.3"
+    const val PAGING_VERSION = "0.1-alpha01"
 
     object Jetbrains {
         const val KOTLIN_VERSION = "1.7.20"
