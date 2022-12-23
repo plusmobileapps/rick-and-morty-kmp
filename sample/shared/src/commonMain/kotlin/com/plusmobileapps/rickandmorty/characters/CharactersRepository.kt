@@ -16,9 +16,9 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
 interface CharactersRepository {
-    val pageLoaderState: StateFlow<PagingDataSourceState<RickAndMortyCharacter>>
-    val hasMoreToLoad: Boolean
-    fun loadNextPage()
+    val pageLoaderState: Flow<PagingDataSourceState<RickAndMortyCharacter>>
+    suspend fun loadFirstPage()
+    suspend fun loadNextPage()
     suspend fun getCharacter(id: Int): RickAndMortyCharacter
     suspend fun getCharacters(ids: List<Int>): List<RickAndMortyCharacter>
 }
@@ -47,19 +47,16 @@ internal class CharactersRepositoryImpl(
             },
         )
 
-    override val pageLoaderState: StateFlow<PagingDataSourceState<RickAndMortyCharacter>>
+    override val pageLoaderState: Flow<PagingDataSourceState<RickAndMortyCharacter>>
         get() = cachedPageLoader.state
 
-    init {
+    override suspend fun loadFirstPage() {
         cachedPageLoader.clearAndLoadFirstPage(
             input = Unit,
         )
     }
 
-    override val hasMoreToLoad: Boolean
-        get() = cachedPageLoader.state.value.hasMoreToLoad
-
-    override fun loadNextPage() {
+    override suspend fun loadNextPage() {
         cachedPageLoader.loadNextPage()
     }
 

@@ -15,4 +15,8 @@ getEpisode:
 SELECT * FROM Episodes WHERE ? = id;
 
 insertEpisode:
-INSERT OR REPLACE INTO Episodes(id, name, air_date, episode, characters, url, created) VALUES (?, ?, ?, ?, ?, ?,?);
+INSERT OR REPLACE INTO Episodes(id, name, air_date, episode, characters, url, created)
+VALUES (?, ?, ?, ?, ?, ?,?);
+
+deleteAll:
+DELETE FROM Episodes;

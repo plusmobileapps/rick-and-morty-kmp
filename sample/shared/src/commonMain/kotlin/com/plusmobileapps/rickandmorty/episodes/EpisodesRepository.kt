@@ -1,5 +1,6 @@
 package com.plusmobileapps.rickandmorty.episodes
 
+import com.plusmobileapps.paging.*
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.api.episodes.Episode
 import com.plusmobileapps.rickandmorty.api.episodes.EpisodesResponse
@@ -8,19 +9,23 @@ import com.plusmobileapps.rickandmorty.db.Episodes
 import com.plusmobileapps.rickandmorty.util.Dispatchers
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
+import com.squareup.sqldelight.TransactionWithoutReturn
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.time.Duration.Companion.days
 
 interface EpisodesRepository {
-    val hasMoreEpisodesToLoad: Boolean
-    fun loadNextPage()
+    val pagingState: Flow<PagingDataSourceState<Episode>>
+    suspend fun loadFirstPage()
+    suspend fun loadNextPage()
     fun getEpisodes(): Flow<List<Episode>>
     suspend fun getEpisode(id: Int): Episode
 }
@@ -29,39 +34,34 @@ internal class EpisodesRepositoryImpl(
     private val api: RickAndMortyApiClient,
     private val dispatchers: Dispatchers,
     private val db: EpisodeQueries,
-    private val settings: Settings,
-) : EpisodesRepository {
+    pagingFactory: CachedPageLoader.Factory,
+) : EpisodesRepository, PageLoader<Unit, Episode> {
 
-    companion object {
-        const val EPISODES_PAGE_KEY = "EPISODES_PAGE_KEY"
-        const val TOTAL_PAGES_KEY = "EPISODES_TOTAL_PAGES_KEY"
+    private val pagingDataSource = pagingFactory.create<Unit, Episode>(
+        cacheInfo = CachedPageLoader.CacheInfo(
+            ttl = 1.days,
+            cachingKey = "episodes-caching-key",
+        ),
+        reader = { getEpisodes() },
+        writer = { db.transaction { insertEpisodes(it) } },
+        deleteAllAndWrite = { episodes ->
+            db.transaction {
+                db.deleteAll()
+                insertEpisodes(episodes)
+            }
+        },
+        pageLoader = this,
+    )
+
+    override val pagingState: Flow<PagingDataSourceState<Episode>>
+        get() = pagingDataSource.state
+
+    override suspend fun loadFirstPage() {
+        pagingDataSource.clearAndLoadFirstPage(Unit)
     }
 
-    private var nextPage = settings.getInt(EPISODES_PAGE_KEY, 1)
-        set(value) {
-            field = value
-            settings[EPISODES_PAGE_KEY] = value
-        }
-    private var totalPages = settings.getInt(TOTAL_PAGES_KEY, Int.MAX_VALUE)
-        set(value) {
-            field = value
-            settings[TOTAL_PAGES_KEY] = value
-        }
-
-    private val job = Job()
-    private val scope = CoroutineScope(dispatchers.default + job)
-
-    init {
-        if (nextPage == 1) loadNextPage()
-    }
-
-    override val hasMoreEpisodesToLoad: Boolean
-        get() = nextPage <= totalPages
-
-    override fun loadNextPage() {
-        scope.launch {
-            fetchEpisodes(nextPage)
-        }
+    override suspend fun loadNextPage() {
+        pagingDataSource.loadNextPage()
     }
 
     override fun getEpisodes(): Flow<List<Episode>> =
@@ -76,28 +76,26 @@ internal class EpisodesRepositoryImpl(
         db.getEpisode(id.toLong()).executeAsOne().toEpisode()
     }
 
-    private suspend fun fetchEpisodes(page: Int) {
-        if (!hasMoreEpisodesToLoad) return
-
-        try {
-            val response: EpisodesResponse = api.getEpisodes(page)
-            db.transaction {
-                response.results.forEach { episode ->
-                    db.insertEpisode(
-                        id = episode.id.toLong(),
-                        name = episode.name,
-                        air_date = episode.air_date,
-                        episode = episode.episode,
-                        characters = episode.characters.joinToString(","),
-                        url = episode.url,
-                        created = episode.created
-                    )
-                }
-            }
-            nextPage = page + 1
-            totalPages = response.info.pages
+    override suspend fun load(request: PageLoaderRequest<Unit>): PageLoaderResponse<Episode> {
+        return try {
+            val response: EpisodesResponse = api.getEpisodes(request.pagingKey?.toIntOrNull() ?: 0)
+            PageLoaderResponse.Success(response.results, response.info.next)
         } catch (e: Exception) {
-            // TODO log
+            PageLoaderResponse.Error(e)
+        }
+    }
+
+    private fun TransactionWithoutReturn.insertEpisodes(episodes: List<Episode>) {
+        episodes.forEach { episode ->
+            db.insertEpisode(
+                id = episode.id.toLong(),
+                name = episode.name,
+                air_date = episode.air_date,
+                episode = episode.episode,
+                characters = episode.characters.joinToString(","),
+                url = episode.url,
+                created = episode.created
+            )
         }
     }
 

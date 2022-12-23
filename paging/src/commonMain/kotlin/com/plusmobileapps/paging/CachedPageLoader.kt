@@ -1,7 +1,6 @@
 package com.plusmobileapps.paging
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import kotlin.time.Duration
 
 /**
@@ -14,21 +13,21 @@ import kotlin.time.Duration
  */
 interface CachedPageLoader<INPUT, DATA> {
 
-    /** A [StateFlow] for the current state of the [CachedPageLoader]. */
-    val state: StateFlow<PagingDataSourceState<DATA>>
+    /** A [Flow] for the current state of the [CachedPageLoader]. */
+    val state: Flow<PagingDataSourceState<DATA>>
 
     /**
      * Will clear all results and load the first page with the provided input.
      *
      * @param input The input to be used in each [PageLoaderRequest.input].
      */
-    fun clearAndLoadFirstPage(input: INPUT)
+    suspend fun clearAndLoadFirstPage(input: INPUT)
 
     /**
      * Load the next page with the same input provided from the first page if
      * one exists.
      */
-    fun loadNextPage()
+    suspend fun loadNextPage()
 
     /** A factory to create an instance of [CachedPageLoader]. */
     interface Factory {

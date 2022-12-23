@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -12,12 +13,13 @@ import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
+import com.plusmobileapps.paging.PageLoaderException
+import com.plusmobileapps.rickandmorty.androidapp.util.getUserMessage
 import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
 import com.plusmobileapps.rickandmorty.api.episodes.Episode
 import com.plusmobileapps.rickandmorty.episodes.EpisodeListItem
@@ -28,6 +30,11 @@ import kotlinx.coroutines.launch
 fun EpisodesUI(bloc: EpisodesBloc) {
     val model = bloc.models.subscribeAsState()
     val lazyListState = rememberLazyListState()
+    val showFirstPageErrorWithCachedResultsSnackbar by remember {
+        derivedStateOf {
+            model.value.pageLoadedError is PageLoaderException.FirstPageErrorWithCachedResults
+        }
+    }
     val scope = rememberCoroutineScope()
     val scrollContext = rememberScrollContext(listState = lazyListState)
 
@@ -51,14 +58,66 @@ fun EpisodesUI(bloc: EpisodesBloc) {
                     Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
                 }
             }
+        },
+        bottomBar = {
+            AnimatedVisibility(visible = showFirstPageErrorWithCachedResultsSnackbar) {
+                Snackbar(
+                    action = {
+                        TextButton(onClick = { bloc.loadMore() }) {
+                            Text("Refresh", color = MaterialTheme.colorScheme.background)
+                        }
+                    },
+                ) {
+                    Text(text = "Couldn't load the first page, but viewing cached results")
+                }
+            }
         }
     ) {
-        EpisodesList(
-            modifier = Modifier.padding(it),
-            lazyListState = lazyListState,
-            episodes = model.value.episodes,
-            onEpisodeClicked = bloc::onEpisodeClicked
-        )
+        EpisodesUIBody(modifier = Modifier.padding(it), bloc = bloc, lazyListState = lazyListState)
+    }
+}
+
+@Composable
+private fun EpisodesUIBody(
+    modifier: Modifier,
+    bloc: EpisodesBloc,
+    lazyListState: LazyListState,
+) {
+    val model by bloc.models.subscribeAsState()
+    when {
+        model.pageLoadedError?.isFirstPage == true && model.pageLoadedError !is PageLoaderException.FirstPageErrorWithCachedResults -> {
+            Column(
+                modifier = modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    model.pageLoadedError!!.getUserMessage(),
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                Button(onClick = bloc::loadMore) {
+                    Text(text = "Try again")
+                }
+            }
+        }
+        model.firstPageIsLoading -> {
+            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+        else -> {
+            EpisodesList(
+                modifier = modifier,
+                lazyListState = lazyListState,
+                episodes = model.episodes,
+                nextPageIsLoading = model.nextPageIsLoading,
+                hasMoreToLoad = model.hasMoreToLoad,
+                error = model.pageLoadedError,
+                onLoadNextPage = bloc::loadMore,
+                onEpisodeClicked = bloc::onEpisodeClicked
+            )
+        }
     }
 }
 
@@ -66,26 +125,72 @@ fun EpisodesUI(bloc: EpisodesBloc) {
 fun EpisodesList(
     modifier: Modifier,
     lazyListState: LazyListState,
-    episodes: List<EpisodeListItem>,
+    episodes: List<Episode>,
+    nextPageIsLoading: Boolean,
+    hasMoreToLoad: Boolean,
+    error: PageLoaderException?,
     onEpisodeClicked: (Episode) -> Unit,
+    onLoadNextPage: () -> Unit,
 ) {
     LazyColumn(modifier = modifier, state = lazyListState) {
-        items(episodes, key = {
-            when (it) {
-                is EpisodeListItem.EpisodeItem -> it.value.id
-                is EpisodeListItem.NextPageLoading -> EpisodeListItem.NextPageLoading.KEY
+        items(episodes, key = { it.id }) {
+            EpisodeListItemCard(episode = it) {
+                onEpisodeClicked(it)
             }
-        }) {
-            when (it) {
-                is EpisodeListItem.EpisodeItem -> EpisodeListItemCard(episode = it.value) {
-                    onEpisodeClicked(it.value)
-                }
-                is EpisodeListItem.NextPageLoading -> Text(
-                    "Loading another page",
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
+        }
 
+        item(
+            key = "character-next-page-loading",
+        ) {
+            AnimatedVisibility(visible = nextPageIsLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+        }
+
+        val showError = error != null && !error.isFirstPage
+
+        item(
+            key = "character-page-loading-error",
+        ) {
+            AnimatedVisibility(visible = showError) {
+                Column(
+                    modifier = modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    Text(
+                        error?.getUserMessage() ?: "An error occured",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Button(onClick = onLoadNextPage) {
+                        Text(text = "Try again")
+                    }
+                }
+            }
+        }
+
+        item(
+            key = "character-next-page-load-section",
+        ) {
+            AnimatedVisibility(visible = hasMoreToLoad && !nextPageIsLoading && !showError) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Button(onClick = onLoadNextPage) {
+                        Text(text = "Load more")
+                    }
+                }
+            }
         }
     }
 }
