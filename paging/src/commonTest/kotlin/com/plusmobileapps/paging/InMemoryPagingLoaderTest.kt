@@ -1,6 +1,7 @@
 package com.plusmobileapps.paging
 
 import app.cash.turbine.test
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -26,7 +27,7 @@ class InMemoryPagingLoaderTest {
     }
 
     @Test
-    fun happyPathLoadingTwoPagesUntilNoMoreCanBeLoaded() = runTest(testDispatcher) {
+    fun givenHappyPath_whenLoadingAllPages_thenStateUpdates() = runTest(testDispatcher) {
         pageLoader.everyLoad {
             PageLoaderResponse.Success(
                 data = listOf(COOL_RICK),
@@ -102,7 +103,6 @@ class InMemoryPagingLoaderTest {
                         pagingToken = FIRST_PAGING_TOKEN,
                     )
                 }
-                testDispatcher.scheduler.runCurrent()
 
                 dataSource.loadNextPage()
 
@@ -167,6 +167,68 @@ class InMemoryPagingLoaderTest {
                     data = listOf(COOL_RICK),
                     pageLoaderError = PageLoaderException.NoNetworkException(isFirstPage = false),
                     hasMoreToLoad = true,
+                )
+            }
+        }
+    }
+
+    @Test
+    fun givenFirstPageLoadedAndNextPageIsLoaded_whenNextPageHasError_thenStateShouldUpdateWithNextPageError() {
+        runTest(testDispatcher) {
+            dataSource.state.test {
+                awaitItem() shouldBe initialIdleState
+                pageLoader.everyLoad {
+                    PageLoaderResponse.Success(
+                        listOf(COOL_RICK),
+                        FIRST_PAGING_TOKEN
+                    )
+                }
+                dataSource.clearAndLoadFirstPage(INPUT)
+                awaitItem() shouldBe firstPageLoadingState
+                awaitItem() shouldBe PagingDataSourceState(
+                    isFirstPageLoading = false,
+                    isNextPageLoading = false,
+                    data = listOf(COOL_RICK),
+                    pageLoaderError = null,
+                    hasMoreToLoad = true,
+                )
+
+                pageLoader.everyLoad { PageLoaderResponse.Error(pageRequestException) }
+                dataSource.loadNextPage()
+                awaitItem() shouldBe PagingDataSourceState(
+                    isFirstPageLoading = false,
+                    isNextPageLoading = true,
+                    data = listOf(COOL_RICK),
+                    pageLoaderError = null,
+                    hasMoreToLoad = true,
+                )
+                awaitItem() shouldBe PagingDataSourceState(
+                    isFirstPageLoading = false,
+                    isNextPageLoading = false,
+                    data = listOf(COOL_RICK),
+                    pageLoaderError = PageLoaderException.GeneralError(
+                        exception = pageRequestException,
+                        isFirstPage = false,
+                        errorMessage = null
+                    ),
+                    hasMoreToLoad = true,
+                )
+
+                pageLoader.everyLoad { PageLoaderResponse.Success(listOf(PICKLE_RICK), null) }
+                dataSource.loadNextPage()
+                awaitItem() shouldBe PagingDataSourceState(
+                    isFirstPageLoading = false,
+                    isNextPageLoading = true,
+                    data = listOf(COOL_RICK),
+                    pageLoaderError = null,
+                    hasMoreToLoad = true,
+                )
+                awaitItem() shouldBe PagingDataSourceState(
+                    isFirstPageLoading = false,
+                    isNextPageLoading = false,
+                    data = listOf(COOL_RICK, PICKLE_RICK),
+                    pageLoaderError = null,
+                    hasMoreToLoad = false,
                 )
             }
         }

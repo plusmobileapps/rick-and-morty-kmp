@@ -16,7 +16,9 @@ internal class InMemoryPageLoaderImpl<INPUT, DATA>(
         get() = pagingState.value.pagingKey
 
     override val state: Flow<PagingDataSourceState<DATA>> =
-        pagingState.map { it.toPagingDataSourceState() }
+        pagingState
+            .map { it.toPagingDataSourceState() }
+            .distinctUntilChanged()
 
     override suspend fun clearAndLoadFirstPage(input: INPUT) = withContext(ioContext) {
         if (pagingState.value.firstPageIsLoading) return@withContext
