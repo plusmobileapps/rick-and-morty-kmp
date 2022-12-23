@@ -33,6 +33,7 @@ class CharactersBlocTest : TestsWithMocks() {
     fun GIVEN_emptyState_WHEN_pageLoaderStateUpdates_THEN_modelIsUpdated() = runBlocTest {
         val pageLoader = MutableStateFlow(initialPagingState)
         mockPageLoaderState { pageLoader }
+        everySuspending { repository.loadFirstPage() } returns Unit
 
         val bloc = it.createBloc()
 
@@ -73,12 +74,14 @@ class CharactersBlocTest : TestsWithMocks() {
 
     @Test
     fun WHEN_loadMoreCharacters_THEN_repositoryLoadNextPageIsCalled() = runBlocTest {
-        every { repository.loadNextPage() } returns Unit
+        everySuspending { repository.loadFirstPage() } returns Unit
+        everySuspending { repository.loadNextPage() } returns Unit
         mockPageLoaderState()
 
         it.createBloc().loadMoreCharacters()
 
-        verify {
+        verifyWithSuspend {
+            repository.loadFirstPage()
             repository.pageLoaderState
             repository.loadNextPage()
         }
