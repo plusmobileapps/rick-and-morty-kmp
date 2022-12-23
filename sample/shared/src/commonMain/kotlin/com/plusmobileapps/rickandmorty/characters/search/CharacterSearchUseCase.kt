@@ -6,33 +6,32 @@ import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
 import com.plusmobileapps.rickandmorty.api.characters.CharacterStatus
 import com.plusmobileapps.rickandmorty.characters.RickAndMortyCharacter
 import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchUseCaseImpl.Input
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
 
 interface CharacterSearchUseCase {
-    val pageLoaderState: StateFlow<PagingDataSourceState<RickAndMortyCharacter>>
-    fun loadFirstPage(
+    val pageLoaderState: Flow<PagingDataSourceState<RickAndMortyCharacter>>
+    suspend fun loadFirstPage(
         query: String,
         status: CharacterStatus?,
         species: String,
         gender: CharacterGender?,
     )
 
-    fun loadNextPage()
+    suspend fun loadNextPage()
 }
 
 internal class CharacterSearchUseCaseImpl(
     private val api: RickAndMortyApiClient,
-    private val factory: InMemoryPageLoader.Factory,
+    factory: InMemoryPageLoader.Factory,
 ) : CharacterSearchUseCase, PageLoader<Input, RickAndMortyCharacter> {
 
-    private val pageDataSource = factory.create<Input, RickAndMortyCharacter>(
-        pageLoader = this,
-    )
+    private val pageDataSource: InMemoryPageLoader<Input, RickAndMortyCharacter> =
+        factory.create(this)
 
-    override val pageLoaderState: StateFlow<PagingDataSourceState<RickAndMortyCharacter>> =
+    override val pageLoaderState: Flow<PagingDataSourceState<RickAndMortyCharacter>> =
         pageDataSource.state
 
-    override fun loadFirstPage(
+    override suspend fun loadFirstPage(
         query: String,
         status: CharacterStatus?,
         species: String,
@@ -48,7 +47,7 @@ internal class CharacterSearchUseCaseImpl(
         )
     }
 
-    override fun loadNextPage() {
+    override suspend fun loadNextPage() {
         pageDataSource.loadNextPage()
     }
 

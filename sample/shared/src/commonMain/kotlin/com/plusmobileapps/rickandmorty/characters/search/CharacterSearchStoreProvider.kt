@@ -59,17 +59,19 @@ internal class CharacterSearchStoreProvider(
                 is Intent.UpdateStatus -> dispatch(Message.StatusUpdated(intent.status))
                 is Intent.ToggleFilters -> dispatch(Message.FilterVisibilityUpdated(!getState().showFilters))
                 Intent.ClearSearch -> dispatch(Message.ClearSearch)
-                Intent.LoadNextPage -> useCase.loadNextPage()
+                Intent.LoadNextPage -> scope.launch { useCase.loadNextPage() }
             }
         }
 
         private fun search(state: State) {
-            useCase.loadFirstPage(
-                query = state.query,
-                status = state.status,
-                species = state.species,
-                gender = state.gender,
-            )
+            scope.launch {
+                useCase.loadFirstPage(
+                    query = state.query,
+                    status = state.status,
+                    species = state.species,
+                    gender = state.gender,
+                )
+            }
         }
     }
 
