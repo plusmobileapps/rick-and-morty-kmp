@@ -69,7 +69,7 @@ internal class RootBlocImpl(
         episodeSearch = { context, output ->
             EpisodeSearchBlocImpl(
                 context = context,
-                api = di.rickAndMortyApi,
+                useCase = di.episodeSearchUseCase,
                 output = output
             )
         },
@@ -134,7 +134,7 @@ internal class RootBlocImpl(
                 characterSearch(context, this::onCharacterSearchOutput)
             )
             Configuration.EpisodeSearch -> RootBloc.Child.EpisodeSearch(
-                episodeSearch(context) { navigation.pop() }
+                episodeSearch(context, this::onEpisodeSearchOutput)
             )
             is Configuration.LocationDetail -> RootBloc.Child.LocationDetail(
                 locationDetail(context, configuration.id, ::onLocationDetailOutput)
@@ -148,6 +148,15 @@ internal class RootBlocImpl(
             is CharacterSearchBloc.Output.OpenCharacter -> navigation.push(
                 Configuration.CharacterDetail(output.id)
             )
+        }
+    }
+
+    private fun onEpisodeSearchOutput(output: EpisodeSearchBloc.Output) {
+        when(output) {
+            EpisodeSearchBloc.Output.GoBack -> navigation.pop()
+            is EpisodeSearchBloc.Output.OpenEpisode -> {
+                navigation.push(Configuration.EpisodeDetail(output.id))
+            }
         }
     }
 

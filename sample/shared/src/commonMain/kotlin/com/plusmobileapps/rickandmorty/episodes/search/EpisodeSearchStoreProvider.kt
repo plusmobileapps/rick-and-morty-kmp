@@ -5,7 +5,9 @@ import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
+import com.plusmobileapps.paging.PagingDataSourceState
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
+import com.plusmobileapps.rickandmorty.api.episodes.Episode
 import com.plusmobileapps.rickandmorty.episodes.EpisodeListItem
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchStore.Intent
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchStore.State
@@ -15,16 +17,15 @@ import kotlinx.coroutines.launch
 internal class EpisodeSearchStoreProvider(
     private val dispatchers: Dispatchers,
     private val storeFactory: StoreFactory,
-    private val api: RickAndMortyApiClient,
+    private val useCase: EpisodeSearchUseCase,
 ) {
 
     sealed interface Message {
         data class UpdateNameQuery(val name: String) : Message
         data class UpdateEpisodeCode(val code: String) : Message
-        object LoadingSearch : Message
         object ClearSearch : Message
         data class FilterVisibilityUpdate(val visible: Boolean) : Message
-        data class ResultsUpdated(val results: List<EpisodeListItem>) : Message
+        data class PagingStateUpdated(val state: PagingDataSourceState<Episode>) : Message
     }
 
     fun provide(): EpisodeSearchStore =
@@ -39,7 +40,11 @@ internal class EpisodeSearchStoreProvider(
     private inner class ExecutorImpl :
         CoroutineExecutor<Intent, Unit, State, Message, Nothing>(dispatchers.main) {
         override fun executeAction(action: Unit, getState: () -> State) {
-            super.executeAction(action, getState)
+            scope.launch {
+                useCase.pageLoaderState.collect {
+                    dispatch(Message.PagingStateUpdated(it))
+                }
+            }
         }
 
         override fun executeIntent(intent: Intent, getState: () -> State) {
@@ -49,24 +54,16 @@ internal class EpisodeSearchStoreProvider(
                 Intent.ToggleFilters -> dispatch(Message.FilterVisibilityUpdate(!getState().showFilters))
                 is Intent.UpdateEpisodeCode -> dispatch(Message.UpdateEpisodeCode(intent.episodeCode))
                 is Intent.UpdateNameQuery -> dispatch(Message.UpdateNameQuery(intent.query))
+                Intent.LoadMoreResults -> scope.launch { useCase.loadNextPage() }
             }
         }
 
         private fun initiateSearch(state: State) {
-            if (state.isLoading) return
-            dispatch(Message.LoadingSearch)
             scope.launch {
-                try {
-                    val episodes = api.getEpisodes(
-                        page = 0,
-                        name = state.nameQuery,
-                        episodeCode = state.episodeCode,
-                    ).results.map { EpisodeListItem.EpisodeItem(it) }
-
-                    dispatch(Message.ResultsUpdated(episodes))
-                } catch (e: Exception) {
-                    // TODO
-                }
+                useCase.loadFirstPage(
+                    name = state.nameQuery,
+                    episodeCode = state.episodeCode.takeIf { it.isNotBlank() }
+                )
             }
         }
     }
@@ -75,10 +72,9 @@ internal class EpisodeSearchStoreProvider(
         override fun State.reduce(msg: Message): State = when (msg) {
             Message.ClearSearch -> State()
             is Message.FilterVisibilityUpdate -> copy(showFilters = msg.visible)
-            Message.LoadingSearch -> copy(isLoading = true)
-            is Message.ResultsUpdated -> copy(isLoading = false, results = msg.results)
             is Message.UpdateEpisodeCode -> copy(episodeCode = msg.code)
             is Message.UpdateNameQuery -> copy(nameQuery = msg.name)
+            is Message.PagingStateUpdated -> copy(pageLoaderState = msg.state)
         }
     }
 

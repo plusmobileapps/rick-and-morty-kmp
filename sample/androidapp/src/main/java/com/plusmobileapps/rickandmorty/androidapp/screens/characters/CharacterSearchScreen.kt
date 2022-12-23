@@ -31,7 +31,7 @@ import com.arkivanov.decompose.value.Value
 import com.plusmobileapps.paging.PageLoaderException
 import com.plusmobileapps.paging.PagingDataSourceState
 import com.plusmobileapps.rickandmorty.androidapp.R
-import com.plusmobileapps.rickandmorty.androidapp.components.SearchFilterDropdown
+import com.plusmobileapps.rickandmorty.androidapp.components.*
 import com.plusmobileapps.rickandmorty.androidapp.theme.Rick_and_Morty_KMPTheme
 import com.plusmobileapps.rickandmorty.androidapp.util.getUserMessage
 import com.plusmobileapps.rickandmorty.api.characters.CharacterGender
@@ -92,30 +92,6 @@ fun CharacterSearchScreen(bloc: CharacterSearchBloc) {
         }
     }
 
-}
-
-@Composable
-private fun FirstPageLoadingIndicator() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        CircularProgressIndicator()
-    }
-}
-
-@Composable
-private fun FirstPageErrorContent(error: PageLoaderException, onTryAgainClicked: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = error.getUserMessage(),
-            style = MaterialTheme.typography.titleLarge
-        )
-        Button(onClick = onTryAgainClicked) {
-            Text("Try again")
-        }
-    }
 }
 
 @Composable
@@ -193,50 +169,17 @@ fun CharacterSearchResults(
         }
 
         if (pageLoadingState.hasMoreToLoad) {
-            item("character-search-load-more-button") {
-                Box(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Button(onClick = onLoadMore) {
-                        Text("Load More")
-                    }
-                }
-            }
+            LoadMoreSection(onLoadMore)
         }
 
         if (pageLoadingState.isNextPageLoading) {
-            item("character-search-next-page-loading") {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
+            LoadingNextPageSection()
         }
 
         val error = pageLoadingState.pageLoaderError
 
         if (error != null && !error.isFirstPage) {
-            item("character-search-next-page-error") {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(text = error.getUserMessage())
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = onNextPageTryAgainClicked) {
-                        Text("Try again")
-                    }
-                }
-            }
+            LoadingNextPageErrorSection(error, onNextPageTryAgainClicked)
         }
     }
 }
