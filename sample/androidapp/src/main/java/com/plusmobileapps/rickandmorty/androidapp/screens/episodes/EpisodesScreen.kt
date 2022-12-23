@@ -38,8 +38,6 @@ fun EpisodesUI(bloc: EpisodesBloc) {
     val scope = rememberCoroutineScope()
     val scrollContext = rememberScrollContext(listState = lazyListState)
 
-    if (scrollContext.isBottom) bloc.loadMore()
-
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(text = "Episodes") }, actions = {

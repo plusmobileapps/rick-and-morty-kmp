@@ -7,18 +7,11 @@ import com.plusmobileapps.rickandmorty.api.episodes.EpisodesResponse
 import com.plusmobileapps.rickandmorty.db.EpisodeQueries
 import com.plusmobileapps.rickandmorty.db.Episodes
 import com.plusmobileapps.rickandmorty.util.Dispatchers
-import com.russhwolf.settings.Settings
-import com.russhwolf.settings.set
 import com.squareup.sqldelight.TransactionWithoutReturn
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.days
 
@@ -37,7 +30,7 @@ internal class EpisodesRepositoryImpl(
     pagingFactory: CachedPageLoader.Factory,
 ) : EpisodesRepository, PageLoader<Unit, Episode> {
 
-    private val pagingDataSource = pagingFactory.create<Unit, Episode>(
+    private val pagingDataSource: CachedPageLoader<Unit, Episode> = pagingFactory.create(
         cacheInfo = CachedPageLoader.CacheInfo(
             ttl = 1.days,
             cachingKey = "episodes-caching-key",
@@ -79,7 +72,7 @@ internal class EpisodesRepositoryImpl(
     override suspend fun load(request: PageLoaderRequest<Unit>): PageLoaderResponse<Episode> {
         return try {
             val response: EpisodesResponse = api.getEpisodes(request.pagingKey?.toIntOrNull() ?: 0)
-            PageLoaderResponse.Success(response.results, response.info.next)
+            PageLoaderResponse.Success(response.results, response.info.nextPageNumber)
         } catch (e: Exception) {
             PageLoaderResponse.Error(e)
         }
