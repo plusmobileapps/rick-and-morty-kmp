@@ -13,7 +13,7 @@ import kotlin.time.Duration
 internal class CachedPageLoaderImpl<INPUT, DATA>(
     private val cacheInfo: CacheInfo?,
     private val ioContext: CoroutineDispatcher,
-    private val reader: () -> Flow<List<DATA>>,
+    reader: () -> Flow<List<DATA>>,
     private val writer: suspend (List<DATA>) -> Unit,
     private val deleteAllAndWrite: suspend (List<DATA>) -> Unit,
     private val pageLoader: PageLoader<INPUT, DATA>,
@@ -35,24 +35,13 @@ internal class CachedPageLoaderImpl<INPUT, DATA>(
     private val pagingKey: String?
         get() = pagingState.value.pagingKey
 
-    override val state: Flow<PagingDataSourceState<DATA>> =
-        combine(pagingState.asStateFlow(), reader()) { pagingState, data ->
-            PagingDataSourceState(
-                isFirstPageLoading = pagingState.firstPageIsLoading,
-                isNextPageLoading = pagingState.nextPageIsLoading,
-                data = data,
-                pageLoaderError = if (data.isNotEmpty() && pagingState.pageLoaderState is PageLoaderState.Failed) {
-                    PageLoaderException.FirstPageErrorWithCachedResults(
-                        pagingState.pageLoaderState.exception
-                    )
-                } else {
-                    (pagingState.pageLoaderState as? PageLoaderState.Failed)?.exception
-                },
-                hasMoreToLoad = pagingState.hasMoreToLoad
-            )
-        }
+    override val state: Flow<PagingDataSourceState<DATA>> = combine(
+        flow = pagingState.asStateFlow(),
+        flow2 = reader(),
+        transform = ::mapPagingStateAndReader
+    ).distinctUntilChanged()
 
-    override suspend fun clearAndLoadFirstPage(input: INPUT) = withContext(ioContext){
+    override suspend fun clearAndLoadFirstPage(input: INPUT) = withContext(ioContext) {
         if (isFirstPageCacheValid()) {
             pagingState.value = pagingState.value.copy(input = input)
             return@withContext
@@ -149,5 +138,22 @@ internal class CachedPageLoaderImpl<INPUT, DATA>(
         val durationSinceLastFetch: Duration = now - lastFetchedFirstPageKeyInstant
         return durationSinceLastFetch < cacheInfo.ttl
     }
+
+    private fun mapPagingStateAndReader(
+        pagingState: State<INPUT, DATA>,
+        data: List<DATA>
+    ): PagingDataSourceState<DATA> = PagingDataSourceState(
+        isFirstPageLoading = pagingState.firstPageIsLoading,
+        isNextPageLoading = pagingState.nextPageIsLoading,
+        data = data,
+        pageLoaderError = if (data.isNotEmpty() && pagingState.pageLoaderState is PageLoaderState.Failed) {
+            PageLoaderException.FirstPageErrorWithCachedResults(
+                pagingState.pageLoaderState.exception
+            )
+        } else {
+            (pagingState.pageLoaderState as? PageLoaderState.Failed)?.exception
+        },
+        hasMoreToLoad = pagingState.hasMoreToLoad
+    )
 
 }

@@ -21,7 +21,7 @@ class CachedPageLoaderTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private val cacheInfo = CachedPageLoader.CacheInfo(
-        ttl = 41.minutes,
+        ttl = 42.minutes, // meaning of life
         cachingKey = "some-key"
     )
     private val readerFlow = MutableSharedFlow<List<String>>()
@@ -48,12 +48,74 @@ class CachedPageLoaderTest {
     }
 
     @Test
-    fun whenNewResultsAreCollectedByReader_thenStateShouldUpdateWithLatestResults() {
+    fun givenHappyPath_whenPaging_thenStateGetsUpdated() {
+        runTest(testDispatcher) {
+            val dataSourceTurbine = dataSource.state.testIn(backgroundScope)
+            val deleteAllAndWriteTurbine = deleteFlow.testIn(backgroundScope)
+            val writerTurbine = writerFlow.testIn(backgroundScope)
+
+            readerFlow.emit(emptyList())
+            dataSourceTurbine.awaitItem() shouldBe initialIdleState
+
+            pageLoader.everyLoad {
+                PageLoaderResponse.Success(
+                    data = listOf(COOL_RICK),
+                    pagingToken = FIRST_PAGING_TOKEN,
+                )
+            }
+
+            dataSource.clearAndLoadFirstPage(INPUT)
+
+            dataSourceTurbine.awaitItem() shouldBe PagingDataSourceState(
+                isFirstPageLoading = true,
+                isNextPageLoading = false,
+                data = emptyList(),
+                pageLoaderError = null,
+                hasMoreToLoad = true,
+            )
+            // we want to clear and write with the first page result
+            deleteAllAndWriteTurbine.awaitItem() shouldBe listOf(COOL_RICK)
+            dataSourceTurbine.awaitItem() shouldBe PagingDataSourceState(
+                isFirstPageLoading = false,
+                isNextPageLoading = false,
+                data = emptyList(), // empty because this gets updated from reader
+                pageLoaderError = null,
+                hasMoreToLoad = true,
+            )
+
+            pageLoader.everyLoad {
+                PageLoaderResponse.Success(
+                    data = listOf(PICKLE_RICK),
+                    pagingToken = null,
+                )
+            }
+
+            dataSource.loadNextPage()
+
+            dataSourceTurbine.awaitItem() shouldBe PagingDataSourceState(
+                isFirstPageLoading = false,
+                isNextPageLoading = true,
+                data = emptyList(),
+                pageLoaderError = null,
+                hasMoreToLoad = true,
+            )
+            writerTurbine.awaitItem() shouldBe listOf(PICKLE_RICK)
+            dataSourceTurbine.awaitItem() shouldBe PagingDataSourceState(
+                isFirstPageLoading = false,
+                isNextPageLoading = false,
+                data = emptyList(),
+                pageLoaderError = null,
+                hasMoreToLoad = false, // null token means there is no more to load
+            )
+        }
+    }
+
+    @Test
+    fun whenNewResultsAreEmittedByReader_thenStateShouldUpdateWithLatestResults() {
         runTest(testDispatcher) {
             dataSource.state.test {
-                awaitItem() shouldBe initialIdleState
-
                 readerFlow.emit(listOf(COOL_RICK))
+
                 awaitItem() shouldBe PagingDataSourceState(
                     isFirstPageLoading = false,
                     isNextPageLoading = false,
@@ -81,9 +143,62 @@ class CachedPageLoaderTest {
 
         runTest(testDispatcher) {
             dataSource.state.test {
+                readerFlow.emit(listOf(COOL_RICK))
                 dataSource.clearAndLoadFirstPage(INPUT)
-                awaitItem() shouldBe initialIdleState
+                awaitItem() shouldBe PagingDataSourceState(
+                    isFirstPageLoading = false,
+                    isNextPageLoading = false,
+                    data = listOf(COOL_RICK),
+                    pageLoaderError = null,
+                    hasMoreToLoad = true,
+                )
             }
+        }
+    }
+
+    @Test
+    fun givenFirstPageCacheIsValid_whenLoadingNextPage_thenNextPageShouldLoadWithTheCachedKey() {
+        val lastFetchedFirstPageSuccessInstant = nowInstant.minus(40.minutes)
+        settings.putString(FIRST_PAGE_SUCCESS_KEY, lastFetchedFirstPageSuccessInstant.toString())
+        settings.putString(NEXT_PAGE_PAGING_KEY, FIRST_PAGING_TOKEN)
+
+        runTest(testDispatcher) {
+            val dataSourceTurbine = dataSource.state.testIn(backgroundScope)
+            val writerTurbine = writerFlow.testIn(backgroundScope)
+            readerFlow.emit(listOf(COOL_RICK))
+            dataSource.clearAndLoadFirstPage(INPUT)
+            dataSourceTurbine.awaitItem() shouldBe PagingDataSourceState(
+                isFirstPageLoading = false,
+                isNextPageLoading = false,
+                data = listOf(COOL_RICK),
+                pageLoaderError = null,
+                hasMoreToLoad = true,
+            )
+
+            pageLoader.everyLoad {
+                PageLoaderResponse.Success(
+                    data = listOf(PICKLE_RICK),
+                    pagingToken = null
+                )
+            }
+
+            dataSource.loadNextPage()
+            dataSourceTurbine.awaitItem() shouldBe PagingDataSourceState(
+                isFirstPageLoading = false,
+                isNextPageLoading = true,
+                data = listOf(COOL_RICK),
+                pageLoaderError = null,
+                hasMoreToLoad = true,
+            )
+            writerTurbine.awaitItem() shouldBe listOf(PICKLE_RICK)
+            pageLoader.verifyPagingToken(FIRST_PAGING_TOKEN)
+            dataSourceTurbine.awaitItem() shouldBe PagingDataSourceState(
+                isFirstPageLoading = false,
+                isNextPageLoading = false,
+                data = listOf(COOL_RICK),
+                pageLoaderError = null,
+                hasMoreToLoad = false,
+            )
         }
     }
 
