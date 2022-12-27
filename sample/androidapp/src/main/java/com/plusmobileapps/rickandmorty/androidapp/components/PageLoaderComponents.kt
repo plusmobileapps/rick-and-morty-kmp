@@ -15,16 +15,20 @@ import com.plusmobileapps.paging.PageLoaderException
 import com.plusmobileapps.rickandmorty.androidapp.util.getUserMessage
 
 @Composable
-fun FirstPageLoadingIndicator() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+fun FirstPageLoadingIndicator(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         CircularProgressIndicator()
     }
 }
 
 @Composable
-fun FirstPageErrorContent(error: PageLoaderException, onTryAgainClicked: () -> Unit) {
+fun FirstPageErrorContent(
+    modifier: Modifier = Modifier,
+    error: PageLoaderException,
+    onTryAgainClicked: () -> Unit
+) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -66,7 +70,10 @@ fun LazyListScope.LoadingNextPageSection() {
     }
 }
 
-fun LazyListScope.LoadingNextPageErrorSection(error: PageLoaderException, onNextPageTryAgainClicked: () -> Unit) {
+fun LazyListScope.LoadingNextPageErrorSection(
+    error: PageLoaderException,
+    onNextPageTryAgainClicked: () -> Unit
+) {
     item("loading-next-page-error-section") {
         Column(
             modifier = Modifier

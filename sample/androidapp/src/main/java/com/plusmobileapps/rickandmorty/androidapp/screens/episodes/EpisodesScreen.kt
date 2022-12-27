@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -19,10 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.plusmobileapps.paging.PageLoaderException
-import com.plusmobileapps.rickandmorty.androidapp.util.getUserMessage
+import com.plusmobileapps.rickandmorty.androidapp.components.*
 import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
 import com.plusmobileapps.rickandmorty.api.episodes.Episode
-import com.plusmobileapps.rickandmorty.episodes.EpisodeListItem
 import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBloc
 import kotlinx.coroutines.launch
 
@@ -81,28 +79,19 @@ private fun EpisodesUIBody(
     bloc: EpisodesBloc,
     lazyListState: LazyListState,
 ) {
-    val model by bloc.models.subscribeAsState()
+    val model: EpisodesBloc.Model by bloc.models.subscribeAsState()
+    val error = model.pageLoadedError
+
     when {
-        model.pageLoadedError?.isFirstPage == true && model.pageLoadedError !is PageLoaderException.FirstPageErrorWithCachedResults -> {
-            Column(
-                modifier = modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text(
-                    model.pageLoadedError!!.getUserMessage(),
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(modifier = Modifier.height(32.dp))
-                Button(onClick = bloc::loadMore) {
-                    Text(text = "Try again")
-                }
-            }
+        error?.isFirstPage == true && error !is PageLoaderException.FirstPageErrorWithCachedResults -> {
+            FirstPageErrorContent(
+                modifier = modifier,
+                error = error,
+                onTryAgainClicked = bloc::loadMore
+            )
         }
         model.firstPageIsLoading -> {
-            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+            FirstPageLoadingIndicator()
         }
         else -> {
             EpisodesList(
@@ -130,6 +119,11 @@ fun EpisodesList(
     onEpisodeClicked: (Episode) -> Unit,
     onLoadNextPage: () -> Unit,
 ) {
+    val showError by remember {
+        derivedStateOf {
+            error != null && !error.isFirstPage
+        }
+    }
     LazyColumn(modifier = modifier, state = lazyListState) {
         items(episodes, key = { it.id }) {
             EpisodeListItemCard(episode = it) {
@@ -137,58 +131,21 @@ fun EpisodesList(
             }
         }
 
-        item(
-            key = "character-next-page-loading",
-        ) {
-            AnimatedVisibility(visible = nextPageIsLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 32.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
+        if (nextPageIsLoading) {
+            LoadingNextPageSection()
+        }
+
+        if (showError) {
+            error?.let {
+                LoadingNextPageErrorSection(
+                    error = it,
+                    onNextPageTryAgainClicked = onLoadNextPage,
+                )
             }
         }
 
-        val showError = error != null && !error.isFirstPage
-
-        item(
-            key = "character-page-loading-error",
-        ) {
-            AnimatedVisibility(visible = showError) {
-                Column(
-                    modifier = modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    Text(
-                        error?.getUserMessage() ?: "An error occured",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    Button(onClick = onLoadNextPage) {
-                        Text(text = "Try again")
-                    }
-                }
-            }
-        }
-
-        item(
-            key = "character-next-page-load-section",
-        ) {
-            AnimatedVisibility(visible = hasMoreToLoad && !nextPageIsLoading && !showError) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 32.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Button(onClick = onLoadNextPage) {
-                        Text(text = "Load more")
-                    }
-                }
-            }
+        if (hasMoreToLoad) {
+            LoadMoreSection(onLoadNextPage)
         }
     }
 }
