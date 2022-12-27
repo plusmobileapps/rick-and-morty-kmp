@@ -22,27 +22,47 @@ struct EpisodesListView: View {
 
     var body: some View {
         let model = models.value
-        VStack {
-            List {
-                ForEach(model.episodes) { item in
-                    switch item {
-                    case let episodeItem as EpisodeListItem.EpisodeItem:
-                        NavigationLink(value: Route.epidodeDetail(episodeItem)) {
+        if model.firstPageIsLoading {
+            ProgressView()
+        } else if model.pageLoadedError != nil && model.pageLoadedError!.isFirstPage {
+            Text("Error loading the first page")
+        } else {
+            VStack {
+                List {
+                    ForEach(model.episodes) { episode in
+                        NavigationLink(value: Route.epidodeDetail(episode)) {
                             HStack {
-                                Text(episodeItem.value.name)
+                                Text(episode.name)
                                 Spacer()
-                                Text(episodeItem.value.episode)
+                                Text(episode.episode)
                             }
                         }
-                    case _ as EpisodeListItem.NextPageLoading:
+                    }
+                    
+                    if model.nextPageIsLoading {
                         ProgressView()
-                    default: EmptyView()
+                    }
+                    
+                    if model.hasMoreToLoad {
+                        Button(action: { bloc.loadMore() }) {
+                            Text("Load more")
+                        }
+                    }
+                    
+                    if model.pageLoadedError != nil {
+                        VStack {
+                            Text("Error loading next page")
+                            Button(action: { bloc.loadMore() }) {
+                                Text("Try again")
+                            }
+                        }
                     }
                 }
             }
         }
+
     }
 }
 
-extension EpisodeListItem: Identifiable {
+extension Rick_and_morty_apiEpisode: Identifiable {
 }
