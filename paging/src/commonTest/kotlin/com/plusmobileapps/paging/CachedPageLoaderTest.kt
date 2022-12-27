@@ -7,13 +7,10 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.minutes
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -64,7 +61,7 @@ class CachedPageLoaderTest {
                 )
             }
 
-            dataSource.clearAndLoadFirstPage(INPUT)
+            dataSource.loadFirstPage(INPUT)
 
             dataSourceTurbine.awaitItem() shouldBe PagingDataSourceState(
                 isFirstPageLoading = true,
@@ -144,7 +141,7 @@ class CachedPageLoaderTest {
         runTest(testDispatcher) {
             dataSource.state.test {
                 readerFlow.emit(listOf(COOL_RICK))
-                dataSource.clearAndLoadFirstPage(INPUT)
+                dataSource.loadFirstPage(INPUT)
                 awaitItem() shouldBe PagingDataSourceState(
                     isFirstPageLoading = false,
                     isNextPageLoading = false,
@@ -166,7 +163,7 @@ class CachedPageLoaderTest {
             val dataSourceTurbine = dataSource.state.testIn(backgroundScope)
             val writerTurbine = writerFlow.testIn(backgroundScope)
             readerFlow.emit(listOf(COOL_RICK))
-            dataSource.clearAndLoadFirstPage(INPUT)
+            dataSource.loadFirstPage(INPUT)
             dataSourceTurbine.awaitItem() shouldBe PagingDataSourceState(
                 isFirstPageLoading = false,
                 isNextPageLoading = false,

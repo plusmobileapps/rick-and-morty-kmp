@@ -50,7 +50,7 @@ internal class EpisodesRepositoryImpl(
         get() = pagingDataSource.state
 
     override suspend fun loadFirstPage() {
-        pagingDataSource.clearAndLoadFirstPage(Unit)
+        pagingDataSource.loadFirstPage(Unit)
     }
 
     override suspend fun loadNextPage() {

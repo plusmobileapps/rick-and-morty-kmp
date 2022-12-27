@@ -17,15 +17,19 @@ interface CachedPageLoader<INPUT, DATA> {
     val state: Flow<PagingDataSourceState<DATA>>
 
     /**
-     * Will clear all results and load the first page with the provided input.
+     * Will attempt to load the first page if the cache is invalid and can
+     * trigger a request to delete and save the new results that are returned
+     * to the backing cache. This must always be called first before trying to
+     * load the next page to ensure the input is set.
      *
      * @param input The input to be used in each [PageLoaderRequest.input].
      */
-    suspend fun clearAndLoadFirstPage(input: INPUT)
+    suspend fun loadFirstPage(input: INPUT)
 
     /**
-     * Load the next page with the same input provided from the first page if
-     * one exists.
+     * Load the next page with the same input provided from the first page
+     * if one exists. If the cache is still valid, it will continue loading
+     * the next page from the last successful paging token that was returned.
      */
     suspend fun loadNextPage()
 

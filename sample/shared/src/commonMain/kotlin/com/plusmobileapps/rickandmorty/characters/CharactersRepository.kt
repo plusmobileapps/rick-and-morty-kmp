@@ -8,12 +8,10 @@ import com.squareup.sqldelight.TransactionWithoutReturn
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.minutes
 
 interface CharactersRepository {
     val pageLoaderState: Flow<PagingDataSourceState<RickAndMortyCharacter>>
@@ -51,7 +49,7 @@ internal class CharactersRepositoryImpl(
         get() = cachedPageLoader.state
 
     override suspend fun loadFirstPage() {
-        cachedPageLoader.clearAndLoadFirstPage(
+        cachedPageLoader.loadFirstPage(
             input = Unit,
         )
     }

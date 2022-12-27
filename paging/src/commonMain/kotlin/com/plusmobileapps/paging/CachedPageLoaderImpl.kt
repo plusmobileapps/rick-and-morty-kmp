@@ -41,7 +41,7 @@ internal class CachedPageLoaderImpl<INPUT, DATA>(
         transform = ::mapPagingStateAndReader
     ).distinctUntilChanged()
 
-    override suspend fun clearAndLoadFirstPage(input: INPUT) = withContext(ioContext) {
+    override suspend fun loadFirstPage(input: INPUT) = withContext(ioContext) {
         if (isFirstPageCacheValid()) {
             pagingState.value = pagingState.value.copy(input = input)
             return@withContext
