@@ -61,7 +61,7 @@ internal class CharactersRepositoryImpl(
     private fun getCharacters(): Flow<List<RickAndMortyCharacter>> =
         db.selectAll()
             .asFlow()
-            .mapToList()
+            .mapToList(ioContext)
             .map { characters ->
                 characters.map { character ->
                     RickAndMortyCharacter(

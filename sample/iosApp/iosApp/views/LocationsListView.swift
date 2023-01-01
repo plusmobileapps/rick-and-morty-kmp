@@ -22,18 +22,31 @@ struct LocationsListView: View {
         VStack {
             List {
                 ForEach(model.locations) { item in
-                    switch item {
-                    case let locationItem as LocationListItem.LocationItem:
-                        NavigationLink(value: Route.locationDetail(locationItem.value.id)) {
-                            HStack {
-                                Text(locationItem.value.name)
-                                Spacer()
-                                Text("\(locationItem.value.residents.count) residents")
-                            }
+                    NavigationLink(value: Route.locationDetail(item.id)) {
+                        HStack {
+                            Text(item.name)
+                            Spacer()
+                            Text("\(item.residents.count) residents")
                         }
-                    case _ as LocationListItem.NextPageLoading:
-                        ProgressView()
-                    default: EmptyView()
+                    }
+                }
+                
+                if model.nextPageIsLoading {
+                    ProgressView()
+                }
+                
+                if model.hasMoreToLoad {
+                    Button(action: { bloc.loadMore() }) {
+                        Text("Load more")
+                    }
+                }
+                
+                if model.pageLoadedError != nil {
+                    VStack {
+                        Text("Error loading next page")
+                        Button(action: { bloc.loadMore() }) {
+                            Text("Try again")
+                        }
                     }
                 }
             }
@@ -41,5 +54,5 @@ struct LocationsListView: View {
     }
 }
 
-extension LocationListItem: Identifiable {
+extension Rick_and_morty_apiLocation: Identifiable {
 }

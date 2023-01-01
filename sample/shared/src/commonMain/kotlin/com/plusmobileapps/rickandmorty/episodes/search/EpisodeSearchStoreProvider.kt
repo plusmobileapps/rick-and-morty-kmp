@@ -6,9 +6,7 @@ import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import com.plusmobileapps.paging.PagingDataSourceState
-import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.api.episodes.Episode
-import com.plusmobileapps.rickandmorty.episodes.EpisodeListItem
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchStore.Intent
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchStore.State
 import com.plusmobileapps.rickandmorty.util.Dispatchers

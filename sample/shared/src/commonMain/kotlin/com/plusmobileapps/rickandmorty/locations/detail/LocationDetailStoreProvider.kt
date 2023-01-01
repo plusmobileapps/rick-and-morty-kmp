@@ -34,7 +34,7 @@ internal class LocationDetailStoreProvider(
             bootstrapper = SimpleBootstrapper(Unit),
             executorFactory = ::ExecutorImpl,
             reducer = ReducerImpl
-        ){}
+        ) {}
 
     private inner class ExecutorImpl :
         CoroutineExecutor<Intent, Unit, State, Message, Nothing>(dispatchers.main) {

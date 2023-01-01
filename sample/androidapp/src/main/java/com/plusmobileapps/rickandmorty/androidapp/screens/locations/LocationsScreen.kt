@@ -9,53 +9,90 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
-import com.plusmobileapps.rickandmorty.androidapp.util.rememberScrollContext
+import com.plusmobileapps.paging.PageLoaderException
+import com.plusmobileapps.rickandmorty.androidapp.components.*
 import com.plusmobileapps.rickandmorty.api.locations.Location
-import com.plusmobileapps.rickandmorty.locations.LocationListItem
 import com.plusmobileapps.rickandmorty.locations.list.LocationBloc
-import kotlinx.coroutines.launch
 
 @Composable
 fun LocationsScreen(bloc: LocationBloc) {
     val model = bloc.models.subscribeAsState()
     val lazyListState = rememberLazyListState()
-    val scope = rememberCoroutineScope()
-    val scrollContext = rememberScrollContext(listState = lazyListState)
 
-    if (scrollContext.isBottom) bloc.loadMore()
+    val showFirstPageErrorWithCachedResultsSnackbar by remember {
+        derivedStateOf {
+            model.value.pageLoadedError is PageLoaderException.FirstPageErrorWithCachedResults
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(text = "Locations") })
         },
-        floatingActionButton = {
-            AnimatedVisibility(visible = !scrollContext.isBottom) {
-                FloatingActionButton(onClick = {
-                    scope.launch {
-                        lazyListState.animateScrollToItem(model.value.locations.lastIndex)
-                    }
-                }) {
-                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
+        bottomBar = {
+            AnimatedVisibility(visible = showFirstPageErrorWithCachedResultsSnackbar) {
+                Snackbar(
+                    action = {
+                        TextButton(onClick = { bloc.loadMore() }) {
+                            Text("Refresh", color = MaterialTheme.colorScheme.background)
+                        }
+                    },
+                ) {
+                    Text(text = "Couldn't load the first page, but viewing cached results")
                 }
             }
         }
     ) {
-        LocationsList(
+        LocationsBody(
             modifier = Modifier.padding(it),
+            bloc = bloc,
             lazyListState = lazyListState,
-            locations = model.value.locations,
-            onLocationClicked = bloc::onLocationClicked
         )
+    }
+}
+
+@Composable
+fun LocationsBody(
+    modifier: Modifier,
+    bloc: LocationBloc,
+    lazyListState: LazyListState,
+) {
+    val model by bloc.models.subscribeAsState()
+    val error = model.pageLoadedError
+
+    when {
+        error?.isFirstPage == true && error !is PageLoaderException.FirstPageErrorWithCachedResults -> {
+            FirstPageErrorContent(
+                error = error,
+                modifier = modifier,
+                onTryAgainClicked = bloc::loadMore,
+            )
+        }
+        model.firstPageIsLoading -> {
+            FirstPageLoadingIndicator(modifier)
+        }
+        else -> {
+            LocationsList(
+                modifier = modifier,
+                lazyListState = lazyListState,
+                locations = model.locations,
+                nextPageIsLoading = model.nextPageIsLoading,
+                hasMoreToLoad = model.hasMoreToLoad,
+                error = model.pageLoadedError,
+                onLoadNextPage = bloc::loadMore,
+                onLocationClicked = bloc::onLocationClicked,
+            )
+        }
     }
 }
 
@@ -63,17 +100,40 @@ fun LocationsScreen(bloc: LocationBloc) {
 fun LocationsList(
     modifier: Modifier,
     lazyListState: LazyListState,
-    locations: List<LocationListItem>,
+    locations: List<Location>,
+    nextPageIsLoading: Boolean,
+    hasMoreToLoad: Boolean,
+    error: PageLoaderException?,
+    onLoadNextPage: () -> Unit,
     onLocationClicked: (Location) -> Unit,
 ) {
+    val showError by remember {
+        derivedStateOf {
+            error != null && !error.isFirstPage
+        }
+    }
     LazyColumn(modifier = modifier, state = lazyListState) {
         items(locations) { location ->
-            when (location) {
-                is LocationListItem.LocationItem -> LocationListItemCard(location = location.value) {
-                    onLocationClicked(location.value)
-                }
-                LocationListItem.NextPageLoading -> CircularProgressIndicator()
+            LocationListItemCard(location = location) {
+                onLocationClicked(location)
             }
+        }
+
+        if (nextPageIsLoading) {
+            LoadingNextPageSection()
+        }
+
+        if (showError) {
+            error?.let {
+                LoadingNextPageErrorSection(
+                    error = it,
+                    onNextPageTryAgainClicked = onLoadNextPage,
+                )
+            }
+        }
+
+        if (hasMoreToLoad) {
+            LoadMoreSection(onLoadNextPage)
         }
     }
 }

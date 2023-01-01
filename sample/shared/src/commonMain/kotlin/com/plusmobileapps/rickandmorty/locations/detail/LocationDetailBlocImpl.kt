@@ -19,7 +19,12 @@ internal class LocationDetailBlocImpl(
     private val output: Consumer<LocationDetailBloc.Output>
 ) : LocationDetailBloc, AppComponentContext by context {
 
-    constructor(context: AppComponentContext, locationId: Int, di: DI, output: Consumer<LocationDetailBloc.Output>): this(
+    constructor(
+        context: AppComponentContext,
+        locationId: Int,
+        di: DI,
+        output: Consumer<LocationDetailBloc.Output>
+    ) : this(
         locationId = locationId,
         context = context,
         charactersRepository = di.charactersRepository,
