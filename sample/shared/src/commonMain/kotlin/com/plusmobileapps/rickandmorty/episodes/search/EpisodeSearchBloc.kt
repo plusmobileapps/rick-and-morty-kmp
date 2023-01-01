@@ -3,7 +3,6 @@ package com.plusmobileapps.rickandmorty.episodes.search
 import com.arkivanov.decompose.value.Value
 import com.plusmobileapps.paging.PagingDataSourceState
 import com.plusmobileapps.rickandmorty.api.episodes.Episode
-import com.plusmobileapps.rickandmorty.episodes.EpisodeListItem
 import com.plusmobileapps.rickandmorty.util.BackClickBloc
 
 interface EpisodeSearchBloc : BackClickBloc {

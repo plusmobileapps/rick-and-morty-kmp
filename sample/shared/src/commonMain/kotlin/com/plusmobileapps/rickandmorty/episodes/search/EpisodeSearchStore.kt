@@ -3,7 +3,6 @@ package com.plusmobileapps.rickandmorty.episodes.search
 import com.arkivanov.mvikotlin.core.store.Store
 import com.plusmobileapps.paging.PagingDataSourceState
 import com.plusmobileapps.rickandmorty.api.episodes.Episode
-import com.plusmobileapps.rickandmorty.episodes.EpisodeListItem
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchStore.Intent
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchStore.State
 
