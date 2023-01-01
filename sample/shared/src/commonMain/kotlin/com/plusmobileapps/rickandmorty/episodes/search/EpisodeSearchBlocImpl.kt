@@ -5,24 +5,25 @@ import com.arkivanov.decompose.value.operator.map
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.plusmobileapps.rickandmorty.AppComponentContext
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
+import com.plusmobileapps.rickandmorty.api.episodes.Episode
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBloc.Output
+import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchStore.Intent
 import com.plusmobileapps.rickandmorty.util.Consumer
 import com.plusmobileapps.rickandmorty.util.asValue
 
 class EpisodeSearchBlocImpl(
     context: AppComponentContext,
-    api: RickAndMortyApiClient,
+    useCase: EpisodeSearchUseCase,
     private val output: Consumer<Output>
 ) : EpisodeSearchBloc, AppComponentContext by context {
 
     private val store: EpisodeSearchStore = instanceKeeper.getStore {
-        EpisodeSearchStoreProvider(dispatchers, storeFactory, api = api).provide()
+        EpisodeSearchStoreProvider(dispatchers, storeFactory, useCase).provide()
     }
     override val models: Value<EpisodeSearchBloc.Model> = store.asValue().map {
         EpisodeSearchBloc.Model(
-            isLoading = it.isLoading,
+            pageLoaderState = it.pageLoaderState,
             nameQuery = it.nameQuery,
-            results = it.results,
             episodeCode = it.episodeCode,
             error = it.error,
             showFilters = it.showFilters
@@ -30,23 +31,35 @@ class EpisodeSearchBlocImpl(
     }
 
     override fun onSearchClicked() {
-        store.accept(EpisodeSearchStore.Intent.InitiateSearch)
+        store.accept(Intent.InitiateSearch)
+    }
+
+    override fun loadMoreResults() {
+        store.accept(Intent.LoadMoreResults)
+    }
+
+    override fun onFirstPageTryAgainClicked() {
+        store.accept(Intent.InitiateSearch)
+    }
+
+    override fun onNextPageTryAgainClicked() {
+        store.accept(Intent.LoadMoreResults)
     }
 
     override fun onClearNameQueryClicked() {
-        store.accept(EpisodeSearchStore.Intent.UpdateNameQuery(""))
+        store.accept(Intent.UpdateNameQuery(""))
     }
 
     override fun onNameQueryChanged(name: String) {
-        store.accept(EpisodeSearchStore.Intent.UpdateNameQuery(name))
+        store.accept(Intent.UpdateNameQuery(name))
     }
 
     override fun onEpisodeCodeChanged(code: String) {
-        store.accept(EpisodeSearchStore.Intent.UpdateEpisodeCode(code))
+        store.accept(Intent.UpdateEpisodeCode(code))
     }
 
     override fun onClearEpisodeCodeClicked() {
-        store.accept(EpisodeSearchStore.Intent.UpdateEpisodeCode(""))
+        store.accept(Intent.UpdateEpisodeCode(""))
     }
 
     override fun onBackClicked() {
@@ -54,6 +67,10 @@ class EpisodeSearchBlocImpl(
     }
 
     override fun onFiltersToggleClicked() {
-        store.accept(EpisodeSearchStore.Intent.ToggleFilters)
+        store.accept(Intent.ToggleFilters)
+    }
+
+    override fun onEpisodeClicked(episode: Episode) {
+        output(Output.OpenEpisode(episode.id))
     }
 }

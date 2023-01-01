@@ -109,7 +109,7 @@ struct ContentView: View {
                             Text("Character search")
                                     .navigationBarTitle("Character Search", displayMode: .inline)
                         case let .epidodeDetail(episodeItem):
-                            EpisodeDetailView(title: episodeItem.value.episode, id: episodeItem.value.id)
+                            EpisodeDetailView(title: episodeItem.name, id: episodeItem.id)
                         case .episodeSearch:
                             Text("Episode Search")
                         case let .locationDetail(id):
@@ -145,7 +145,7 @@ struct ContentView: View {
 enum Route: Hashable {
     case characterDetail(RickAndMortyCharacter)
     case characterSearch
-    case epidodeDetail(EpisodeListItem.EpisodeItem)
+    case epidodeDetail(Rick_and_morty_apiEpisode)
     case episodeSearch
     case locationDetail(Int32)
 }

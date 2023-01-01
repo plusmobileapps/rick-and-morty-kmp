@@ -49,7 +49,7 @@ class CharacterSearchBlocTest : TestsWithMocks() {
 
     @Test
     fun WHEN_searchClicked_THEN_searchIsInitiated() = runBlocTest {
-        every { useCase.loadFirstPage(QUERY, null, "", null) } returns Unit
+        everySuspending { useCase.loadFirstPage(QUERY, null, "", null) } returns Unit
         mockPageLoader()
 
         it.createBloc().apply {
@@ -57,7 +57,7 @@ class CharacterSearchBlocTest : TestsWithMocks() {
             onSearchClicked()
         }
 
-        verify {
+        verifyWithSuspend {
             useCase.pageLoaderState
             useCase.loadFirstPage(
                 query = QUERY,
@@ -70,7 +70,7 @@ class CharacterSearchBlocTest : TestsWithMocks() {
 
     @Test
     fun WHEN_firstPageTryAgainClicked_THEN_nextPageLoaded() = runBlocTest {
-        every { useCase.loadFirstPage(QUERY, null, "", null) } returns Unit
+        everySuspending { useCase.loadFirstPage(QUERY, null, "", null) } returns Unit
         mockPageLoader()
 
         it.createBloc().apply {
@@ -78,7 +78,7 @@ class CharacterSearchBlocTest : TestsWithMocks() {
             onFirstPageTryAgainClicked()
         }
 
-        verify {
+        verifyWithSuspend {
             useCase.pageLoaderState
             useCase.loadFirstPage(
                 query = QUERY,

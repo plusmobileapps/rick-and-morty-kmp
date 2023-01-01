@@ -1,8 +1,8 @@
 package com.plusmobileapps.rickandmorty.episodes.list
 
 import com.arkivanov.decompose.value.Value
+import com.plusmobileapps.paging.PageLoaderException
 import com.plusmobileapps.rickandmorty.api.episodes.Episode
-import com.plusmobileapps.rickandmorty.episodes.EpisodeListItem
 
 interface EpisodesBloc {
     val models: Value<Model>
@@ -14,9 +14,11 @@ interface EpisodesBloc {
     fun onSearchClicked()
 
     data class Model(
-        val isLoading: Boolean,
-        val episodes: List<EpisodeListItem>,
-        val error: String? = null
+        val episodes: List<Episode> = emptyList(),
+        val firstPageIsLoading: Boolean = false,
+        val nextPageIsLoading: Boolean = false,
+        val pageLoadedError: PageLoaderException? = null,
+        val hasMoreToLoad: Boolean = true,
     )
 
     sealed class Output {

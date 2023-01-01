@@ -30,7 +30,6 @@ import kotlinx.coroutines.launch
 fun CharactersUI(bloc: CharactersBloc) {
     val model = bloc.models.subscribeAsState()
     val lazyListState = rememberLazyGridState()
-    val snackbarHostState = remember { SnackbarHostState() }
 
     val showFirstPageErrorWithCachedResultsSnackbar by remember {
         derivedStateOf {

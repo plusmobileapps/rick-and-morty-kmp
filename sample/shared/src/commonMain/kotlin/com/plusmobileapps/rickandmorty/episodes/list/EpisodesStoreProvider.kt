@@ -5,7 +5,8 @@ import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
-import com.plusmobileapps.rickandmorty.episodes.EpisodeListItem
+import com.plusmobileapps.paging.PagingDataSourceState
+import com.plusmobileapps.rickandmorty.api.episodes.Episode
 import com.plusmobileapps.rickandmorty.episodes.EpisodesRepository
 import com.plusmobileapps.rickandmorty.episodes.list.EpisodesStore.Intent
 import com.plusmobileapps.rickandmorty.episodes.list.EpisodesStore.State
@@ -19,8 +20,7 @@ internal class EpisodesStoreProvider(
 ) {
 
     sealed interface Message {
-        data class EpisodesUpdated(val items: List<EpisodeListItem>) : Message
-        data class LoadingNextPage(val hasMore: Boolean) : Message
+        data class PagingStateUpdated(val state: PagingDataSourceState<Episode>) : Message
     }
 
     fun provide(): EpisodesStore =
@@ -35,18 +35,17 @@ internal class EpisodesStoreProvider(
     private inner class ExecutorImpl :
         CoroutineExecutor<Intent, Unit, State, Message, Nothing>(dispatchers.main) {
         override fun executeAction(action: Unit, getState: () -> State) {
+            scope.launch { repository.loadFirstPage() }
             scope.launch {
-                repository.getEpisodes().collect {
-                    val episodes: List<EpisodeListItem> =
-                        it.map { episode -> EpisodeListItem.EpisodeItem(episode) }
-                    dispatch(Message.EpisodesUpdated(episodes))
+                repository.pagingState.collect {
+                    dispatch(Message.PagingStateUpdated(it))
                 }
             }
         }
 
         override fun executeIntent(intent: Intent, getState: () -> State) {
             when (intent) {
-                Intent.LoadMoreCharacters -> repository.loadNextPage()
+                Intent.LoadMoreCharacters -> scope.launch { repository.loadNextPage() }
             }
         }
     }
@@ -54,13 +53,12 @@ internal class EpisodesStoreProvider(
     private object ReducerImpl : Reducer<State, Message> {
         override fun State.reduce(msg: Message): State =
             when (msg) {
-                is Message.EpisodesUpdated -> copy(
-                    isLoading = false,
-                    episodes = msg.items,
-                    error = null
-                )
-                is Message.LoadingNextPage -> copy(
-                    episodes = episodes + EpisodeListItem.NextPageLoading
+                is Message.PagingStateUpdated -> copy(
+                    firstPageIsLoading = msg.state.isFirstPageLoading,
+                    nextPageIsLoading = msg.state.isNextPageLoading,
+                    pageLoadedError = msg.state.pageLoaderError,
+                    hasMoreToLoad = msg.state.hasMoreToLoad,
+                    items = msg.state.data,
                 )
             }
     }

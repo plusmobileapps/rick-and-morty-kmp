@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package com.plusmobileapps.rickandmorty.androidapp.screens.episodes
 
 import androidx.compose.animation.AnimatedVisibility
@@ -14,14 +16,18 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
+import com.plusmobileapps.paging.PagingDataSourceState
 import com.plusmobileapps.rickandmorty.androidapp.R
+import com.plusmobileapps.rickandmorty.androidapp.components.*
 import com.plusmobileapps.rickandmorty.androidapp.theme.Rick_and_Morty_KMPTheme
 import com.plusmobileapps.rickandmorty.api.episodes.Episode
 import com.plusmobileapps.rickandmorty.episodes.EpisodeListItem
@@ -29,7 +35,9 @@ import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBloc
 
 @Composable
 fun EpisodeSearchScreen(bloc: EpisodeSearchBloc) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     val model = bloc.models.subscribeAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -41,7 +49,10 @@ fun EpisodeSearchScreen(bloc: EpisodeSearchBloc) {
             showFilters = model.value.showFilters,
             onBackClicked = bloc::onBackClicked,
             onQueryChanged = bloc::onNameQueryChanged,
-            onSearchClicked = bloc::onSearchClicked,
+            onSearchClicked = {
+                keyboardController?.hide()
+                bloc.onSearchClicked()
+            },
             onFiltersClicked = bloc::onFiltersToggleClicked
         )
         AnimatedVisibility(model.value.showFilters) {
@@ -51,17 +62,20 @@ fun EpisodeSearchScreen(bloc: EpisodeSearchBloc) {
                 onClearEpisodeCodeClicked = bloc::onClearEpisodeCodeClicked
             )
         }
-        AnimatedVisibility(model.value.isLoading) {
-            CircularProgressIndicator()
-        }
-        val items = model.value.results
-        if (items.isEmpty()) {
-            Text(modifier = Modifier.weight(1f), text = "No results")
-        } else {
-            EpisodeSearchResults(
+        val error = model.value.pageLoaderState.pageLoaderError
+
+        when {
+            model.value.pageLoaderState.isFirstPageLoading -> FirstPageLoadingIndicator()
+            error?.isFirstPage == true -> {
+                FirstPageErrorContent(error = error) { bloc.onFirstPageTryAgainClicked() }
+            }
+            else -> EpisodeSearchResults(
                 modifier = Modifier.weight(1f),
-                episodes = items,
-                onEpisodeClicked = { })
+                pageLoadingState = model.value.pageLoaderState,
+                onLoadMore = bloc::loadMoreResults,
+                onNextPageTryAgainClicked = bloc::onNextPageTryAgainClicked,
+                onEpisodeClicked = bloc::onEpisodeClicked
+            )
         }
     }
 
@@ -116,18 +130,28 @@ fun EpisodeSearchBar(
 @Composable
 fun EpisodeSearchResults(
     modifier: Modifier,
-    episodes: List<EpisodeListItem>,
-    onEpisodeClicked: (Episode) -> Unit
+    pageLoadingState: PagingDataSourceState<Episode>,
+    onLoadMore: () -> Unit,
+    onNextPageTryAgainClicked: () -> Unit,
+    onEpisodeClicked: (Episode) -> Unit,
 ) {
     LazyColumn(modifier = modifier) {
-        items(episodes) {
-            when (it) {
-                is EpisodeListItem.EpisodeItem -> EpisodeListItemCard(episode = it.value) {
-                    onEpisodeClicked(it.value)
-                }
-                EpisodeListItem.NextPageLoading -> CircularProgressIndicator()
-            }
+        items(pageLoadingState.data) {
+            EpisodeListItemCard(episode = it) { onEpisodeClicked(it) }
+        }
 
+        if (pageLoadingState.hasMoreToLoad) {
+            LoadMoreSection(onLoadMore)
+        }
+
+        if (pageLoadingState.isNextPageLoading) {
+            LoadingNextPageSection()
+        }
+
+        val error = pageLoadingState.pageLoaderError
+
+        if (error != null && !error.isFirstPage) {
+            LoadingNextPageErrorSection(error, onNextPageTryAgainClicked)
         }
     }
 }
@@ -151,18 +175,5 @@ fun EpisodeSearchExtraFiltersUI(
                     Icon(Icons.Default.Clear, "Clear Species")
                 }
             })
-    }
-}
-
-@Preview
-@Composable
-fun EpisodeSearchPreview() {
-    var showFilters by remember {
-        mutableStateOf(false)
-    }
-    Rick_and_Morty_KMPTheme {
-        Surface {
-
-        }
     }
 }

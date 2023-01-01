@@ -1,11 +1,14 @@
 package com.plusmobileapps.rickandmorty.episodes
 
+import com.plusmobileapps.paging.PagingDataSourceState
 import com.plusmobileapps.rickandmorty.AppComponentContext
 import com.plusmobileapps.rickandmorty.api.episodes.Episode
 import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBloc
 import com.plusmobileapps.rickandmorty.episodes.list.EpisodesBlocImpl
 import com.plusmobileapps.rickandmorty.runBlocTest
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flowOf
 import org.kodein.mock.Mock
 import org.kodein.mock.tests.TestsWithMocks
 import kotlin.test.BeforeTest
@@ -36,15 +39,13 @@ class EpisodesBlocTest : TestsWithMocks() {
 
     @Test
     fun episodesUpdatingShouldUpdateModel() = runBlocTest {
-        val episodesFlow = MutableSharedFlow<List<Episode>>()
-        every { repository.getEpisodes() } returns episodesFlow
+        everySuspending { repository.loadFirstPage() } returns Unit
+        every { repository.pagingState } returns flowOf(
+            PagingDataSourceState(data = listOf(Episode(id = 4)))
+        )
+
         val bloc = it.createBloc()
 
-        episodesFlow.emit(listOf(Episode(id = 4)))
-
-        assertEquals(
-            listOf<EpisodeListItem>(EpisodeListItem.EpisodeItem(Episode(id = 4))),
-            bloc.models.value.episodes
-        )
+        bloc.models.value.episodes shouldBe listOf(Episode(id = 4))
     }
 }

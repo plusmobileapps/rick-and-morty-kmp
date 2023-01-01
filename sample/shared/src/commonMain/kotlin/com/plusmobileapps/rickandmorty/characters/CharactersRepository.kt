@@ -8,17 +8,15 @@ import com.squareup.sqldelight.TransactionWithoutReturn
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.minutes
 
 interface CharactersRepository {
-    val pageLoaderState: StateFlow<PagingDataSourceState<RickAndMortyCharacter>>
-    val hasMoreToLoad: Boolean
-    fun loadNextPage()
+    val pageLoaderState: Flow<PagingDataSourceState<RickAndMortyCharacter>>
+    suspend fun loadFirstPage()
+    suspend fun loadNextPage()
     suspend fun getCharacter(id: Int): RickAndMortyCharacter
     suspend fun getCharacters(ids: List<Int>): List<RickAndMortyCharacter>
 }
@@ -47,19 +45,16 @@ internal class CharactersRepositoryImpl(
             },
         )
 
-    override val pageLoaderState: StateFlow<PagingDataSourceState<RickAndMortyCharacter>>
+    override val pageLoaderState: Flow<PagingDataSourceState<RickAndMortyCharacter>>
         get() = cachedPageLoader.state
 
-    init {
-        cachedPageLoader.clearAndLoadFirstPage(
+    override suspend fun loadFirstPage() {
+        cachedPageLoader.loadFirstPage(
             input = Unit,
         )
     }
 
-    override val hasMoreToLoad: Boolean
-        get() = cachedPageLoader.state.value.hasMoreToLoad
-
-    override fun loadNextPage() {
+    override suspend fun loadNextPage() {
         cachedPageLoader.loadNextPage()
     }
 

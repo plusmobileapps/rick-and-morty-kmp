@@ -65,7 +65,7 @@ object BlocBuilder {
     fun createEpisodeSearchBloc(lifecycle: Lifecycle): EpisodeSearchBloc =
         EpisodeSearchBlocImpl(
             context = lifecycle.createAppComponentContext(),
-            api = di.rickAndMortyApi,
+            useCase = di.episodeSearchUseCase,
             output = {}
         )
 

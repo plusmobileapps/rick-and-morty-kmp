@@ -20,7 +20,6 @@ internal class CharactersStoreProvider(
 ) {
 
     private sealed class Message {
-        data class CharactersUpdated(val items: List<RickAndMortyCharacter>) : Message()
         data class PageLoaderStateUpdated(val state: PagingDataSourceState<RickAndMortyCharacter>) :
             Message()
     }
@@ -44,6 +43,7 @@ internal class CharactersStoreProvider(
         }
 
         override fun executeAction(action: Unit, getState: () -> State) {
+            scope.launch { repository.loadFirstPage() }
             observeCharacters()
         }
 
@@ -56,16 +56,15 @@ internal class CharactersStoreProvider(
         }
 
         private fun loadMoreCharacters() {
-            repository.loadNextPage()
+            scope.launch {
+                repository.loadNextPage()
+            }
         }
     }
 
     private object ReducerImpl : Reducer<State, Message> {
         override fun State.reduce(msg: Message): State =
             when (msg) {
-                is Message.CharactersUpdated -> copy(
-                    items = msg.items,
-                )
                 is Message.PageLoaderStateUpdated -> copy(
                     firstPageIsLoading = msg.state.isFirstPageLoading,
                     nextPageIsLoading = msg.state.isNextPageLoading,

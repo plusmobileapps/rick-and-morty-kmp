@@ -21,9 +21,11 @@ internal class EpisodesBlocImpl(
 
     override val models: Value<EpisodesBloc.Model> = store.asValue().map {
         EpisodesBloc.Model(
-            isLoading = it.isLoading,
-            episodes = it.episodes,
-            error = it.error
+            firstPageIsLoading = it.firstPageIsLoading,
+            nextPageIsLoading = it.nextPageIsLoading,
+            pageLoadedError = it.pageLoadedError,
+            hasMoreToLoad = it.hasMoreToLoad,
+            episodes = it.items,
         )
     }
 
