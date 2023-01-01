@@ -17,3 +17,6 @@ SELECT * FROM Locations WHERE ? = id;
 insertLocation:
 INSERT OR REPLACE INTO Locations(id, name, type, dimension, residents, url, created)
 VALUES (?, ?, ?, ?, ?, ?, ?);
+
+deleteAll:
+DELETE FROM Locations;

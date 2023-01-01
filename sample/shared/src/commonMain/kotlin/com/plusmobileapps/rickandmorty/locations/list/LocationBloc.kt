@@ -1,8 +1,8 @@
 package com.plusmobileapps.rickandmorty.locations.list
 
 import com.arkivanov.decompose.value.Value
+import com.plusmobileapps.paging.PageLoaderException
 import com.plusmobileapps.rickandmorty.api.locations.Location
-import com.plusmobileapps.rickandmorty.locations.LocationListItem
 
 interface LocationBloc {
 
@@ -13,9 +13,11 @@ interface LocationBloc {
     fun loadMore()
 
     data class Model(
-        val isLoading: Boolean,
-        val locations: List<LocationListItem>,
-        val error: String?,
+        val locations: List<Location> = emptyList(),
+        val firstPageIsLoading: Boolean = false,
+        val nextPageIsLoading: Boolean = false,
+        val pageLoadedError: PageLoaderException? = null,
+        val hasMoreToLoad: Boolean = true,
     )
 
     sealed interface Output {

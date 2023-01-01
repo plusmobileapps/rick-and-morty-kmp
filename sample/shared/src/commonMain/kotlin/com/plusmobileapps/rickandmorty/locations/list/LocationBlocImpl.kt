@@ -21,9 +21,11 @@ internal class LocationBlocImpl(
     }
     override val models: Value<LocationBloc.Model> = store.asValue().map {
         LocationBloc.Model(
-            isLoading = it.isLoading,
-            locations = it.locations,
-            error = it.error,
+            locations = it.items,
+            firstPageIsLoading = it.firstPageIsLoading,
+            nextPageIsLoading = it.nextPageIsLoading,
+            pageLoadedError = it.pageLoadedError,
+            hasMoreToLoad = it.hasMoreToLoad,
         )
     }
 
@@ -32,7 +34,7 @@ internal class LocationBlocImpl(
     }
 
     override fun loadMore() {
-        store.accept(LocationStore.Intent.LoadMoreCharacters)
+        store.accept(LocationStore.Intent.LoadMoreLocations)
     }
 
 }

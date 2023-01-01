@@ -1,99 +1,98 @@
 package com.plusmobileapps.rickandmorty.locations
 
+import com.plusmobileapps.paging.*
 import com.plusmobileapps.rickandmorty.api.RickAndMortyApiClient
 import com.plusmobileapps.rickandmorty.api.locations.Location
 import com.plusmobileapps.rickandmorty.api.locations.LocationsResponse
 import com.plusmobileapps.rickandmorty.db.LocationQueries
 import com.plusmobileapps.rickandmorty.db.Locations
 import com.plusmobileapps.rickandmorty.util.Dispatchers
-import com.russhwolf.settings.Settings
-import com.russhwolf.settings.set
+import com.squareup.sqldelight.TransactionWithoutReturn
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.days
 
 interface LocationRepository {
-    val hasMoreEpisodesToLoad: Boolean
+    val pageLoaderState: Flow<PagingDataSourceState<Location>>
     val locations: Flow<List<Location>>
-    fun loadMore()
+    suspend fun loadFirstPage()
+    suspend fun loadNextPage()
     suspend fun getLocation(id: Int): Location?
 }
 
 internal class LocationRepositoryImpl(
     private val dispatchers: Dispatchers,
     private val api: RickAndMortyApiClient,
-    private val settings: Settings,
     private val db: LocationQueries,
-) : LocationRepository {
+    factory: CachedPageLoader.Factory,
+) : LocationRepository, PageLoader<Unit, Location> {
 
-    companion object {
-        const val LOCATIONS_PAGE_KEY = "LOCATIONS_PAGE_KEY"
-        const val TOTAL_PAGES_KEY = "LOCATIONS_TOTAL_PAGES_KEY"
+    private val pagingSource: CachedPageLoader<Unit, Location> = factory.create(
+        cacheInfo = CachedPageLoader.CacheInfo(
+            ttl = 1.days,
+            cachingKey = "locations-repository"
+        ),
+        reader = { locations },
+        writer = { db.transaction { insertLocations(it) } },
+        deleteAllAndWrite = {
+            db.transaction {
+                db.deleteAll()
+                insertLocations(it)
+            }
+        },
+        pageLoader = this,
+    )
+
+    override val pageLoaderState: Flow<PagingDataSourceState<Location>>
+        get() = pagingSource.state
+
+    override suspend fun loadFirstPage() {
+        pagingSource.loadFirstPage(Unit)
     }
 
-    private var nextPage = settings.getInt(LOCATIONS_PAGE_KEY, 1)
-        set(value) {
-            field = value
-            settings[LOCATIONS_PAGE_KEY] = value
-        }
-    private var totalPages = settings.getInt(TOTAL_PAGES_KEY, Int.MAX_VALUE)
-        set(value) {
-            field = value
-            settings[TOTAL_PAGES_KEY] = value
-        }
-
-    private val job = Job()
-    private val scope = CoroutineScope(dispatchers.default + job)
-
-    init {
-        if (nextPage == 1) loadMore()
+    override suspend fun loadNextPage() {
+        pagingSource.loadNextPage()
     }
 
-    override val hasMoreEpisodesToLoad: Boolean
-        get() = nextPage <= totalPages
-
-    override val locations: Flow<List<Location>> =
-        db.selectAll()
+    override val locations: Flow<List<Location>>
+        get() = db.selectAll()
             .asFlow()
             .mapToList(dispatchers.default)
             .map { locations ->
                 locations.map { it.toLocation() }
             }
 
-    override fun loadMore() {
-        scope.launch { fetchLocations(nextPage) }
-    }
-
     override suspend fun getLocation(id: Int): Location? =
         db.getLocation(id.toLong())
             .executeAsOneOrNull()
             ?.toLocation()
 
-    private suspend fun fetchLocations(page: Int) {
-        if (!hasMoreEpisodesToLoad) return
-        try {
-            val response: LocationsResponse = api.getLocations(page = page)
-            db.transaction {
-                response.results.forEach { location ->
-                    db.insertLocation(
-                        id = location.id.toLong(),
-                        name = location.name,
-                        type = location.type,
-                        dimension = location.dimension,
-                        residents = location.residents.joinToString(separator = ","),
-                        url = location.url,
-                        created = location.created
-                    )
-                }
-            }
-            nextPage = page + 1
-            totalPages = response.info.pages
+    override suspend fun load(request: PageLoaderRequest<Unit>): PageLoaderResponse<Location> {
+        return try {
+            val response: LocationsResponse =
+                api.getLocations(page = request.pagingKey?.toIntOrNull() ?: 1)
+            PageLoaderResponse.Success(
+                data = response.results,
+                pagingToken = response.info.nextPageNumber,
+            )
         } catch (e: Exception) {
+            PageLoaderResponse.Error(e)
+        }
+    }
 
+    private fun TransactionWithoutReturn.insertLocations(locations: List<Location>) {
+        locations.forEach { location ->
+            db.insertLocation(
+                id = location.id.toLong(),
+                name = location.name,
+                type = location.type,
+                dimension = location.dimension,
+                residents = location.residents.joinToString(separator = ","),
+                url = location.url,
+                created = location.created
+            )
         }
     }
 }

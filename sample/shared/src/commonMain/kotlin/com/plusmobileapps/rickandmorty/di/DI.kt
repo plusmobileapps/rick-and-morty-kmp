@@ -79,7 +79,7 @@ class ServiceLocator(driverFactory: DriverFactory) : DI {
             api = rickAndMortyApi,
             dispatchers = dispatchers,
             db = database.locationQueries,
-            settings = settings
+            factory = PagingDataSourceFactory,
         )
     }
 
