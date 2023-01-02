@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -37,7 +38,14 @@ fun LocationsScreen(bloc: LocationBloc) {
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = "Locations") })
+            TopAppBar(
+                title = { Text(text = "Locations") },
+                actions = {
+                    IconButton(onClick = bloc::onSearchClicked) {
+                        Icon(Icons.Default.Search, contentDescription = "Search Characters")
+                    }
+                }
+            )
         },
         bottomBar = {
             AnimatedVisibility(visible = showFirstPageErrorWithCachedResultsSnackbar) {
@@ -51,7 +59,7 @@ fun LocationsScreen(bloc: LocationBloc) {
                     Text(text = "Couldn't load the first page, but viewing cached results")
                 }
             }
-        }
+        },
     ) {
         LocationsBody(
             modifier = Modifier.padding(it),

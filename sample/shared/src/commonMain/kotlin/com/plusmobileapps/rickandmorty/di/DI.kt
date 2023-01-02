@@ -19,6 +19,8 @@ import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchUseCase
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchUseCaseImpl
 import com.plusmobileapps.rickandmorty.locations.LocationRepository
 import com.plusmobileapps.rickandmorty.locations.LocationRepositoryImpl
+import com.plusmobileapps.rickandmorty.locations.search.LocationSearchUseCase
+import com.plusmobileapps.rickandmorty.locations.search.LocationSearchUseCaseImpl
 import com.plusmobileapps.rickandmorty.util.Dispatchers
 import com.plusmobileapps.rickandmorty.util.DispatchersImpl
 import com.plusmobileapps.rickandmorty.util.UuidUtil
@@ -38,6 +40,7 @@ interface DI {
     val uuidUtil: UuidUtil
     val characterSearchUseCase: CharacterSearchUseCase
     val episodeSearchUseCase: EpisodeSearchUseCase
+    val locationSearchUseCase: LocationSearchUseCase
 }
 
 class ServiceLocator(driverFactory: DriverFactory) : DI {
@@ -91,6 +94,12 @@ class ServiceLocator(driverFactory: DriverFactory) : DI {
 
     override val episodeSearchUseCase: EpisodeSearchUseCase
         get() = EpisodeSearchUseCaseImpl(
+            api = rickAndMortyApi,
+            factory = PagingDataSourceFactory,
+        )
+
+    override val locationSearchUseCase: LocationSearchUseCase
+        get() = LocationSearchUseCaseImpl(
             api = rickAndMortyApi,
             factory = PagingDataSourceFactory,
         )

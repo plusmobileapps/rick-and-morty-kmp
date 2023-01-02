@@ -150,6 +150,7 @@ class BottomNavBlocImpl(
     private fun onLocationBlocOutput(output: LocationBloc.Output) {
         when (output) {
             is LocationBloc.Output.OpenLocation -> bottomNavOutput(Output.ShowLocationDetail(output.location.id))
+            is LocationBloc.Output.OpenLocationSearch -> bottomNavOutput(Output.OpenLocationSearch)
         }
     }
 

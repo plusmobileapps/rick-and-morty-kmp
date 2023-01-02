@@ -26,6 +26,8 @@ import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBloc
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBlocImpl
 import com.plusmobileapps.rickandmorty.locations.detail.LocationDetailBloc
 import com.plusmobileapps.rickandmorty.locations.detail.LocationDetailBlocImpl
+import com.plusmobileapps.rickandmorty.locations.search.LocationSearchBloc
+import com.plusmobileapps.rickandmorty.locations.search.LocationSearchBlocImpl
 import com.plusmobileapps.rickandmorty.util.Consumer
 
 fun buildRootBloc(context: ComponentContext, driverFactory: DriverFactory): RootBloc {
@@ -48,6 +50,7 @@ internal class RootBlocImpl(
     private val characterDetail: (AppComponentContext, Int, Consumer<CharacterDetailBloc.Output>) -> CharacterDetailBloc,
     private val episodeDetail: (AppComponentContext, Int, Consumer<EpisodeDetailBloc.Output>) -> EpisodeDetailBloc,
     private val locationDetail: (AppComponentContext, Int, Consumer<LocationDetailBloc.Output>) -> LocationDetailBloc,
+    private val locationSearch: (AppComponentContext, Consumer<LocationSearchBloc.Output>) -> LocationSearchBloc,
 ) : RootBloc, AppComponentContext by componentContext {
 
     constructor(componentContext: AppComponentContext, di: DI) : this(
@@ -96,6 +99,13 @@ internal class RootBlocImpl(
                 output = output,
                 di = di
             )
+        },
+        locationSearch = { context, output ->
+            LocationSearchBlocImpl(
+                context = context,
+                useCase = di.locationSearchUseCase,
+                output = output,
+            )
         }
     )
 
@@ -139,6 +149,9 @@ internal class RootBlocImpl(
             is Configuration.LocationDetail -> RootBloc.Child.LocationDetail(
                 locationDetail(context, configuration.id, ::onLocationDetailOutput)
             )
+            Configuration.LocationSearch -> RootBloc.Child.LocationSearch(
+                locationSearch(context, this::onLocationSearchOutput)
+            )
         }
     }
 
@@ -152,7 +165,7 @@ internal class RootBlocImpl(
     }
 
     private fun onEpisodeSearchOutput(output: EpisodeSearchBloc.Output) {
-        when(output) {
+        when (output) {
             EpisodeSearchBloc.Output.GoBack -> navigation.pop()
             is EpisodeSearchBloc.Output.OpenEpisode -> {
                 navigation.push(Configuration.EpisodeDetail(output.id))
@@ -169,22 +182,17 @@ internal class RootBlocImpl(
     private fun onBottomNavOutput(output: BottomNavBloc.Output) {
         when (output) {
             is BottomNavBloc.Output.ShowCharacterDetail -> navigation.push(
-                Configuration.CharacterDetail(
-                    output.id
-                )
+                Configuration.CharacterDetail(output.id)
             )
             is BottomNavBloc.Output.ShowEpisodeDetail -> navigation.push(
-                Configuration.EpisodeDetail(
-                    output.id
-                )
+                Configuration.EpisodeDetail(output.id)
             )
             BottomNavBloc.Output.OpenCharacterSearch -> navigation.push(Configuration.CharacterSearch)
             BottomNavBloc.Output.OpenEpisodeSearch -> navigation.push(Configuration.EpisodeSearch)
             is BottomNavBloc.Output.ShowLocationDetail -> navigation.push(
-                Configuration.LocationDetail(
-                    output.id
-                )
+                Configuration.LocationDetail(output.id)
             )
+            BottomNavBloc.Output.OpenLocationSearch -> navigation.push(Configuration.LocationSearch)
         }
     }
 
@@ -202,6 +210,15 @@ internal class RootBlocImpl(
             LocationDetailBloc.Output.Done -> navigation.pop()
             is LocationDetailBloc.Output.OpenCharacter -> navigation.push(
                 Configuration.CharacterDetail(output.id)
+            )
+        }
+    }
+
+    private fun onLocationSearchOutput(output: LocationSearchBloc.Output) {
+        when (output) {
+            LocationSearchBloc.Output.GoBack -> navigation.pop()
+            is LocationSearchBloc.Output.OpenLocationDetail -> navigation.push(
+                Configuration.LocationDetail(output.id)
             )
         }
     }
@@ -225,5 +242,7 @@ internal class RootBlocImpl(
         @Parcelize
         data class LocationDetail(val id: Int) : Configuration()
 
+        @Parcelize
+        object LocationSearch : Configuration()
     }
 }

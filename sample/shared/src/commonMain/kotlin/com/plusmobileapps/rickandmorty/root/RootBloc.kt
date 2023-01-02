@@ -8,6 +8,7 @@ import com.plusmobileapps.rickandmorty.characters.search.CharacterSearchBloc
 import com.plusmobileapps.rickandmorty.episodes.detail.EpisodeDetailBloc
 import com.plusmobileapps.rickandmorty.episodes.search.EpisodeSearchBloc
 import com.plusmobileapps.rickandmorty.locations.detail.LocationDetailBloc
+import com.plusmobileapps.rickandmorty.locations.search.LocationSearchBloc
 
 interface RootBloc {
     val routerState: Value<ChildStack<*, Child>>
@@ -19,5 +20,6 @@ interface RootBloc {
         data class CharacterDetail(val bloc: CharacterDetailBloc) : Child()
         data class EpisodeDetail(val bloc: EpisodeDetailBloc) : Child()
         data class LocationDetail(val bloc: LocationDetailBloc) : Child()
+        data class LocationSearch(val bloc: LocationSearchBloc) : Child()
     }
 }
