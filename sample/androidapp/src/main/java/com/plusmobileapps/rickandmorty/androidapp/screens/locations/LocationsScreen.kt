@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -27,8 +28,6 @@ import com.plusmobileapps.rickandmorty.locations.list.LocationBloc
 @Composable
 fun LocationsScreen(bloc: LocationBloc) {
     val model = bloc.models.subscribeAsState()
-    val lazyListState = rememberLazyListState()
-
     val showFirstPageErrorWithCachedResultsSnackbar by remember {
         derivedStateOf {
             model.value.pageLoadedError is PageLoaderException.FirstPageErrorWithCachedResults
@@ -37,7 +36,14 @@ fun LocationsScreen(bloc: LocationBloc) {
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = "Locations") })
+            TopAppBar(
+                title = { Text(text = "Locations") },
+                actions = {
+                    IconButton(onClick = bloc::onSearchClicked) {
+                        Icon(Icons.Default.Search, contentDescription = "Search Characters")
+                    }
+                }
+            )
         },
         bottomBar = {
             AnimatedVisibility(visible = showFirstPageErrorWithCachedResultsSnackbar) {
@@ -51,12 +57,11 @@ fun LocationsScreen(bloc: LocationBloc) {
                     Text(text = "Couldn't load the first page, but viewing cached results")
                 }
             }
-        }
+        },
     ) {
         LocationsBody(
             modifier = Modifier.padding(it),
             bloc = bloc,
-            lazyListState = lazyListState,
         )
     }
 }
@@ -65,7 +70,6 @@ fun LocationsScreen(bloc: LocationBloc) {
 fun LocationsBody(
     modifier: Modifier,
     bloc: LocationBloc,
-    lazyListState: LazyListState,
 ) {
     val model by bloc.models.subscribeAsState()
     val error = model.pageLoadedError
@@ -84,7 +88,6 @@ fun LocationsBody(
         else -> {
             LocationsList(
                 modifier = modifier,
-                lazyListState = lazyListState,
                 locations = model.locations,
                 nextPageIsLoading = model.nextPageIsLoading,
                 hasMoreToLoad = model.hasMoreToLoad,
@@ -99,7 +102,6 @@ fun LocationsBody(
 @Composable
 fun LocationsList(
     modifier: Modifier,
-    lazyListState: LazyListState,
     locations: List<Location>,
     nextPageIsLoading: Boolean,
     hasMoreToLoad: Boolean,
@@ -112,28 +114,30 @@ fun LocationsList(
             error != null && !error.isFirstPage
         }
     }
-    LazyColumn(modifier = modifier, state = lazyListState) {
+    LazyColumn(modifier = modifier) {
         items(locations) { location ->
             LocationListItemCard(location = location) {
                 onLocationClicked(location)
             }
         }
 
-        if (nextPageIsLoading) {
-            LoadingNextPageSection()
-        }
-
-        if (showError) {
-            error?.let {
-                LoadingNextPageErrorSection(
-                    error = it,
-                    onNextPageTryAgainClicked = onLoadNextPage,
-                )
+        if (locations.isNotEmpty()) {
+            if (nextPageIsLoading) {
+                LoadingNextPageSection()
             }
-        }
 
-        if (hasMoreToLoad) {
-            LoadMoreSection(onLoadNextPage)
+            if (showError) {
+                error?.let {
+                    LoadingNextPageErrorSection(
+                        error = it,
+                        onNextPageTryAgainClicked = onLoadNextPage,
+                    )
+                }
+            }
+
+            if (hasMoreToLoad) {
+                LoadMoreSection(onLoadNextPage)
+            }
         }
     }
 }

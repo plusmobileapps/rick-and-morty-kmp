@@ -37,5 +37,6 @@ interface BottomNavBloc {
         data class ShowEpisodeDetail(val id: Int) : Output()
         object OpenEpisodeSearch : Output()
         data class ShowLocationDetail(val id: Int): Output()
+        object OpenLocationSearch : Output()
     }
 }

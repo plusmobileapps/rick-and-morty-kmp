@@ -131,21 +131,23 @@ fun EpisodesList(
             }
         }
 
-        if (nextPageIsLoading) {
-            LoadingNextPageSection()
-        }
-
-        if (showError) {
-            error?.let {
-                LoadingNextPageErrorSection(
-                    error = it,
-                    onNextPageTryAgainClicked = onLoadNextPage,
-                )
+        if (episodes.isNotEmpty()) {
+            if (nextPageIsLoading) {
+                LoadingNextPageSection()
             }
-        }
 
-        if (hasMoreToLoad) {
-            LoadMoreSection(onLoadNextPage)
+            if (showError) {
+                error?.let {
+                    LoadingNextPageErrorSection(
+                        error = it,
+                        onNextPageTryAgainClicked = onLoadNextPage,
+                    )
+                }
+            }
+
+            if (hasMoreToLoad) {
+                LoadMoreSection(onLoadNextPage)
+            }
         }
     }
 }

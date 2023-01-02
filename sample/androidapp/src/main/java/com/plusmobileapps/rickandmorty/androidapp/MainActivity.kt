@@ -20,6 +20,7 @@ import com.plusmobileapps.rickandmorty.androidapp.screens.characters.CharacterSe
 import com.plusmobileapps.rickandmorty.androidapp.screens.episodes.EpisodeDetailScreen
 import com.plusmobileapps.rickandmorty.androidapp.screens.episodes.EpisodeSearchScreen
 import com.plusmobileapps.rickandmorty.androidapp.screens.locations.LocationDetailScreen
+import com.plusmobileapps.rickandmorty.androidapp.screens.locations.LocationSearchScreen
 import com.plusmobileapps.rickandmorty.androidapp.theme.Rick_and_Morty_KMPTheme
 import com.plusmobileapps.rickandmorty.db.DriverFactory
 import com.plusmobileapps.rickandmorty.root.RootBloc
@@ -57,6 +58,7 @@ fun RootScreen(bloc: RootBloc, windowSize: WindowSizeClass) {
             is RootBloc.Child.CharacterDetail -> CharacterDetailScreen(bloc = child.bloc)
             is RootBloc.Child.EpisodeDetail -> EpisodeDetailScreen(bloc = child.bloc, windowSize)
             is RootBloc.Child.LocationDetail -> LocationDetailScreen(bloc = child.bloc, windowSize)
+            is RootBloc.Child.LocationSearch -> LocationSearchScreen(bloc = child.bloc)
         }
     }
 }

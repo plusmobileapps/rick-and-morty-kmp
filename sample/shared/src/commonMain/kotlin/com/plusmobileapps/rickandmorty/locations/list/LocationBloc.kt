@@ -12,6 +12,8 @@ interface LocationBloc {
 
     fun loadMore()
 
+    fun onSearchClicked()
+
     data class Model(
         val locations: List<Location> = emptyList(),
         val firstPageIsLoading: Boolean = false,
@@ -22,6 +24,7 @@ interface LocationBloc {
 
     sealed interface Output {
         data class OpenLocation(val location: Location) : Output
+        object OpenLocationSearch : Output
     }
 
 }
