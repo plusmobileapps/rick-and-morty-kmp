@@ -139,13 +139,17 @@ fun CharactersList(
     onCharacterClicked: (RickAndMortyCharacter) -> Unit,
     onLoadNextPage: () -> Unit,
 ) {
+    if (characters.isEmpty()) return
+
     LazyVerticalGrid(
         modifier = modifier,
         state = lazyListState,
         columns = GridCells.Adaptive(characterCardWidth)
     ) {
         items(characters, key = { it.id }) {
-            CharacterCard(character = it) { onCharacterClicked(it) }
+            Box(modifier = Modifier.aspectRatio(1f)) {
+                CharacterCard(character = it) { onCharacterClicked(it) }
+            }
         }
 
         item(
